@@ -91,8 +91,14 @@
       <label>Data de:
         <input type="date" id="filtroDataInicio">
       </label>
+      <label>Hora Inicial:
+        <input type="time" id="filtroHoraInicio">
+      </label>
       <label>Data até:
         <input type="date" id="filtroDataFim">
+      </label>
+      <label>Hora Final:
+        <input type="time" id="filtroHoraFim">
       </label>
       <label>Solicitante:
         <select id="filtroSolicitante">
@@ -147,7 +153,7 @@
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
       preencherSolicitantes(requisicoes);
-      renderizarTabela(requisicoes);
+      renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
     }
 
     function preencherSolicitantes(lista) {
@@ -164,7 +170,7 @@
     function renderizarTabela(lista) {
       const tabela = document.getElementById('tabelaRequisicoes');
       tabela.innerHTML = '';
-      lista.forEach((linha, index) => {
+      lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
         linha.forEach(cel => {
           const td = document.createElement('td');
@@ -177,7 +183,7 @@
         ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
           const btn = document.createElement('button');
           btn.textContent = acao;
-          btn.onclick = () => atualizarStatus(index, acao);
+          btn.onclick = () => atualizarStatus(idx, acao);
           tdAcoes.appendChild(btn);
         });
 
@@ -192,20 +198,27 @@
       btn.disabled = true;
 
       const dataIni = document.getElementById('filtroDataInicio').value;
+      const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
       const dataFim = document.getElementById('filtroDataFim').value;
+      const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
       const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
       const setor = document.getElementById('filtroSetor').value.toLowerCase();
       const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
 
-      const resultado = requisicoes.filter(linha => {
-        const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
-        const data = linha[0].split('T')[0];
-        return (!dataIni || data >= dataIni) &&
-               (!dataFim || data <= dataFim) &&
-               (!solicitante || solicitanteLinha === solicitante) &&
-               (!setor || setorLinha.includes(setor)) &&
-               (!palavra || item.includes(palavra) || obs.includes(palavra));
-      });
+      const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
+      const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
+
+      const resultado = requisicoes
+        .map((linha, idx) => ({ linha, idx }))
+        .filter(({ linha }) => {
+          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
+          const dtLinha = new Date(linha[0]);
+          return (!dtInicio || dtLinha >= dtInicio) &&
+                 (!dtFim || dtLinha <= dtFim) &&
+                 (!solicitante || solicitanteLinha === solicitante) &&
+                 (!setor || setorLinha.includes(setor)) &&
+                 (!palavra || item.includes(palavra) || obs.includes(palavra));
+        });
 
       renderizarTabela(resultado);
       btn.textContent = '🔍 Filtrar';
