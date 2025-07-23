@@ -20,10 +20,11 @@
       position: absolute;
       top: 12px;
       right: 30px;
+      display: flex;
+      gap: 5px;
     }
     .exportar button {
       padding: 4px 8px;
-      margin-left: 4px;
       font-size: 0.75em;
       background-color: #00796b;
       color: white;
@@ -31,15 +32,23 @@
       border-radius: 4px;
       cursor: pointer;
     }
+    .logo {
+      position: absolute;
+      left: 30px;
+      top: 8px;
+      height: 40px;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div style="position: relative">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
       <h1>Painel de Requisições</h1>
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
         <button onclick="enviarEmail()">✉️ Email</button>
+        <button onclick="imprimirAgrupado()">🖨️ Imprimir</button>
       </div>
     </div>
 
@@ -92,9 +101,9 @@
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.filter(linha => {
-  const status = (linha[7] || '').toString().toLowerCase().trim();
-  return status === 'processando';
-});
+        const status = (linha[7] || '').toString().toLowerCase().trim();
+        return status === 'processando';
+      });
       preencherSolicitantes(requisicoes);
       renderizarTabela(requisicoes);
     }
@@ -185,6 +194,31 @@
 
     function enviarEmail() {
       alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
+    }
+
+    function imprimirAgrupado() {
+      const opcao = prompt("Como deseja agrupar para impressão? (setor/solicitante)").toLowerCase();
+      if (!['setor', 'solicitante'].includes(opcao)) return alert("Opção inválida.");
+      const agrupado = {};
+      requisicoes.forEach(l => {
+        const chave = opcao === 'setor' ? l[4] : l[5];
+        if (!agrupado[chave]) agrupado[chave] = [];
+        agrupado[chave].push(l);
+      });
+
+      let html = `<h3>Relatório agrupado por ${opcao}</h3>`;
+      for (const grupo in agrupado) {
+        html += `<h4>${grupo}</h4><ul>`;
+        agrupado[grupo].forEach(l => {
+          html += `<li>${l[0]} - ${l[1]} (${l[3]} ${l[2]})</li>`;
+        });
+        html += '</ul>';
+      }
+
+      const janela = window.open('', '_blank');
+      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
+      janela.document.close();
+      janela.print();
     }
 
     carregarDados();
