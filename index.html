@@ -47,6 +47,31 @@
       border-radius: 4px;
       cursor: pointer;
       height: 32px;
+      width: 80px;
+    }
+    #modalAgrupar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+    #modalAgrupar .box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+    #modalAgrupar select, #modalAgrupar button {
+      margin-top: 10px;
+      padding: 6px;
+      width: 100%;
     }
   </style>
 </head>
@@ -58,7 +83,7 @@
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
         <button onclick="enviarEmail()">✉️ Email</button>
-        <button onclick="imprimirAgrupado()">🖨️ Imprimir</button>
+        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
       </div>
     </div>
 
@@ -97,10 +122,20 @@
           <th>Ações</th>
         </tr>
       </thead>
-      <tbody id="tabelaRequisicoes">
-        <!-- Conteúdo preenchido via JavaScript -->
-      </tbody>
+      <tbody id="tabelaRequisicoes"></tbody>
     </table>
+  </div>
+
+  <div id="modalAgrupar">
+    <div class="box">
+      <h3>Como deseja agrupar para impressão?</h3>
+      <select id="seletorAgrupamento">
+        <option value="setor">Setor</option>
+        <option value="solicitante">Solicitante</option>
+      </select>
+      <button onclick="confirmarAgrupamento()">OK</button>
+      <button onclick="fecharModal()">Cancelar</button>
+    </div>
   </div>
 
   <script>
@@ -210,9 +245,18 @@
       alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
     }
 
-    function imprimirAgrupado() {
-      const opcao = prompt("Como deseja agrupar para impressão? (setor/solicitante)").toLowerCase();
-      if (!['setor', 'solicitante'].includes(opcao)) return alert("Opção inválida.");
+    function abrirModalAgrupar() {
+      document.getElementById("modalAgrupar").style.display = "flex";
+    }
+
+    function fecharModal() {
+      document.getElementById("modalAgrupar").style.display = "none";
+    }
+
+    function confirmarAgrupamento() {
+      const opcao = document.getElementById("seletorAgrupamento").value;
+      document.getElementById("modalAgrupar").style.display = "none";
+
       const agrupado = {};
       requisicoes.filter(l => l[7].toLowerCase() === 'processando').forEach(l => {
         const chave = opcao === 'setor' ? l[4] : l[5];
