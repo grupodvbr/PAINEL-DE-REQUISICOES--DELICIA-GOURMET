@@ -100,12 +100,9 @@
       const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec';
       const res = await fetch(url);
       const dados = await res.json();
-      requisicoes = dados.filter(linha => {
-        const status = (linha[7] || '').toString().toLowerCase().trim();
-        return status === 'processando';
-      });
+      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
       preencherSolicitantes(requisicoes);
-      renderizarTabela(requisicoes);
+      renderizarTabela(requisicoes.filter(l => l[7].toLowerCase() === 'processando'));
     }
 
     function preencherSolicitantes(lista) {
@@ -152,13 +149,14 @@
       const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
 
       const resultado = requisicoes.filter(linha => {
-        const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha;
-        const data = dataHora.split(' ')[0];
-        return (!dataIni || data >= dataIni) &&
+        const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
+        const data = linha[0].split(' ')[0];
+        return status === 'processando' &&
+               (!dataIni || data >= dataIni) &&
                (!dataFim || data <= dataFim) &&
-               (!solicitante || solicitanteLinha.toLowerCase() === solicitante) &&
-               (!setor || setorLinha.toLowerCase().includes(setor)) &&
-               (!palavra || item.toLowerCase().includes(palavra) || obs.toLowerCase().includes(palavra));
+               (!solicitante || solicitanteLinha === solicitante) &&
+               (!setor || setorLinha.includes(setor)) &&
+               (!palavra || item.includes(palavra) || obs.includes(palavra));
       });
 
       renderizarTabela(resultado);
@@ -200,7 +198,7 @@
       const opcao = prompt("Como deseja agrupar para impressão? (setor/solicitante)").toLowerCase();
       if (!['setor', 'solicitante'].includes(opcao)) return alert("Opção inválida.");
       const agrupado = {};
-      requisicoes.forEach(l => {
+      requisicoes.filter(l => l[7].toLowerCase() === 'processando').forEach(l => {
         const chave = opcao === 'setor' ? l[4] : l[5];
         if (!agrupado[chave]) agrupado[chave] = [];
         agrupado[chave].push(l);
