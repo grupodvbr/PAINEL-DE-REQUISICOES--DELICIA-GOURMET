@@ -71,7 +71,7 @@
       const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec';
       const res = await fetch(url);
       const dados = await res.json();
-      requisicoes = dados.filter(linha => linha[7] === 'Pendente');
+      requisicoes = dados.filter(linha => linha[7] === 'Processando');
       preencherSolicitantes(requisicoes);
       renderizarTabela(requisicoes);
     }
