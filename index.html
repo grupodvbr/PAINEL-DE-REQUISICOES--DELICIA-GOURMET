@@ -97,7 +97,7 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbwajEBS2ytvi2bCdtZjprzqYKb6ak0nF90XiX4JPqpxlMQUaENBP8cmHUbxUyYP-uSI9w/exec';
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
@@ -164,7 +164,7 @@
 
     async function atualizarStatus(index, acao) {
       const linha = requisicoes[index];
-      const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbwajEBS2ytvi2bCdtZjprzqYKb6ak0nF90XiX4JPqpxlMQUaENBP8cmHUbxUyYP-uSI9w/exec';
       const payload = {
         dataHora: linha[0],
         item: linha[1],
