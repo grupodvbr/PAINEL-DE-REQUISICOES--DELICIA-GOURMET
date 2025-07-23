@@ -7,7 +7,7 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
     h1 { text-align: center; }
-    .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; justify-content: center; }
     .filtros label { display: flex; flex-direction: column; font-size: 0.9em; }
     table { width: 100%; border-collapse: collapse; background: #fff; }
     th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
@@ -21,14 +21,19 @@
   <div class="container">
     <h1>Painel de Requisições</h1>
     <div class="filtros">
-      <label>Data:
-        <input type="date" id="filtroData">
+      <label>Data de:
+        <input type="date" id="filtroDataInicio">
+      </label>
+      <label>Data até:
+        <input type="date" id="filtroDataFim">
       </label>
       <label>Horário:
         <input type="time" id="filtroHorario">
       </label>
       <label>Solicitante:
-        <input type="text" id="filtroSolicitante" placeholder="Nome do solicitante">
+        <select id="filtroSolicitante">
+          <option value="">Todos</option>
+        </select>
       </label>
       <label>Setor:
         <input type="text" id="filtroSetor" placeholder="Nome do setor">
@@ -63,11 +68,23 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec'; // Substitua pela URL do seu Apps Script com doGet
+      const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec';
       const res = await fetch(url);
       const dados = await res.json();
-      requisicoes = dados;
-      renderizarTabela(dados);
+      requisicoes = dados.filter(linha => linha[7] === 'Pendente');
+      preencherSolicitantes(requisicoes);
+      renderizarTabela(requisicoes);
+    }
+
+    function preencherSolicitantes(lista) {
+      const seletor = document.getElementById('filtroSolicitante');
+      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+      nomes.sort().forEach(nome => {
+        const opt = document.createElement('option');
+        opt.value = nome;
+        opt.textContent = nome;
+        seletor.appendChild(opt);
+      });
     }
 
     function renderizarTabela(lista) {
@@ -96,7 +113,8 @@
     }
 
     function filtrar() {
-      const data = document.getElementById('filtroData').value;
+      const dataIni = document.getElementById('filtroDataInicio').value;
+      const dataFim = document.getElementById('filtroDataFim').value;
       const hora = document.getElementById('filtroHorario').value;
       const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
       const setor = document.getElementById('filtroSetor').value.toLowerCase();
@@ -104,9 +122,11 @@
 
       const resultado = requisicoes.filter(linha => {
         const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha;
-        return (!data || dataHora.startsWith(data)) &&
+        const data = dataHora.split(' ')[0];
+        return (!dataIni || data >= dataIni) &&
+               (!dataFim || data <= dataFim) &&
                (!hora || dataHora.includes(hora)) &&
-               (!solicitante || solicitanteLinha.toLowerCase().includes(solicitante)) &&
+               (!solicitante || solicitanteLinha.toLowerCase() === solicitante) &&
                (!setor || setorLinha.toLowerCase().includes(setor)) &&
                (!palavra || item.toLowerCase().includes(palavra) || obs.toLowerCase().includes(palavra));
       });
@@ -116,7 +136,7 @@
 
     async function atualizarStatus(index, acao) {
       const linha = requisicoes[index];
-      const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec'; // Substitua pela URL do seu Apps Script com doPost
+      const url = 'https://script.google.com/macros/s/AKfycbyYrWefd-J6JYRMcUCgf_2A-R3v5XDPoYMGaLj6K67AoFtMU7zbvCQ8zb7RXeZLA2X5/exec';
       const payload = {
         dataHora: linha[0],
         item: linha[1],
