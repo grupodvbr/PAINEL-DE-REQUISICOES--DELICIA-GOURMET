@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Painel de Requisições</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
-    h1 { text-align: center; }
+    h1 { text-align: center; position: relative; }
     .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; justify-content: center; }
     .filtros label { display: flex; flex-direction: column; font-size: 0.9em; }
     table { width: 100%; border-collapse: collapse; background: #fff; }
@@ -15,11 +16,33 @@
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
     .container { max-width: 1200px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     .acoes button { margin-right: 5px; }
+    .exportar {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+    }
+    .exportar button {
+      padding: 5px 10px;
+      margin-left: 5px;
+      font-size: 0.85em;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Painel de Requisições</h1>
+    <h1>
+      Painel de Requisições
+      <div class="exportar">
+        <button onclick="exportarPDF()">📄 Baixar PDF</button>
+        <button onclick="enviarEmail()">✉️ Enviar por Email</button>
+      </div>
+    </h1>
+
     <div class="filtros">
       <label>Data de:
         <input type="date" id="filtroDataInicio">
@@ -44,7 +67,7 @@
       <button onclick="filtrar()">Filtrar</button>
     </div>
 
-    <table>
+    <table id="tabelaExport">
       <thead>
         <tr>
           <th>Data e Hora</th>
@@ -155,6 +178,15 @@
       } else {
         alert('Erro ao atualizar.');
       }
+    }
+
+    function exportarPDF() {
+      const elemento = document.getElementById('tabelaExport');
+      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
+    }
+
+    function enviarEmail() {
+      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
     }
 
     carregarDados();
