@@ -306,13 +306,14 @@
   }
 
     function preencherSolicitantesESetores(lista) {
+    function preencherSolicitantesESetores(lista) {
       const seletorSolicitante = document.getElementById('filtroSolicitante');
       const seletorSetor = document.getElementById('filtroSetor');
       seletorSolicitante.innerHTML = '<option value="">Todos</option>';
       seletorSetor.innerHTML = '<option value="">Todos</option>';
 
-      // Solicitante na linha 6 da planilha = índice 5 no array (começa em 0)
-      const nomesSolicitantes = [...new Set(lista.map(l => l[5]).filter(n => n))].sort();
+      // Solicitante na linha 6 da planilha = índice 6 no array (7ª coluna)
+      const nomesSolicitantes = [...new Set(lista.map(l => l[6]).filter(n => n))].sort();
       nomesSolicitantes.forEach(nome => {
         const opt = document.createElement('option');
         opt.value = nome;
@@ -320,8 +321,8 @@
         seletorSolicitante.appendChild(opt);
       });
 
-      // Setor na linha 5 da planilha = índice 4 no array
-      const nomesSetores = [...new Set(lista.map(l => l[4]).filter(n => n))].sort();
+      // Setor na linha 5 da planilha = índice 5 no array (6ª coluna)
+      const nomesSetores = [...new Set(lista.map(l => l[5]).filter(n => n))].sort();
       nomesSetores.forEach(nome => {
         const opt = document.createElement('option');
         opt.value = nome;
