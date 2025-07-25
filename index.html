@@ -7,7 +7,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
       padding: 0;
       font-family: Arial, sans-serif;
@@ -22,46 +21,30 @@
       width: 100%;
       background: white;
       z-index: 1000;
-      padding: 10px 20px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .barra-topo {
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      background: #b8860b;
+      color: white;
+    }
+
+    .barra-topo h1 {
+      margin: 0 auto;
+      font-size: 1.6em;
+    }
+
+    .logo {
+      height: 40px;
     }
 
     .exportar {
-      align-self: flex-end;
       display: flex;
       gap: 10px;
-      margin-top: -5px;
-    }
-
-    .filtros {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin: 0;
-      justify-content: center;
-      align-items: flex-end;
-    }
-
-    .filtros label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9em;
-    }
-
-    .espaco-topo {
-      height: 290px;
-    }
-
-    h1 {
-      text-align: center;
-      background: #b8860b;
-      color: white;
-      padding: 10px;
-      border-radius: 10px 10px 0 0;
-      margin-top: 0;
     }
 
     .exportar button {
@@ -79,11 +62,23 @@
       background-color: #004d40;
     }
 
-    .logo {
-      position: absolute;
-      left: 30px;
-      top: 8px;
-      height: 40px;
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      padding: 15px 20px 10px;
+      background: #fff;
+    }
+
+    .filtros label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9em;
+    }
+
+    .espaco-topo {
+      height: 160px;
     }
 
     .container {
@@ -107,7 +102,7 @@
       background-color: #00796b;
       color: white;
       position: sticky;
-      top: 290px;
+      top: 160px;
       z-index: 998;
     }
 
@@ -134,12 +129,14 @@
 </head>
 <body>
   <div class="menu-fixo">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo" />
-    <h1>Painel de Requisições</h1>
-    <div class="exportar">
-      <button onclick="exportarPDF()">📄 PDF</button>
-      <button onclick="enviarEmail()">✉️ Email</button>
-      <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+    <div class="barra-topo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" class="logo" />
+      <h1>Painel de Requisições</h1>
+      <div class="exportar">
+        <button onclick="exportarPDF()">📄 PDF</button>
+        <button onclick="enviarEmail()">✉️ Email</button>
+        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+      </div>
     </div>
     <div class="filtros">
       <label>Data de:
@@ -155,14 +152,10 @@
         <input type="time" id="filtroHoraFim" />
       </label>
       <label>Solicitante:
-        <select id="filtroSolicitante">
-          <option value="">Todos</option>
-        </select>
+        <select id="filtroSolicitante"><option value="">Todos</option></select>
       </label>
       <label>Setor:
-        <select id="filtroSetor">
-          <option value="">Todos</option>
-        </select>
+        <select id="filtroSetor"><option value="">Todos</option></select>
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
