@@ -172,11 +172,30 @@
       tabela.innerHTML = '';
       lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
-        linha.forEach(cel => {
+
+        linha.forEach((cel, i) => {
           const td = document.createElement('td');
-          td.textContent = cel;
+
+          // Formatação especial para a coluna Data e Hora (índice 0)
+          if (i === 0) {
+            const dt = new Date(cel);
+            if (!isNaN(dt.getTime())) {
+              const dia = String(dt.getDate()).padStart(2, '0');
+              const mes = String(dt.getMonth() + 1).padStart(2, '0');
+              const ano = dt.getFullYear();
+              const hora = String(dt.getHours()).padStart(2, '0');
+              const min = String(dt.getMinutes()).padStart(2, '0');
+              td.textContent = `${dia}/${mes}/${ano} - ${hora}:${min}`;
+            } else {
+              td.textContent = cel; // fallback se não for data válida
+            }
+          } else {
+            td.textContent = cel;
+          }
+
           tr.appendChild(td);
         });
+
         const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
 
@@ -283,7 +302,23 @@
       for (const grupo in agrupado) {
         html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
         agrupado[grupo].forEach(l => {
-          html += `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`;
+          // Formata data/hora no agrupamento também:
+          let linhaFormatada = l.map((c, i) => {
+            if(i === 0) {
+              const dt = new Date(c);
+              if (!isNaN(dt.getTime())) {
+                const dia = String(dt.getDate()).padStart(2, '0');
+                const mes = String(dt.getMonth() + 1).padStart(2, '0');
+                const ano = dt.getFullYear();
+                const hora = String(dt.getHours()).padStart(2, '0');
+                const min = String(dt.getMinutes()).padStart(2, '0');
+                return `${dia}/${mes}/${ano} - ${hora}:${min}`;
+              }
+              return c;
+            }
+            return c;
+          });
+          html += `<tr>${linhaFormatada.map(c => `<td>${c}</td>`).join('')}</tr>`;
         });
       }
       html += '</table>';
