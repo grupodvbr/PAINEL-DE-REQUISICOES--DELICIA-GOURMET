@@ -12,6 +12,7 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background: #f1f1f1;
+      overflow-y: auto;
     }
 
     .menu-fixo {
@@ -25,7 +26,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
       display: flex;
       flex-direction: column;
-      gap: 4px; /* reduzido */
+      gap: 4px;
     }
 
     .exportar {
@@ -51,7 +52,7 @@
     }
 
     .espaco-topo {
-      height: 250px;
+      height: 290px; /* altura do topo fixo + botão fixo */
     }
 
     h1 {
@@ -83,6 +84,14 @@
       left: 30px;
       top: 8px;
       height: 40px;
+    }
+
+    .sticky-botao {
+      position: sticky;
+      top: 250px;
+      z-index: 999;
+      background: #f1f1f1;
+      padding: 5px 20px;
     }
 
     .container {
@@ -119,7 +128,7 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
     }
 
     #btnConcluirSelecionados:disabled {
@@ -169,8 +178,11 @@
 
   <div class="espaco-topo"></div>
 
-  <div class="container">
+  <div class="sticky-botao">
     <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
+  </div>
+
+  <div class="container">
     <table id="tabelaExport">
       <thead>
         <tr>
@@ -190,7 +202,7 @@
     </table>
   </div>
 
- <script>
+  <script>
     let requisicoes = [];
 
     async function carregarDados() {
@@ -283,7 +295,8 @@
         .map((linha, idx) => ({ linha, idx }))
         .filter(({ linha }) => {
           const dt = new Date(linha[0]);
-          return (!isNaN(dtIni) ? dt >= dtIni : true) && (!isNaN(dtFim) ? dt <= dtFim : true) &&
+          return (!isNaN(dtIni) ? dt >= dtIni : true) &&
+                 (!isNaN(dtFim) ? dt <= dtFim : true) &&
                  (!solicitante || linha[5].toLowerCase().includes(solicitante)) &&
                  (!setor || linha[4].toLowerCase().includes(setor)) &&
                  (!palavra || linha[1].toLowerCase().includes(palavra) || linha[6].toLowerCase().includes(palavra));
