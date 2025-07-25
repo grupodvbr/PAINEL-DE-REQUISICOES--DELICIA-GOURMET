@@ -159,7 +159,7 @@
     <div style="position: relative">
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
-        <button onclick="enviarEmail()">✉️ Email</button>
+        <button onclick="abrirModalEmail()">✉️ Email</button>
         <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
       </div>
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
@@ -222,6 +222,15 @@
       </select>
       <button onclick="confirmarAgrupamento()">OK</button>
       <button onclick="fecharModal()">Cancelar</button>
+
+<div id="modalEmail" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
+  <div style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
+    <h3>Enviar para:</h3>
+    <select id="selectEmail" style="width:100%; padding:6px;"></select>
+    <button onclick="confirmarEnvioEmail()" style="margin-top:10px; padding:6px 12px; background:#00796b; color:white; border:none; border-radius:5px;">Enviar</button>
+    <button onclick="fecharModalEmail()" style="margin-top:10px; padding:6px 12px; background:#ccc; border:none; border-radius:5px;">Cancelar</button>
+  </div>
+</div>
     </div>
   </div>
 
@@ -229,7 +238,7 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec';
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
@@ -336,7 +345,7 @@
 
     async function atualizarStatus(index, acao) {
       const linha = requisicoes[index];
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec';
       const payload = {
         dataHora: linha[0],
         item: linha[1],
@@ -372,7 +381,7 @@
     html: tabelaHTML
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbyyXviu6__6o3Woqee1tJtZVf-YLQDS49G_cjWShU7JwjzJ_fMid-DToWqRCEo1R7zCzg/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec", {
     method: "POST",
     body: JSON.stringify(payload),
     headers: {
@@ -444,6 +453,53 @@
     }
 
     carregarDados();
+    function abrirModalEmail() {
+  fetch('https://script.google.com/macros/s/AKfycbyyXviu6__6o3Woqee1tJtZVf-YLQDS49G_cjWShU7JwjzJ_fMid-DToWqRCEo1R7zCzg/exec?emails=1')
+    .then(res => res.json())
+    .then(dados => {
+      const select = document.getElementById("selectEmail");
+      select.innerHTML = "";
+      dados.forEach(email => {
+        const opt = document.createElement("option");
+        opt.value = email;
+        opt.textContent = email;
+        select.appendChild(opt);
+      });
+      document.getElementById("modalEmail").style.display = "flex";
+    })
+    .catch(err => {
+      alert("Erro ao carregar e-mails.");
+      console.error(err);
+    });
+}
+function confirmarEnvioEmail() {
+  const email = document.getElementById("selectEmail").value;
+  const tabelaHTML = document.getElementById('tabelaExport').outerHTML;
+
+  const payload = {
+    email: email,
+    html: tabelaHTML
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(res => {
+    if (res.ok) {
+      alert("📧 Email enviado com sucesso!");
+      fecharModalEmail();
+    } else {
+      alert("❌ Erro ao enviar email.");
+    }
+  });
+}
+function fecharModalEmail() {
+  document.getElementById("modalEmail").style.display = "none";
+}
+
   </script>
 </body>
 </html>
