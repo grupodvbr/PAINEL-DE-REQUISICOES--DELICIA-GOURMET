@@ -341,8 +341,34 @@
       html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
     }
 
-    function enviarEmail() {
-      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
+function enviarEmail() {
+  const tabelaHTML = document.getElementById('tabelaExport').outerHTML;
+  const destinatario = prompt("Digite o e-mail para envio:", "exemplo@email.com");
+  if (!destinatario) return;
+
+  const payload = {
+    email: destinatario,
+    html: tabelaHTML
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbyyXviu6__6o3Woqee1tJtZVf-YLQDS49G_cjWShU7JwjzJ_fMid-DToWqRCEo1R7zCzg/exec", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  }).then(res => {
+    if (res.ok) {
+      alert("📧 Email enviado com sucesso!");
+    } else {
+      alert("❌ Erro ao enviar email.");
+    }
+  }).catch(err => {
+    console.error("Erro:", err);
+    alert("❌ Erro na requisição.");
+  });
+}
+
     }
 
     function abrirModalAgrupar() {
