@@ -6,54 +6,128 @@
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
+    /* Tela cheia, sem margens externas */
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #f1f1f1;
+      font-family: Arial, sans-serif;
+    }
+    /* Container full screen com scroll vertical */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 0 20px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Header fixo */
     h1 {
       text-align: center;
       background: #b8860b;
       color: white;
       padding: 10px;
       border-radius: 10px 10px 0 0;
-      margin-top: 0;
+      margin: 0 0 10px 0;
+      flex-shrink: 0;
     }
+    /* Área de filtros e botão concluir em linha */
     .filtros {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin: 10px 0 10px;
+      margin-bottom: 10px;
       justify-content: center;
       align-items: flex-end;
+      flex-shrink: 0;
     }
     .filtros label {
       display: flex;
       flex-direction: column;
       font-size: 0.9em;
+      min-width: 140px;
     }
+    .filtros label select,
+    .filtros label input[type="text"],
+    .filtros label input[type="date"],
+    .filtros label input[type="time"] {
+      margin-top: 4px;
+      padding: 4px 8px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      background: white;
+      cursor: pointer;
+    }
+    /* Botões filtro e concluir */
+    #btnFiltrar, #btnConcluirSelecionados {
+      padding: 6px 12px;
+      font-size: 0.9em;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      height: 36px;
+      width: 140px;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+    }
+    #btnFiltrar:hover:not(:disabled),
+    #btnConcluirSelecionados:hover:not(:disabled) {
+      background-color: #004d40;
+    }
+    #btnFiltrar:disabled,
+    #btnConcluirSelecionados:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    #btnConcluirSelecionados {
+      margin-left: 10px;
+    }
+    /* Tabela ocupa espaço restante com scroll vertical */
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
+      flex-grow: 1;
+      display: block;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 0 0 10px 10px;
+    }
+    thead, tbody, tr, th, td {
+      display: table;
+      width: 100%;
+      table-layout: fixed;
+    }
+    tbody {
+      height: calc(100vh - 280px); /* Ajuste para altura da tabela com base em header e filtros */
+      overflow-y: auto;
     }
     th, td {
       padding: 8px 10px;
-      border: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
       text-align: left;
       vertical-align: middle;
+      word-wrap: break-word;
     }
     th {
       background-color: #00796b;
       color: white;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     tbody tr:nth-child(even) {
       background-color: #f9f9f9;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      background: #fff;
-      padding: 0 20px 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      position: relative;
     }
     .acoes button {
       margin-right: 5px;
@@ -75,6 +149,7 @@
       right: 30px;
       display: flex;
       gap: 5px;
+      flex-shrink: 0;
     }
     .exportar button {
       padding: 6px 10px;
@@ -94,68 +169,7 @@
       left: 30px;
       top: 8px;
       height: 40px;
-    }
-    #btnFiltrar, #btnConcluirSelecionados {
-      padding: 6px 12px;
-      font-size: 0.9em;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      height: 32px;
-      width: 130px;
-      transition: background-color 0.3s ease;
-    }
-    #btnFiltrar:hover:not(:disabled),
-    #btnConcluirSelecionados:hover:not(:disabled) {
-      background-color: #004d40;
-    }
-    #btnFiltrar:disabled,
-    #btnConcluirSelecionados:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    #modalAgrupar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-    }
-    #modalAgrupar.flex {
-      display: flex;
-    }
-    #modalAgrupar .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 320px;
-      text-align: center;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
-    #modalAgrupar select, #modalAgrupar button {
-      margin-top: 10px;
-      padding: 8px;
-      width: 100%;
-      font-size: 1em;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-    }
-    #modalAgrupar button {
-      cursor: pointer;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      transition: background-color 0.3s ease;
-    }
-    #modalAgrupar button:hover {
-      background-color: #004d40;
+      flex-shrink: 0;
     }
     /* Checkbox colunas */
     th.select-all, td.select-row {
@@ -167,10 +181,6 @@
       width: 18px;
       height: 18px;
       cursor: pointer;
-    }
-    #btnConcluirSelecionados {
-      margin-bottom: 10px;
-      width: auto;
     }
   </style>
 </head>
@@ -203,15 +213,16 @@
         </select>
       </label>
       <label>Setor:
-        <input type="text" id="filtroSetor" placeholder="Nome do setor" />
+        <select id="filtroSetor">
+          <option value="">Todos</option>
+        </select>
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
+      <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
     </div>
-
-    <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
 
     <table id="tabelaExport">
       <thead>
@@ -254,7 +265,7 @@
         if (!res.ok) throw new Error('Erro ao buscar dados');
         const dados = await res.json();
         requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-        preencherSolicitantes(requisicoes);
+        preencherFiltros(requisicoes);
         renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
         atualizarBotaoConcluir();
       } catch (e) {
@@ -262,15 +273,27 @@
       }
     }
 
-    function preencherSolicitantes(lista) {
-      const seletor = document.getElementById('filtroSolicitante');
-      seletor.innerHTML = '<option value="">Todos</option>';
-      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
-      nomes.sort().forEach(nome => {
+    function preencherFiltros(lista) {
+      // Preenche solicitantes
+      const seletorSolicitante = document.getElementById('filtroSolicitante');
+      seletorSolicitante.innerHTML = '<option value="">Todos</option>';
+      const nomesSolicitante = [...new Set(lista.map(l => l[5]).filter(n => n))];
+      nomesSolicitante.sort().forEach(nome => {
         const opt = document.createElement('option');
         opt.value = nome;
         opt.textContent = nome;
-        seletor.appendChild(opt);
+        seletorSolicitante.appendChild(opt);
+      });
+
+      // Preenche setores
+      const seletorSetor = document.getElementById('filtroSetor');
+      seletorSetor.innerHTML = '<option value="">Todos</option>';
+      const nomesSetor = [...new Set(lista.map(l => l[4]).filter(n => n))];
+      nomesSetor.sort().forEach(nome => {
+        const opt = document.createElement('option');
+        opt.value = nome;
+        opt.textContent = nome;
+        seletorSetor.appendChild(opt);
       });
     }
 
@@ -312,6 +335,7 @@
       // Configurar checkbox "Selecionar todos"
       const selectAll = document.getElementById('selectAll');
       selectAll.checked = false;
+      selectAll.indeterminate = false;
       selectAll.removeEventListener('change', onSelectAllChange);
       selectAll.addEventListener('change', onSelectAllChange);
       atualizarBotaoConcluir();
@@ -416,7 +440,6 @@
       btn.textContent = '⏳ Concluindo...';
 
       try {
-        // Enviar POSTs em paralelo
         const promises = Array.from(checkboxes).map(cb => {
           const idx = parseInt(cb.dataset.index, 10);
           const linha = requisicoes[idx];
@@ -493,7 +516,7 @@
       janela.print();
     }
 
-    // Eventos para checkbox "selecionar todos"
+    // Eventos para checkbox "selecionar todos" e linhas
     document.addEventListener('change', e => {
       if (e.target.id === 'selectAll') {
         const checked = e.target.checked;
