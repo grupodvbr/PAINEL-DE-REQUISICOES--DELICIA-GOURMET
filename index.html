@@ -6,188 +6,60 @@
 <title>Painel de Requisições</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  /* Ocupa toda a tela, sem margens */
-  html, body {
-    height: 100%;
-    margin: 0; padding: 0;
-    background: #f1f1f1;
-    font-family: Arial, sans-serif;
-  }
-  /* Container centralizado e ocupa quase toda altura */
-  .container {
-    max-width: 1200px;
-    height: 100%;
-    margin: 0 auto;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-sizing: border-box;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-  }
-  /* Cabeçalho */
-  .header {
-    position: relative;
-    flex-shrink: 0;
-    margin-bottom: 20px;
-  }
-  .logo {
-    position: absolute;
-    left: 30px;
-    top: 8px;
-    height: 40px;
-  }
-  h1 {
-    text-align: center;
-    background: #b8860b;
-    color: white;
-    padding: 10px 0;
-    border-radius: 10px 10px 0 0;
-    margin: 0;
-    font-weight: normal;
-  }
-  .exportar {
-    position: absolute;
-    top: 12px;
-    right: 30px;
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    max-width: 400px;
-  }
-  .exportar button {
-    padding: 4px 6px;
-    font-size: 0.75em;
-    background-color: #00796b;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    white-space: nowrap;
-    min-width: 70px;
-  }
-  /* Filtros */
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
+  h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
   .filtros {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    align-items: flex-end;
-    flex-shrink: 0;
-    margin-bottom: 10px;
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 20px; justify-content: center; align-items: flex-end;
   }
   .filtros label {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.9em;
+    display: flex; flex-direction: column; font-size: 0.9em;
   }
   .filtros button {
-    height: 32px;
-    background-color: #00796b;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 0.9em;
-    cursor: pointer;
-    padding: 0 12px;
-    white-space: nowrap;
+    height: 32px; background-color: #00796b; color: white; border: none; border-radius: 4px; font-size: 0.9em;
+    cursor: pointer; padding: 0 12px; white-space: nowrap;
   }
   #btnConcluirSelecionados {
     background-color: #4caf50;
   }
-  select, input[type="text"], input[type="date"], input[type="time"] {
-    min-width: 120px;
-    padding: 3px 6px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
+  th { background-color: #00796b; color: white; }
+  tbody tr:nth-child(even) { background-color: #f9f9f9; }
+  .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative;
   }
-  /* Área da tabela com scroll */
-  .table-container {
-    flex-grow: 1;
-    overflow: auto;
+  .acoes button { margin-right: 5px; }
+  .exportar {
+    position: absolute; top: 12px; right: 30px; display: flex; gap: 5px; flex-wrap: wrap; max-width: 400px;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #fff;
-    table-layout: fixed;
+  .exportar button {
+    padding: 4px 6px; font-size: 0.75em; background-color: #00796b; color: white; border: none; border-radius: 4px;
+    cursor: pointer; white-space: nowrap; min-width: 70px;
   }
-  th, td {
-    padding: 8px 10px;
-    border: 1px solid #ccc;
-    text-align: left;
-    word-wrap: break-word;
+  .logo {
+    position: absolute; left: 30px; top: 8px; height: 40px;
   }
-  th {
-    background-color: #00796b;
-    color: white;
-  }
-  tbody tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  /* Botões de ação */
-  .acoes button {
-    margin-right: 5px;
-    padding: 5px 12px;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    color: white;
-    font-size: 0.9em;
-    transition: background-color 0.3s;
-  }
-  .acoes button.concluir {
-    background-color: #4caf50;
-  }
-  .acoes button.comprar {
-    background-color: #2196f3;
-  }
-  .acoes button.negar {
-    background-color: #f44336;
-  }
-  .acoes button:hover {
-    opacity: 0.8;
-  }
-  /* Modal Agrupar */
   #modalAgrupar {
-    display: none;
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    z-index: 999;
-    justify-content: center;
-    align-items: center;
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+    z-index: 999; justify-content: center; align-items: center;
   }
   #modalAgrupar .box {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 300px;
-    text-align: center;
+    background: #fff; padding: 20px; border-radius: 10px; width: 300px; text-align: center;
   }
   #modalAgrupar select, #modalAgrupar button {
-    margin-top: 10px;
-    padding: 6px;
-    width: 100%;
+    margin-top: 10px; padding: 6px; width: 100%;
   }
-  /* Loading e sem dados */
-  #loading, #semDados {
-    text-align: center;
-    font-weight: bold;
-    padding: 15px;
-    color: #555;
+  #loading {
+    text-align: center; font-size: 1.2em; font-weight: bold; padding: 15px; color: #555;
   }
   #semDados {
-    font-weight: normal;
-    color: #888;
+    text-align: center; font-size: 1em; color: #888; padding: 10px 0;
   }
 </style>
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <div style="position: relative">
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo" />
       <h1>Painel de Requisições</h1>
       <div class="exportar">
@@ -216,9 +88,7 @@
         </select>
       </label>
       <label>Setor:
-        <select id="filtroSetor">
-          <option value="">Todos</option>
-        </select>
+        <input type="text" id="filtroSetor" placeholder="Nome do setor" />
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
@@ -229,25 +99,23 @@
 
     <div id="loading">Processando...</div>
 
-    <div class="table-container">
-      <table id="tabelaExport" style="display:none;">
-        <thead>
-          <tr>
-            <th><input type="checkbox" id="checkAll" onclick="selecionarTodos(this)" /></th>
-            <th>Data e Hora</th>
-            <th>Item</th>
-            <th>Unidade</th>
-            <th>Quantidade</th>
-            <th>Setor</th>
-            <th>Solicitante</th>
-            <th>Observações</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaRequisicoes"></tbody>
-      </table>
-    </div>
+    <table id="tabelaExport" style="display:none;">
+      <thead>
+        <tr>
+          <th><input type="checkbox" id="checkAll" onclick="selecionarTodos(this)" /></th>
+          <th>Data e Hora</th>
+          <th>Item</th>
+          <th>Unidade</th>
+          <th>Quantidade</th>
+          <th>Setor</th>
+          <th>Solicitante</th>
+          <th>Observações</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaRequisicoes"></tbody>
+    </table>
 
     <div id="semDados" style="display:none;">Sem dados para exibir.</div>
   </div>
@@ -265,7 +133,7 @@
   </div>
 
 <script>
-  const URL_API = 'https://script.google.com/macros/s/AKfycbwBVVJRhr7XsFRiot_TTGNxscKaR2RwV-hl1AAn7bbrwJSLYn1c5Poq3pXXrydlk3ro0g/exec';
+  const URL_API = 'https://script.google.com/macros/s/AKfycbwr1WQyWXhFlcO7JdgNrsfZ-gFmCtrGSONaLFXYb7QPizUtgz8kLQ0Fg5MgGQXXXNFhyQ/exec';
 
   let requisicoes = [];
 
@@ -304,7 +172,7 @@
       if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherSolicitantesESetores(requisicoes);
+      preencherSolicitantes(requisicoes);
 
       if (requisicoes.length === 0) {
         document.getElementById('semDados').style.display = 'block';
@@ -320,26 +188,15 @@
     }
   }
 
-  function preencherSolicitantesESetores(lista) {
-    const seletorSolicitante = document.getElementById('filtroSolicitante');
-    const seletorSetor = document.getElementById('filtroSetor');
-    seletorSolicitante.innerHTML = '<option value="">Todos</option>';
-    seletorSetor.innerHTML = '<option value="">Todos</option>';
-
-    const nomesSolicitantes = [...new Set(lista.map(l => l[6]).filter(n => n))].sort();
-    nomesSolicitantes.forEach(nome => {
+  function preencherSolicitantes(lista) {
+    const seletor = document.getElementById('filtroSolicitante');
+    seletor.innerHTML = '<option value="">Todos</option>';
+    const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+    nomes.sort().forEach(nome => {
       const opt = document.createElement('option');
       opt.value = nome;
       opt.textContent = nome;
-      seletorSolicitante.appendChild(opt);
-    });
-
-    const nomesSetores = [...new Set(lista.map(l => l[5]).filter(n => n))].sort();
-    nomesSetores.forEach(nome => {
-      const opt = document.createElement('option');
-      opt.value = nome;
-      opt.textContent = nome;
-      seletorSetor.appendChild(opt);
+      seletor.appendChild(opt);
     });
   }
 
@@ -369,8 +226,7 @@
       ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
         const btn = document.createElement('button');
         btn.textContent = acao;
-        btn.className = acao.toLowerCase();
-        btn.onclick = () => atualizarStatus(idx, acao, btn);
+        btn.onclick = () => atualizarStatus(idx, acao);
         tdAcoes.appendChild(btn);
       });
 
@@ -446,7 +302,7 @@
         return (!dtInicio || dtLinha >= dtInicio) &&
                (!dtFim || dtLinha <= dtFim) &&
                (!solicitante || solicitanteLinha === solicitante) &&
-               (!setor || setorLinha === setor) &&
+               (!setor || setorLinha.includes(setor)) &&
                (!palavra || item.includes(palavra) || obs.includes(palavra));
       });
 
@@ -464,7 +320,7 @@
     }
   }
 
-  async function atualizarStatus(index, acao, botao) {
+  async function atualizarStatus(index, acao) {
     const linha = requisicoes[index];
     if (!linha) {
       alert('Item não encontrado');
@@ -485,13 +341,8 @@
       });
 
       if (res.ok) {
-        // Atualiza o status na tabela e oculta os botões de ação
-        const tr = botao.closest('tr');
-        const tdStatus = tr.querySelector('td:nth-child(9)');
-        tdStatus.textContent = acao;
-        const tdAcoes = tr.querySelector('td.acoes');
-        tdAcoes.style.display = 'none';
         alert(`Status atualizado para: ${acao}`);
+        await carregarDados();
       } else {
         alert('Erro ao atualizar o status.');
       }
@@ -524,7 +375,7 @@
 
     const agrupado = {};
     requisicoes.forEach(l => {
-      const chave = opcao === 'setor' ? l[5] : l[6];
+      const chave = opcao === 'setor' ? l[4] : l[5];
       if (!agrupado[chave]) agrupado[chave] = [];
       agrupado[chave].push(l);
     });
