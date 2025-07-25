@@ -1,26 +1,19 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      width: 100vw;
-      background: #f1f1f1;
-      font-family: Arial, sans-serif;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
     h1 {
       text-align: center;
       background: #b8860b;
       color: white;
       padding: 10px;
-      margin: 0;
-      border-radius: 0 0 10px 10px;
+      border-radius: 10px 10px 0 0;
+      margin-top: 0;
     }
     .filtros {
       display: flex;
@@ -44,6 +37,7 @@
       padding: 8px 10px;
       border: 1px solid #ccc;
       text-align: left;
+      vertical-align: middle;
     }
     th {
       background-color: #00796b;
@@ -53,59 +47,72 @@
       background-color: #f9f9f9;
     }
     .container {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      flex-direction: column;
+      max-width: 1200px;
+      margin: auto;
       background: #fff;
-      box-sizing: border-box;
       padding: 0 20px 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      position: relative;
     }
     .acoes button {
       margin-right: 5px;
+      padding: 4px 8px;
+      font-size: 0.85em;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #00796b;
+      color: white;
+      transition: background-color 0.3s ease;
+    }
+    .acoes button:hover {
+      background-color: #004d40;
     }
     .exportar {
       position: absolute;
       top: 12px;
-      left: 30px;
+      right: 30px;
       display: flex;
-      gap: 10px;
+      gap: 5px;
     }
     .exportar button {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      padding: 8px 12px;
+      padding: 6px 10px;
       font-size: 0.85em;
-      font-weight: bold;
-      background-color: #009688;
+      background-color: #00796b;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 4px;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      transition: background-color 0.3s, transform 0.2s;
+      transition: background-color 0.3s ease;
     }
     .exportar button:hover {
-      background-color: #00796b;
-      transform: translateY(-1px);
+      background-color: #004d40;
     }
     .logo {
       position: absolute;
-      right: 30px;
+      left: 30px;
       top: 8px;
       height: 40px;
     }
     #btnFiltrar {
-      padding: 4px 10px;
-      font-size: 0.8em;
+      padding: 6px 12px;
+      font-size: 0.9em;
       background-color: #00796b;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       height: 32px;
-      width: 80px;
+      width: 90px;
+      transition: background-color 0.3s ease;
+    }
+    #btnFiltrar:hover:not(:disabled) {
+      background-color: #004d40;
+    }
+    #btnFiltrar:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
     #modalAgrupar {
       display: none;
@@ -119,44 +126,59 @@
       justify-content: center;
       align-items: center;
     }
+    #modalAgrupar.flex {
+      display: flex;
+    }
     #modalAgrupar .box {
       background: #fff;
       padding: 20px;
       border-radius: 10px;
-      width: 300px;
+      width: 320px;
       text-align: center;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
     }
     #modalAgrupar select, #modalAgrupar button {
       margin-top: 10px;
-      padding: 6px;
+      padding: 8px;
       width: 100%;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    #modalAgrupar button {
+      cursor: pointer;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+    #modalAgrupar button:hover {
+      background-color: #004d40;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div style="position: relative">
-      <div class="exportar">
-        <button onclick="exportarPDF()">📄 PDF</button>
-        <button onclick="enviarEmail()">✉️ Email</button>
-        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
-      </div>
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
-      <h1>Painel de Requisições</h1>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo" />
+    <h1>Painel de Requisições</h1>
+    <div class="exportar">
+      <button onclick="exportarPDF()">📄 PDF</button>
+      <button onclick="enviarEmail()">✉️ Email</button>
+      <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
     </div>
 
     <div class="filtros">
       <label>Data de:
-        <input type="date" id="filtroDataInicio">
+        <input type="date" id="filtroDataInicio" />
       </label>
       <label>Hora Inicial:
-        <input type="time" id="filtroHoraInicio">
+        <input type="time" id="filtroHoraInicio" />
       </label>
       <label>Data até:
-        <input type="date" id="filtroDataFim">
+        <input type="date" id="filtroDataFim" />
       </label>
       <label>Hora Final:
-        <input type="time" id="filtroHoraFim">
+        <input type="time" id="filtroHoraFim" />
       </label>
       <label>Solicitante:
         <select id="filtroSolicitante">
@@ -164,12 +186,10 @@
         </select>
       </label>
       <label>Setor:
-        <select id="filtroSetor">
-          <option value="">Todos</option>
-        </select>
+        <input type="text" id="filtroSetor" placeholder="Nome do setor" />
       </label>
       <label>Palavra-chave:
-        <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação">
+        <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
@@ -209,16 +229,21 @@
 
     async function carregarDados() {
       const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
-      const res = await fetch(url);
-      const dados = await res.json();
-      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherSolicitantes(requisicoes);
-      preencherSetores(requisicoes);
-      renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Erro ao buscar dados');
+        const dados = await res.json();
+        requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
+        preencherSolicitantes(requisicoes);
+        renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+      } catch (e) {
+        alert('Erro ao carregar dados: ' + e.message);
+      }
     }
 
     function preencherSolicitantes(lista) {
       const seletor = document.getElementById('filtroSolicitante');
+      seletor.innerHTML = '<option value="">Todos</option>';
       const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
       nomes.sort().forEach(nome => {
         const opt = document.createElement('option');
@@ -228,53 +253,25 @@
       });
     }
 
-    function preencherSetores(lista) {
-      const seletor = document.getElementById('filtroSetor');
-      const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
-      setores.sort().forEach(setor => {
-        const opt = document.createElement('option');
-        opt.value = setor;
-        opt.textContent = setor;
-        seletor.appendChild(opt);
-      });
-    }
-
     function renderizarTabela(lista) {
       const tabela = document.getElementById('tabelaRequisicoes');
       tabela.innerHTML = '';
       lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
-
-        linha.forEach((cel, i) => {
+        linha.forEach(cel => {
           const td = document.createElement('td');
-          if (i === 0) {
-            const dt = new Date(cel);
-            if (!isNaN(dt.getTime())) {
-              const dia = String(dt.getDate()).padStart(2, '0');
-              const mes = String(dt.getMonth() + 1).padStart(2, '0');
-              const ano = dt.getFullYear();
-              const hora = String(dt.getHours()).padStart(2, '0');
-              const min = String(dt.getMinutes()).padStart(2, '0');
-              td.textContent = `${dia}/${mes}/${ano} - ${hora}:${min}`;
-            } else {
-              td.textContent = cel;
-            }
-          } else {
-            td.textContent = cel;
-          }
+          td.textContent = cel;
           tr.appendChild(td);
         });
 
         const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
-
         ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
           const btn = document.createElement('button');
           btn.textContent = acao;
           btn.onclick = () => atualizarStatus(idx, acao);
           tdAcoes.appendChild(btn);
         });
-
         tr.appendChild(tdAcoes);
         tabela.appendChild(tr);
       });
@@ -299,12 +296,12 @@
       const resultado = requisicoes
         .map((linha, idx) => ({ linha, idx }))
         .filter(({ linha }) => {
-          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs] = linha.map(c => c.toLowerCase());
+          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => (c || '').toString().toLowerCase());
           const dtLinha = new Date(linha[0]);
           return (!dtInicio || dtLinha >= dtInicio) &&
                  (!dtFim || dtLinha <= dtFim) &&
                  (!solicitante || solicitanteLinha === solicitante) &&
-                 (!setor || setorLinha === setor) &&
+                 (!setor || setorLinha.includes(setor)) &&
                  (!palavra || item.includes(palavra) || obs.includes(palavra));
         });
 
@@ -322,17 +319,17 @@
         novaAcao: acao
       };
 
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Erro ao atualizar status');
         alert(`Status atualizado para: ${acao}`);
         carregarDados();
-      } else {
-        alert('Erro ao atualizar.');
+      } catch {
+        alert('Erro ao atualizar status.');
       }
     }
 
@@ -341,34 +338,8 @@
       html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
     }
 
-function enviarEmail() {
-  const tabelaHTML = document.getElementById('tabelaExport').outerHTML;
-  const destinatario = prompt("Digite o e-mail para envio:", "exemplo@email.com");
-  if (!destinatario) return;
-
-  const payload = {
-    email: destinatario,
-    html: tabelaHTML
-  };
-
-  fetch("https://script.google.com/macros/s/AKfycbyyXviu6__6o3Woqee1tJtZVf-YLQDS49G_cjWShU7JwjzJ_fMid-DToWqRCEo1R7zCzg/exec", {
-    method: "POST",
-    body: JSON.stringify(payload),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  }).then(res => {
-    if (res.ok) {
-      alert("📧 Email enviado com sucesso!");
-    } else {
-      alert("❌ Erro ao enviar email.");
-    }
-  }).catch(err => {
-    console.error("Erro:", err);
-    alert("❌ Erro na requisição.");
-  });
-}
-
+    function enviarEmail() {
+      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
     }
 
     function abrirModalAgrupar() {
@@ -381,7 +352,7 @@ function enviarEmail() {
 
     function confirmarAgrupamento() {
       const opcao = document.getElementById("seletorAgrupamento").value;
-      document.getElementById("modalAgrupar").style.display = "none";
+      fecharModal();
 
       const agrupado = {};
       requisicoes.forEach(l => {
@@ -390,32 +361,17 @@ function enviarEmail() {
         agrupado[chave].push(l);
       });
 
-      let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
-      html += '<table border="1" cellspacing="0" cellpadding="5">';
-      html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
+      let html = `<h2>Requisições agrupadas por ${opcao.charAt(0).toUpperCase() + opcao.slice(1)}</h2>`;
+      html += '<table border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse; width:100%;">';
+      html += '<thead><tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Quantidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead><tbody>';
 
       for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+        html += `<tr style="font-weight:bold; background:#eee;"><td colspan="8">${grupo}</td></tr>`;
         agrupado[grupo].forEach(l => {
-          let linhaFormatada = l.map((c, i) => {
-            if(i === 0) {
-              const dt = new Date(c);
-              if (!isNaN(dt.getTime())) {
-                const dia = String(dt.getDate()).padStart(2, '0');
-                const mes = String(dt.getMonth() + 1).padStart(2, '0');
-                const ano = dt.getFullYear();
-                const hora = String(dt.getHours()).padStart(2, '0');
-                const min = String(dt.getMinutes()).padStart(2, '0');
-                return `${dia}/${mes}/${ano} - ${hora}:${min}`;
-              }
-              return c;
-            }
-            return c;
-          });
-          html += `<tr>${linhaFormatada.map(c => `<td>${c}</td>`).join('')}</tr>`;
+          html += `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`;
         });
       }
-      html += '</table>';
+      html += '</tbody></table>';
 
       const janela = window.open('', '_blank');
       janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
@@ -423,6 +379,7 @@ function enviarEmail() {
       janela.print();
     }
 
+    // Carregar dados ao abrir a página
     carregarDados();
   </script>
 </body>
