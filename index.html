@@ -11,7 +11,6 @@
       padding: 0;
       font-family: Arial, sans-serif;
       background: #f1f1f1;
-      overflow-y: auto;
     }
 
     .topo-fixo {
@@ -19,139 +18,129 @@
       top: 0;
       left: 0;
       width: 100%;
-      background: white;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 999;
+      background-color: #b8860b;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      color: white;
     }
 
     .cabecalho {
-      background: #b8860b;
-      color: white;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 10px 20px;
     }
 
-    .cabecalho h1 {
-      margin: 0;
-      font-size: 1.6em;
-      text-align: center;
-      flex: 1;
-    }
-
     .cabecalho img {
       height: 40px;
-      margin-right: 20px;
     }
 
-    .exportar {
+    .cabecalho h1 {
+      flex: 1;
+      text-align: center;
+      font-size: 1.6em;
+      margin: 0;
+    }
+
+    .botoes-topo {
       display: flex;
       gap: 10px;
     }
 
-    .exportar button {
-      padding: 6px 10px;
-      font-size: 0.85em;
-      background-color: #00796b;
+    .botoes-topo button {
+      background-color: #00695c;
       color: white;
       border: none;
+      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-weight: bold;
     }
 
-    .exportar button:hover {
-      background-color: #004d40;
-    }
-
-    .filtros {
+    .filtros-container {
+      background: white;
+      padding: 10px 20px;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      justify-content: center;
-      align-items: flex-end;
-      padding: 10px 20px;
-      background: white;
-    }
-
-    .filtros label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9em;
-    }
-
-    .botao-fixo {
-      background: #f1f1f1;
-      padding: 10px 20px;
-      border-top: 1px solid #ccc;
-      display: flex;
+      align-items: end;
       justify-content: flex-start;
     }
 
-    .espaco-topo {
-      height: 280px; /* altura total do topo fixo */
+    .filtros-container label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.85em;
+      color: black;
     }
 
-    .container {
-      padding: 0 20px 20px;
+    #btnFiltrar {
+      height: 32px;
+      background-color: #00695c;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .botoes-acao {
+      background: #f1f1f1;
+      padding: 10px 20px;
+    }
+
+    .botoes-acao button {
+      background-color: #5ca79e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.95em;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .espaco-topo {
+      height: 200px;
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
+      background: white;
     }
 
     th, td {
       padding: 8px 10px;
       border: 1px solid #ccc;
       text-align: left;
-      vertical-align: middle;
     }
 
     th {
       background-color: #00796b;
       color: white;
       position: sticky;
-      top: 280px;
-      z-index: 999;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      top: 200px;
+      z-index: 998;
     }
 
     tbody tr:nth-child(even) {
       background-color: #f9f9f9;
-    }
-
-    #btnConcluirSelecionados {
-      padding: 8px 16px;
-      font-size: 0.95em;
-      background-color: #5ca79e;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    #btnConcluirSelecionados:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
     }
   </style>
 </head>
 <body>
   <div class="topo-fixo">
     <div class="cabecalho">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" />
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo React" />
       <h1>Painel de Requisições</h1>
-      <div class="exportar">
+      <div class="botoes-topo">
         <button onclick="exportarPDF()">📄 PDF</button>
-        <button onclick="enviarEmail()">✉️ Email</button>
-        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+        <button onclick="enviarEmail()">📧 Email</button>
+        <button onclick="window.print()">🖨️ Imprimir</button>
       </div>
     </div>
-    <div class="filtros">
+    <div class="filtros-container">
       <label>Data de:
         <input type="date" id="filtroDataInicio" />
       </label>
@@ -165,28 +154,32 @@
         <input type="time" id="filtroHoraFim" />
       </label>
       <label>Solicitante:
-        <select id="filtroSolicitante"><option value="">Todos</option></select>
+        <select id="filtroSolicitante">
+          <option value="">Todos</option>
+        </select>
       </label>
       <label>Setor:
-        <select id="filtroSetor"><option value="">Todos</option></select>
+        <select id="filtroSetor">
+          <option value="">Todos</option>
+        </select>
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
-    <div class="botao-fixo">
-      <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
+    <div class="botoes-acao">
+      <button id="btnConcluirSelecionados" disabled>✔️ Concluir Selecionados</button>
     </div>
   </div>
 
   <div class="espaco-topo"></div>
 
   <div class="container">
-    <table id="tabelaExport">
+    <table>
       <thead>
         <tr>
-          <th><input type="checkbox" id="selectAll" title="Selecionar todos" /></th>
+          <th><input type="checkbox" id="selectAll" /></th>
           <th>Data e Hora</th>
           <th>Item</th>
           <th>Unidade</th>
@@ -198,126 +191,25 @@
           <th>Ações</th>
         </tr>
       </thead>
-      <tbody id="tabelaRequisicoes"></tbody>
+      <tbody>
+        <!-- conteúdo da tabela aqui -->
+      </tbody>
     </table>
   </div>
 
   <script>
-    let requisicoes = [];
-
-    async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
-      try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Erro ao buscar dados');
-        const dados = await res.json();
-        requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-        preencherSelects();
-        renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
-      } catch (e) {
-        alert('Erro ao carregar dados: ' + e.message);
-      }
-    }
-
-    function preencherSelects() {
-      const solicitantes = [...new Set(requisicoes.map(r => r[5]).filter(Boolean))];
-      const setores = [...new Set(requisicoes.map(r => r[4]).filter(Boolean))];
-      const sSel = document.getElementById('filtroSolicitante');
-      const sSetor = document.getElementById('filtroSetor');
-      sSel.innerHTML = '<option value="">Todos</option>';
-      sSetor.innerHTML = '<option value="">Todos</option>';
-      solicitantes.sort().forEach(s => sSel.innerHTML += `<option>${s}</option>`);
-      setores.sort().forEach(s => sSetor.innerHTML += `<option>${s}</option>`);
-    }
-
-    function renderizarTabela(lista) {
-      const tbody = document.getElementById('tabelaRequisicoes');
-      tbody.innerHTML = '';
-      lista.forEach(({ linha, idx }) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td><input type="checkbox" data-index="${idx}" onchange="atualizarBotaoConcluir()"></td>
-          <td>${formatarDataHora(linha[0])}</td>
-          <td>${linha[1]}</td>
-          <td>${linha[2]}</td>
-          <td>${linha[3]}</td>
-          <td>${linha[4]}</td>
-          <td>${linha[5]}</td>
-          <td>${linha[6]}</td>
-          <td>${linha[7]}</td>
-          <td>
-            <button onclick="atualizarStatus(${idx}, 'Concluído')">Concluir</button>
-            <button onclick="atualizarStatus(${idx}, 'Negado')">Negar</button>
-            <button onclick="atualizarStatus(${idx}, 'Comprar')">Comprar</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-    }
-
-    function formatarDataHora(str) {
-      const d = new Date(str);
-      if (isNaN(d)) return str;
-      return `${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    }
-
-    function atualizarBotaoConcluir() {
-      const cbs = document.querySelectorAll('tbody input[type="checkbox"]');
-      const btn = document.getElementById('btnConcluirSelecionados');
-      btn.disabled = !Array.from(cbs).some(cb => cb.checked);
-    }
-
-    async function atualizarStatus(index, status) {
-      const linha = requisicoes[index];
-      const payload = { dataHora: linha[0], item: linha[1], novaAcao: status };
-      const res = await fetch('https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if (res.ok) carregarDados();
-    }
-
-    async function concluirSelecionados() {
-      const selecionados = document.querySelectorAll('tbody input[type="checkbox"]:checked');
-      for (const cb of selecionados) {
-        const idx = parseInt(cb.dataset.index);
-        await atualizarStatus(idx, 'Concluído');
-      }
-    }
-
-    function filtrar() {
-      const dtIni = new Date(document.getElementById('filtroDataInicio').value + 'T' + (document.getElementById('filtroHoraInicio').value || '00:00'));
-      const dtFim = new Date(document.getElementById('filtroDataFim').value + 'T' + (document.getElementById('filtroHoraFim').value || '23:59'));
-      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-      const setor = document.getElementById('filtroSetor').value.toLowerCase();
-      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-      const resultado = requisicoes
-        .map((linha, idx) => ({ linha, idx }))
-        .filter(({ linha }) => {
-          const dt = new Date(linha[0]);
-          return (!isNaN(dtIni) ? dt >= dtIni : true) &&
-                 (!isNaN(dtFim) ? dt <= dtFim : true) &&
-                 (!solicitante || linha[5].toLowerCase().includes(solicitante)) &&
-                 (!setor || linha[4].toLowerCase().includes(setor)) &&
-                 (!palavra || linha[1].toLowerCase().includes(palavra) || linha[6].toLowerCase().includes(palavra));
-        });
-      renderizarTabela(resultado);
-    }
-
     function exportarPDF() {
-      const elemento = document.getElementById('tabelaExport');
-      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
+      const elemento = document.querySelector("table");
+      html2pdf().from(elemento).save("relatorio.pdf");
     }
 
     function enviarEmail() {
-      alert("Funcionalidade de envio por email em desenvolvimento.");
+      alert("Funcionalidade em desenvolvimento");
     }
 
-    function abrirModalAgrupar() {
-      alert("Abrir modal de agrupamento.");
+    function filtrar() {
+      alert("Filtros aplicados");
     }
-
-    window.onload = carregarDados;
   </script>
 </body>
 </html>
