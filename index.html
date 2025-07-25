@@ -304,3 +304,365 @@
   </script>
 </body>
 </html>
+  <div class="container">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo" />
+    <h1>Painel de Requisições</h1>
+    <div class="exportar">
+      <button onclick="exportarPDF()">📄 PDF</button>
+      <button onclick="enviarEmail()">✉️ Email</button>
+      <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+    </div>
+
+    <div class="filtros">
+      <label>Data de:
+        <input type="date" id="filtroDataInicio" />
+      </label>
+      <label>Hora Inicial:
+        <input type="time" id="filtroHoraInicio" />
+      </label>
+      <label>Data até:
+        <input type="date" id="filtroDataFim" />
+      </label>
+      <label>Hora Final:
+        <input type="time" id="filtroHoraFim" />
+      </label>
+      <label>Solicitante:
+        <select id="filtroSolicitante">
+          <option value="">Todos</option>
+        </select>
+      </label>
+      <label>Setor:
+  <select id="filtroSetor">
+    <option value="">Todos</option>
+  </select>
+</label>
+
+      <label>Palavra-chave:
+        <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
+      </label>
+      <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
+    </div>
+
+    <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
+
+    <table id="tabelaExport">
+      <thead>
+        <tr>
+          <th class="select-all"><input type="checkbox" id="selectAll" title="Selecionar todos" /></th>
+          <th>Data e Hora</th>
+          <th>Item</th>
+          <th>Unidade</th>
+          <th>Quantidade</th>
+          <th>Setor</th>
+          <th>Solicitante</th>
+          <th>Observações</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaRequisicoes"></tbody>
+    </table>
+  </div>
+
+  <div id="modalAgrupar">
+    <div class="box">
+      <h3>Como deseja agrupar para impressão?</h3>
+      <select id="seletorAgrupamento">
+        <option value="setor">Setor</option>
+        <option value="solicitante">Solicitante</option>
+      </select>
+      <button onclick="confirmarAgrupamento()">OK</button>
+      <button onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <script>
+    let requisicoes = [];
+
+    async function carregarDados() {
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Erro ao buscar dados');
+        const dados = await res.json();
+        requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
+        preencherSolicitantes(requisicoes);
+        preencherSetores(requisicoes);
+        renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+        atualizarBotaoConcluir();
+      } catch (e) {
+        alert('Erro ao carregar dados: ' + e.message);
+      }
+    }
+
+    function preencherSolicitantes(lista) {
+      const seletor = document.getElementById('filtroSolicitante');
+      seletor.innerHTML = '<option value="">Todos</option>';
+      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+      nomes.sort().forEach(nome => {
+        const opt = document.createElement('option');
+        opt.value = nome;
+        opt.textContent = nome;
+        seletor.appendChild(opt);
+      });
+    }
+
+    function preencherSetores(lista) {
+  const seletor = document.getElementById('filtroSetor');
+  seletor.innerHTML = '<option value="">Todos</option>';
+  const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
+  setores.sort().forEach(setor => {
+    const opt = document.createElement('option');
+    opt.value = setor;
+    opt.textContent = setor;
+    seletor.appendChild(opt);
+  });
+}
+
+    function renderizarTabela(lista) {
+      const tabela = document.getElementById('tabelaRequisicoes');
+      tabela.innerHTML = '';
+      lista.forEach(({ linha, idx }) => {
+        const tr = document.createElement('tr');
+
+        // Checkbox para seleção
+        const tdCheck = document.createElement('td');
+        tdCheck.className = 'select-row';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.dataset.index = idx;
+        checkbox.addEventListener('change', atualizarBotaoConcluir);
+        tdCheck.appendChild(checkbox);
+        tr.appendChild(tdCheck);
+
+        linha.forEach((cel, i) => {
+  const td = document.createElement('td');
+  if (i === 0) {
+    const dataOriginal = new Date(cel);
+    const dia = String(dataOriginal.getDate()).padStart(2, '0');
+    const mes = String(dataOriginal.getMonth() + 1).padStart(2, '0');
+    const ano = dataOriginal.getFullYear();
+    const hora = String(dataOriginal.getHours()).padStart(2, '0');
+    const minuto = String(dataOriginal.getMinutes()).padStart(2, '0');
+    td.textContent = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+  } else {
+    td.textContent = cel;
+  }
+  tr.appendChild(td);
+});
+
+
+        const tdAcoes = document.createElement('td');
+        tdAcoes.className = 'acoes';
+        ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+          const btn = document.createElement('button');
+          btn.textContent = acao;
+          btn.onclick = () => atualizarStatus(idx, acao);
+          tdAcoes.appendChild(btn);
+        });
+        tr.appendChild(tdAcoes);
+
+        tabela.appendChild(tr);
+      });
+
+      // Configurar checkbox "Selecionar todos"
+      const selectAll = document.getElementById('selectAll');
+      selectAll.checked = false;
+      selectAll.removeEventListener('change', onSelectAllChange);
+      selectAll.addEventListener('change', onSelectAllChange);
+      atualizarBotaoConcluir();
+    }
+
+    function onSelectAllChange(e) {
+      const checked = e.target.checked;
+      const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = checked);
+      atualizarBotaoConcluir();
+    }
+
+    function atualizarBotaoConcluir() {
+      const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+      const btn = document.getElementById('btnConcluirSelecionados');
+      const algumSelecionado = Array.from(checkboxes).some(cb => cb.checked);
+      btn.disabled = !algumSelecionado;
+
+      // Atualiza o checkbox "selectAll" para refletir se todos estão selecionados
+      const selectAll = document.getElementById('selectAll');
+      if (!checkboxes.length) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+        return;
+      }
+      const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
+      const nenhumSelecionado = !algumSelecionado;
+      selectAll.checked = todosSelecionados;
+      selectAll.indeterminate = !todosSelecionados && !nenhumSelecionado;
+    }
+
+    async function filtrar() {
+      const btn = document.getElementById('btnFiltrar');
+      btn.textContent = '⏳ Carregando...';
+      btn.disabled = true;
+
+      const dataIni = document.getElementById('filtroDataInicio').value;
+      const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
+      const dataFim = document.getElementById('filtroDataFim').value;
+      const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
+      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
+      const setor = document.getElementById('filtroSetor').value.toLowerCase();
+      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
+
+      const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
+      const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
+
+      const resultado = requisicoes
+        .map((linha, idx) => ({ linha, idx }))
+        .filter(({ linha }) => {
+          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => (c || '').toString().toLowerCase());
+          const dtLinha = new Date(linha[0]);
+          return (!dtInicio || dtLinha >= dtInicio) &&
+                 (!dtFim || dtLinha <= dtFim) &&
+                 (!solicitante || solicitanteLinha === solicitante) &&
+                 (!setor || setorLinha.includes(setor)) &&
+                 (!palavra || item.includes(palavra) || obs.includes(palavra));
+        });
+
+      renderizarTabela(resultado);
+      btn.textContent = '🔍 Filtrar';
+      btn.disabled = false;
+    }
+
+    async function atualizarStatus(index, acao) {
+      const linha = requisicoes[index];
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const payload = {
+        dataHora: linha[0],
+        item: linha[1],
+        novaAcao: acao
+      };
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Erro ao atualizar status');
+        alert(`Status atualizado para: ${acao}`);
+        carregarDados();
+      } catch {
+        alert('Erro ao atualizar status.');
+      }
+    }
+
+    async function concluirSelecionados() {
+      const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        alert('Selecione pelo menos uma requisição para concluir.');
+        return;
+      }
+
+      if (!confirm(`Confirma a conclusão de ${checkboxes.length} requisição(ões)?`)) {
+        return;
+      }
+
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const btn = document.getElementById('btnConcluirSelecionados');
+      btn.disabled = true;
+      btn.textContent = '⏳ Concluindo...';
+
+      try {
+        // Enviar POSTs em paralelo
+        const promises = Array.from(checkboxes).map(cb => {
+          const idx = parseInt(cb.dataset.index, 10);
+          const linha = requisicoes[idx];
+          const payload = {
+            dataHora: linha[0],
+            item: linha[1],
+            novaAcao: 'Concluído'
+          };
+          return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        });
+        const resultados = await Promise.all(promises);
+        const erros = resultados.filter(r => !r.ok);
+        if (erros.length > 0) {
+          alert(`${erros.length} requisição(ões) não puderam ser concluídas.`);
+        } else {
+          alert(`Concluídas ${checkboxes.length} requisição(ões) com sucesso!`);
+        }
+        carregarDados();
+      } catch {
+        alert('Erro ao concluir requisições.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✔️ Concluir Selecionados';
+      }
+    }
+
+    function exportarPDF() {
+      const elemento = document.getElementById('tabelaExport');
+      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
+    }
+
+    function enviarEmail() {
+      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
+    }
+
+    function abrirModalAgrupar() {
+      document.getElementById("modalAgrupar").style.display = "flex";
+    }
+
+    function fecharModal() {
+      document.getElementById("modalAgrupar").style.display = "none";
+    }
+
+    function confirmarAgrupamento() {
+      const opcao = document.getElementById("seletorAgrupamento").value;
+      fecharModal();
+
+      const agrupado = {};
+      requisicoes.forEach(l => {
+        const chave = opcao === 'setor' ? l[4] : l[5];
+        if (!agrupado[chave]) agrupado[chave] = [];
+        agrupado[chave].push(l);
+      });
+
+      let html = `<h2>Requisições agrupadas por ${opcao.charAt(0).toUpperCase() + opcao.slice(1)}</h2>`;
+      html += '<table border="1" cellspacing="0" cellpadding="5" style="border-collapse:collapse; width:100%;">';
+      html += '<thead><tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Quantidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead><tbody>';
+
+      for (const grupo in agrupado) {
+        html += `<tr style="font-weight:bold; background:#eee;"><td colspan="8">${grupo}</td></tr>`;
+        agrupado[grupo].forEach(l => {
+          html += `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`;
+        });
+      }
+      html += '</tbody></table>';
+
+      const janela = window.open('', '_blank');
+      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
+      janela.document.close();
+      janela.print();
+    }
+
+    // Eventos para checkbox "selecionar todos"
+    document.addEventListener('change', e => {
+      if (e.target.id === 'selectAll') {
+        const checked = e.target.checked;
+        document.querySelectorAll('tbody input[type="checkbox"]').forEach(cb => cb.checked = checked);
+        atualizarBotaoConcluir();
+      }
+      if (e.target.closest('tbody') && e.target.type === 'checkbox') {
+        atualizarBotaoConcluir();
+      }
+    });
+
+    // Carregar dados na inicialização
+    carregarDados();
+  </script>
+</body>
+</html>
