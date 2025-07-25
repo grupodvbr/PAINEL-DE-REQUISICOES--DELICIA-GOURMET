@@ -19,7 +19,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin: 10px 0 20px;
+      margin: 10px 0 10px;
       justify-content: center;
       align-items: flex-end;
     }
@@ -95,7 +95,7 @@
       top: 8px;
       height: 40px;
     }
-    #btnFiltrar {
+    #btnFiltrar, #btnConcluirSelecionados {
       padding: 6px 12px;
       font-size: 0.9em;
       background-color: #00796b;
@@ -104,13 +104,15 @@
       border-radius: 4px;
       cursor: pointer;
       height: 32px;
-      width: 90px;
+      width: 130px;
       transition: background-color 0.3s ease;
     }
-    #btnFiltrar:hover:not(:disabled) {
+    #btnFiltrar:hover:not(:disabled),
+    #btnConcluirSelecionados:hover:not(:disabled) {
       background-color: #004d40;
     }
-    #btnFiltrar:disabled {
+    #btnFiltrar:disabled,
+    #btnConcluirSelecionados:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
@@ -155,6 +157,21 @@
     #modalAgrupar button:hover {
       background-color: #004d40;
     }
+    /* Checkbox colunas */
+    th.select-all, td.select-row {
+      width: 40px;
+      text-align: center;
+      padding: 0;
+    }
+    th.select-all input[type="checkbox"], td.select-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+    #btnConcluirSelecionados {
+      margin-bottom: 10px;
+      width: auto;
+    }
   </style>
 </head>
 <body>
@@ -194,9 +211,12 @@
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
 
+    <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
+
     <table id="tabelaExport">
       <thead>
         <tr>
+          <th class="select-all"><input type="checkbox" id="selectAll" title="Selecionar todos" /></th>
           <th>Data e Hora</th>
           <th>Item</th>
           <th>Unidade</th>
@@ -236,6 +256,7 @@
         requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
         preencherSolicitantes(requisicoes);
         renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+        atualizarBotaoConcluir();
       } catch (e) {
         alert('Erro ao carregar dados: ' + e.message);
       }
@@ -258,6 +279,17 @@
       tabela.innerHTML = '';
       lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
+
+        // Checkbox para seleção
+        const tdCheck = document.createElement('td');
+        tdCheck.className = 'select-row';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.dataset.index = idx;
+        checkbox.addEventListener('change', atualizarBotaoConcluir);
+        tdCheck.appendChild(checkbox);
+        tr.appendChild(tdCheck);
+
         linha.forEach(cel => {
           const td = document.createElement('td');
           td.textContent = cel;
@@ -273,8 +305,42 @@
           tdAcoes.appendChild(btn);
         });
         tr.appendChild(tdAcoes);
+
         tabela.appendChild(tr);
       });
+
+      // Configurar checkbox "Selecionar todos"
+      const selectAll = document.getElementById('selectAll');
+      selectAll.checked = false;
+      selectAll.removeEventListener('change', onSelectAllChange);
+      selectAll.addEventListener('change', onSelectAllChange);
+      atualizarBotaoConcluir();
+    }
+
+    function onSelectAllChange(e) {
+      const checked = e.target.checked;
+      const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+      checkboxes.forEach(cb => cb.checked = checked);
+      atualizarBotaoConcluir();
+    }
+
+    function atualizarBotaoConcluir() {
+      const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]');
+      const btn = document.getElementById('btnConcluirSelecionados');
+      const algumSelecionado = Array.from(checkboxes).some(cb => cb.checked);
+      btn.disabled = !algumSelecionado;
+
+      // Atualiza o checkbox "selectAll" para refletir se todos estão selecionados
+      const selectAll = document.getElementById('selectAll');
+      if (!checkboxes.length) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+        return;
+      }
+      const todosSelecionados = Array.from(checkboxes).every(cb => cb.checked);
+      const nenhumSelecionado = !algumSelecionado;
+      selectAll.checked = todosSelecionados;
+      selectAll.indeterminate = !todosSelecionados && !nenhumSelecionado;
     }
 
     async function filtrar() {
@@ -333,6 +399,54 @@
       }
     }
 
+    async function concluirSelecionados() {
+      const checkboxes = document.querySelectorAll('tbody input[type="checkbox"]:checked');
+      if (checkboxes.length === 0) {
+        alert('Selecione pelo menos uma requisição para concluir.');
+        return;
+      }
+
+      if (!confirm(`Confirma a conclusão de ${checkboxes.length} requisição(ões)?`)) {
+        return;
+      }
+
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const btn = document.getElementById('btnConcluirSelecionados');
+      btn.disabled = true;
+      btn.textContent = '⏳ Concluindo...';
+
+      try {
+        // Enviar POSTs em paralelo
+        const promises = Array.from(checkboxes).map(cb => {
+          const idx = parseInt(cb.dataset.index, 10);
+          const linha = requisicoes[idx];
+          const payload = {
+            dataHora: linha[0],
+            item: linha[1],
+            novaAcao: 'Concluído'
+          };
+          return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+        });
+        const resultados = await Promise.all(promises);
+        const erros = resultados.filter(r => !r.ok);
+        if (erros.length > 0) {
+          alert(`${erros.length} requisição(ões) não puderam ser concluídas.`);
+        } else {
+          alert(`Concluídas ${checkboxes.length} requisição(ões) com sucesso!`);
+        }
+        carregarDados();
+      } catch {
+        alert('Erro ao concluir requisições.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '✔️ Concluir Selecionados';
+      }
+    }
+
     function exportarPDF() {
       const elemento = document.getElementById('tabelaExport');
       html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
@@ -379,7 +493,19 @@
       janela.print();
     }
 
-    // Carregar dados ao abrir a página
+    // Eventos para checkbox "selecionar todos"
+    document.addEventListener('change', e => {
+      if (e.target.id === 'selectAll') {
+        const checked = e.target.checked;
+        document.querySelectorAll('tbody input[type="checkbox"]').forEach(cb => cb.checked = checked);
+        atualizarBotaoConcluir();
+      }
+      if (e.target.closest('tbody') && e.target.type === 'checkbox') {
+        atualizarBotaoConcluir();
+      }
+    });
+
+    // Carregar dados na inicialização
     carregarDados();
   </script>
 </body>
