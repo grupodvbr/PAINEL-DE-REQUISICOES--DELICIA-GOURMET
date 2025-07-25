@@ -21,47 +21,39 @@
   #btnConcluirSelecionados {
     background-color: #4caf50;
   }
-  table { width: 100%; border-collapse: collapse; background: #fff; }
-  th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
+  table { width: 100%; border-collapse: collapse; background: #fff; table-layout: fixed; }
+  th, td {
+    padding: 8px 10px; border: 1px solid #ccc; text-align: left; 
+    word-wrap: break-word;
+  }
   th { background-color: #00796b; color: white; }
   tbody tr:nth-child(even) { background-color: #f9f9f9; }
   .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative;
   }
-  .acoes button {
-    margin-right: 8px;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85em;
-    transition: background-color 0.3s ease;
-  }
-  .acoes button:nth-child(1) {
-    background-color: #4caf50; /* verde */
-    color: white;
-  }
-  .acoes button:nth-child(1):hover {
-    background-color: #45a049;
-  }
-  .acoes button:nth-child(2) {
-    background-color: #2196f3; /* azul */
-    color: white;
-  }
-  .acoes button:nth-child(2):hover {
-    background-color: #1976d2;
-  }
-  .acoes button:nth-child(3) {
-    background-color: #f44336; /* vermelho */
-    color: white;
-  }
-  .acoes button:nth-child(3):hover {
-    background-color: #d32f2f;
-  }
   .acoes {
     display: flex;
+    gap: 8px;
+    justify-content: center;
     align-items: center;
   }
+  .acoes button {
+    padding: 6px 10px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    max-width: 80px;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  .acoes button.concluir { background-color: #4caf50; }
+  .acoes button.concluir:hover { background-color: #43a047; }
+  .acoes button.comprar { background-color: #2196f3; }
+  .acoes button.comprar:hover { background-color: #1976d2; }
+  .acoes button.negar { background-color: #f44336; }
+  .acoes button.negar:hover { background-color: #d32f2f; }
   .exportar {
     position: absolute; top: 12px; right: 30px; display: flex; gap: 5px; flex-wrap: wrap; max-width: 400px;
   }
@@ -121,9 +113,7 @@
         </select>
       </label>
       <label>Setor:
-        <select id="filtroSetor">
-          <option value="">Todos</option>
-        </select>
+        <input type="text" id="filtroSetor" placeholder="Nome do setor" />
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
@@ -137,16 +127,16 @@
     <table id="tabelaExport" style="display:none;">
       <thead>
         <tr>
-          <th><input type="checkbox" id="checkAll" onclick="selecionarTodos(this)" /></th>
-          <th>Data e Hora</th>
+          <th style="width: 40px;"><input type="checkbox" id="checkAll" onclick="selecionarTodos(this)" /></th>
+          <th style="width: 150px;">Data e Hora</th>
           <th>Item</th>
-          <th>Unidade</th>
-          <th>Quantidade</th>
+          <th style="width: 100px;">Unidade</th>
+          <th style="width: 100px;">Quantidade</th>
           <th>Setor</th>
           <th>Solicitante</th>
           <th>Observações</th>
-          <th>Status</th>
-          <th>Ações</th>
+          <th style="width: 110px;">Status</th>
+          <th style="width: 280px;">Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaRequisicoes"></tbody>
@@ -172,7 +162,6 @@
 
   let requisicoes = [];
 
-  // Formata data do ISO para "dd/MM/yyyy - HH:mm"
   function formatarDataExibicao(isoStr) {
     const dt = new Date(isoStr);
     if (isNaN(dt)) return isoStr;
@@ -184,7 +173,6 @@
     return `${dia}/${mes}/${ano} - ${hora}:${min}`;
   }
 
-  // Formata data para enviar no formato da planilha: "dd/MM/yyyy HH:mm:ss"
   function formatarDataParaEnvio(isoStr) {
     const dt = new Date(isoStr);
     if (isNaN(dt)) return isoStr;
@@ -207,7 +195,7 @@
       if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherFiltros(requisicoes);
+      preencherSolicitantes(requisicoes);
 
       if (requisicoes.length === 0) {
         document.getElementById('semDados').style.display = 'block';
@@ -223,27 +211,34 @@
     }
   }
 
-  // Preenche os filtros de solicitante e setor dinamicamente
-  function preencherFiltros(lista) {
-    const seletorSolicitante = document.getElementById('filtroSolicitante');
-    seletorSolicitante.innerHTML = '<option value="">Todos</option>';
+  function preencherSolicitantes(lista) {
+    const seletor = document.getElementById('filtroSolicitante');
+    seletor.innerHTML = '<option value="">Todos</option>';
     const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
     nomes.sort().forEach(nome => {
       const opt = document.createElement('option');
       opt.value = nome;
       opt.textContent = nome;
-      seletorSolicitante.appendChild(opt);
+      seletor.appendChild(opt);
     });
 
+    // Preenche também o filtro Setor com os setores únicos
     const seletorSetor = document.getElementById('filtroSetor');
-    seletorSetor.innerHTML = '<option value="">Todos</option>';
     const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
-    setores.sort().forEach(setor => {
+    setores.sort();
+    seletorSetor.innerHTML = ''; // Limpa campo texto
+    // Agora preenche como select suspenso:
+    // Cria um select no lugar do input
+    const novoSelect = document.createElement('select');
+    novoSelect.id = 'filtroSetor';
+    novoSelect.innerHTML = '<option value="">Todos</option>';
+    setores.forEach(setor => {
       const opt = document.createElement('option');
       opt.value = setor;
       opt.textContent = setor;
-      seletorSetor.appendChild(opt);
+      novoSelect.appendChild(opt);
     });
+    seletorSetor.replaceWith(novoSelect);
   }
 
   function renderizarTabela(lista) {
@@ -272,6 +267,7 @@
       ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
         const btn = document.createElement('button');
         btn.textContent = acao;
+        btn.className = acao.toLowerCase();
         btn.onclick = () => atualizarStatus(idx, acao);
         tdAcoes.appendChild(btn);
       });
@@ -348,7 +344,7 @@
         return (!dtInicio || dtLinha >= dtInicio) &&
                (!dtFim || dtLinha <= dtFim) &&
                (!solicitante || solicitanteLinha === solicitante) &&
-               (!setor || setorLinha === setor) &&
+               (!setor || setorLinha.includes(setor)) &&
                (!palavra || item.includes(palavra) || obs.includes(palavra));
       });
 
@@ -388,7 +384,15 @@
 
       if (res.ok) {
         alert(`Status atualizado para: ${acao}`);
-        await carregarDados();
+
+        const tabela = document.getElementById('tabelaRequisicoes');
+        const tr = tabela.children[index];
+        if (tr) {
+          tr.cells[8].textContent = acao;
+          tr.cells[9].innerHTML = '';
+        }
+        requisicoes[index][7] = acao;
+
       } else {
         alert('Erro ao atualizar o status.');
       }
