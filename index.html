@@ -6,8 +6,35 @@
 <title>Painel de Requisições</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
-  body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
-  h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    box-sizing: border-box;
+    background: #f1f1f1;
+    font-family: Arial, sans-serif;
+  }
+
+  body > .container {
+    max-width: none;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0 20px 20px;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;
+  }
+
+  h1 {
+    text-align: center;
+    background: #b8860b;
+    color: white;
+    padding: 10px;
+    border-radius: 10px 10px 0 0;
+    margin-top: 0;
+  }
   .filtros {
     display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 20px; justify-content: center; align-items: flex-end;
   }
@@ -25,9 +52,6 @@
   th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
   th { background-color: #00796b; color: white; }
   tbody tr:nth-child(even) { background-color: #f9f9f9; }
-  .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative;
-  }
   .acoes button {
     margin-right: 5px; padding: 6px 10px; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold;
   }
@@ -373,21 +397,25 @@
       if (res.ok) {
         alert(`Status atualizado para: ${acao}`);
 
-        // Atualiza o status na tabela e remove os botões da linha
+        // Atualiza o status na tabela e remove os botões
         const tabela = document.getElementById('tabelaRequisicoes');
-        const tr = tabela.children[index];
-        if (tr) {
-          tr.cells[8].textContent = acao;
-          tr.cells[9].innerHTML = '';
+        const tr = tabela.rows[index];
+        if(tr) {
+          const tdStatus = tr.cells[8];
+          tdStatus.textContent = acao;
+
+          const tdAcoes = tr.cells[9];
+          tdAcoes.innerHTML = '';
+          const spanStatus = document.createElement('span');
+          spanStatus.textContent = acao;
+          tdAcoes.appendChild(spanStatus);
         }
-        requisicoes[index][7] = acao;
 
       } else {
-        const text = await res.text();
-        alert('Erro ao atualizar o status: ' + text);
+        alert('Erro ao atualizar o status.');
       }
     } catch (error) {
-      alert('Erro de conexão ao atualizar o status: ' + error.message);
+      alert('Erro de conexão ao atualizar o status.');
       console.error(error);
     }
   }
