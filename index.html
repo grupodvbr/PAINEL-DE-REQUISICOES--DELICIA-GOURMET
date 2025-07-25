@@ -121,7 +121,9 @@
         </select>
       </label>
       <label>Setor:
-        <input type="text" id="filtroSetor" placeholder="Nome do setor" />
+        <select id="filtroSetor">
+          <option value="">Todos</option>
+        </select>
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
@@ -205,7 +207,7 @@
       if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherSolicitantes(requisicoes);
+      preencherFiltros(requisicoes);
 
       if (requisicoes.length === 0) {
         document.getElementById('semDados').style.display = 'block';
@@ -221,15 +223,26 @@
     }
   }
 
-  function preencherSolicitantes(lista) {
-    const seletor = document.getElementById('filtroSolicitante');
-    seletor.innerHTML = '<option value="">Todos</option>';
+  // Preenche os filtros de solicitante e setor dinamicamente
+  function preencherFiltros(lista) {
+    const seletorSolicitante = document.getElementById('filtroSolicitante');
+    seletorSolicitante.innerHTML = '<option value="">Todos</option>';
     const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
     nomes.sort().forEach(nome => {
       const opt = document.createElement('option');
       opt.value = nome;
       opt.textContent = nome;
-      seletor.appendChild(opt);
+      seletorSolicitante.appendChild(opt);
+    });
+
+    const seletorSetor = document.getElementById('filtroSetor');
+    seletorSetor.innerHTML = '<option value="">Todos</option>';
+    const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
+    setores.sort().forEach(setor => {
+      const opt = document.createElement('option');
+      opt.value = setor;
+      opt.textContent = setor;
+      seletorSetor.appendChild(opt);
     });
   }
 
@@ -335,7 +348,7 @@
         return (!dtInicio || dtLinha >= dtInicio) &&
                (!dtFim || dtLinha <= dtFim) &&
                (!solicitante || solicitanteLinha === solicitante) &&
-               (!setor || setorLinha.includes(setor)) &&
+               (!setor || setorLinha === setor) &&
                (!palavra || item.includes(palavra) || obs.includes(palavra));
       });
 
