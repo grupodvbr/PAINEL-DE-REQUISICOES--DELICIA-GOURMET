@@ -146,6 +146,16 @@
       border-radius: 10px;
       width: 300px;
       text-align: center;
+      
+      #modalEmail {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 999;
+  justify-content: center;
+  align-items: center;
+}
     }
     #modalAgrupar select, #modalAgrupar button {
       margin-top: 10px;
@@ -223,6 +233,9 @@
       <button onclick="confirmarAgrupamento()">OK</button>
       <button onclick="fecharModal()">Cancelar</button>
 
+</div>
+    </div>
+  </div>
 <div id="modalEmail" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
   <div style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
     <h3>Enviar para:</h3>
@@ -230,10 +243,6 @@
     <button onclick="confirmarEnvioEmail()" style="margin-top:10px; padding:6px 12px; background:#00796b; color:white; border:none; border-radius:5px;">Enviar</button>
     <button onclick="fecharModalEmail()" style="margin-top:10px; padding:6px 12px; background:#ccc; border:none; border-radius:5px;">Cancelar</button>
   </div>
-</div>
-    </div>
-  </div>
-
   <script>
     let requisicoes = [];
 
@@ -371,10 +380,6 @@
       html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
     }
 
-    function enviarEmail() {
-  const tabelaHTML = document.getElementById('tabelaExport').outerHTML;
-  const destinatario = prompt("Digite o e-mail para envio:", "exemplo@email.com");
-  if (!destinatario) return;
 
   const payload = {
     email: destinatario,
