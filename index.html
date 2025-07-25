@@ -39,7 +39,7 @@
     th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
     th { background-color: #00796b; color: white; }
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
-    .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
     .acoes button { margin-right: 5px; }
     .exportar {
       position: absolute;
@@ -66,6 +66,43 @@
       left: 30px;
       top: 8px;
       height: 40px;
+    }
+    #modalAgrupar {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+    }
+    #modalAgrupar .box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      width: 300px;
+      text-align: center;
+    }
+    #modalAgrupar select, #modalAgrupar button {
+      margin-top: 10px;
+      padding: 6px;
+      width: 100%;
+    }
+    #loading {
+      text-align: center;
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 15px;
+      color: #555;
+    }
+    #semDados {
+      text-align: center;
+      font-size: 1em;
+      color: #888;
+      padding: 10px 0;
     }
   </style>
 </head>
@@ -109,7 +146,9 @@
       <button id="btnConcluirSelecionados" onclick="concluirSelecionados()">✅ Concluir Selecionados</button>
     </div>
 
-    <table id="tabelaExport">
+    <div id="loading">Processando...</div>
+
+    <table id="tabelaExport" style="display:none;">
       <thead>
         <tr>
           <th><input type="checkbox" id="checkAll" onclick="selecionarTodos(this)" /></th>
@@ -126,6 +165,8 @@
       </thead>
       <tbody id="tabelaRequisicoes"></tbody>
     </table>
+
+    <div id="semDados" style="display:none;">Sem dados para exibir.</div>
   </div>
 
   <div id="modalAgrupar">
@@ -143,13 +184,40 @@
   <script>
     let requisicoes = [];
 
+    function formatarDataExibicao(isoStr) {
+      const dt = new Date(isoStr);
+      if (isNaN(dt)) return isoStr; // fallback se inválido
+      const dia = String(dt.getDate()).padStart(2, '0');
+      const mes = String(dt.getMonth() + 1).padStart(2, '0');
+      const ano = dt.getFullYear();
+      const hora = String(dt.getHours()).padStart(2, '0');
+      const min = String(dt.getMinutes()).padStart(2, '0');
+      return `${dia}/${mes}/${ano} - ${hora}:${min}`;
+    }
+
     async function carregarDados() {
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('tabelaExport').style.display = 'none';
+      document.getElementById('semDados').style.display = 'none';
+
       const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
-      const res = await fetch(url);
-      const dados = await res.json();
-      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherSolicitantes(requisicoes);
-      renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+      try {
+        const res = await fetch(url);
+        const dados = await res.json();
+        requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
+        preencherSolicitantes(requisicoes);
+        if (requisicoes.length === 0) {
+          document.getElementById('semDados').style.display = 'block';
+        } else {
+          document.getElementById('tabelaExport').style.display = 'table';
+          renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+        }
+      } catch (error) {
+        alert('Erro ao carregar dados da planilha.');
+        console.error(error);
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
     }
 
     function preencherSolicitantes(lista) {
@@ -181,23 +249,11 @@
 
         linha.forEach((cel, i) => {
           const td = document.createElement('td');
-
           if (i === 0) {
-            const dt = new Date(cel);
-            if (!isNaN(dt.getTime())) {
-              const dia = String(dt.getDate()).padStart(2, '0');
-              const mes = String(dt.getMonth() + 1).padStart(2, '0');
-              const ano = dt.getFullYear();
-              const hora = String(dt.getHours()).padStart(2, '0');
-              const min = String(dt.getMinutes()).padStart(2, '0');
-              td.textContent = `${dia}/${mes}/${ano} - ${hora}:${min}`;
-            } else {
-              td.textContent = cel;
-            }
+            td.textContent = formatarDataExibicao(cel);
           } else {
             td.textContent = cel;
           }
-
           tr.appendChild(td);
         });
 
@@ -239,7 +295,7 @@
 
         const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
         const payload = {
-          dataHora: linha[0],
+          dataHora: linha[0], // envia ISO original da data
           item: linha[1],
           novaAcao: 'Concluir'
         };
@@ -295,6 +351,15 @@
       btn.textContent = '🔍 Filtrar';
       btn.disabled = false;
       document.getElementById('checkAll').checked = false;
+
+      // Mostrar ou esconder tabela e mensagem sem dados
+      if (resultado.length === 0) {
+        document.getElementById('tabelaExport').style.display = 'none';
+        document.getElementById('semDados').style.display = 'block';
+      } else {
+        document.getElementById('tabelaExport').style.display = 'table';
+        document.getElementById('semDados').style.display = 'none';
+      }
     }
 
     async function atualizarStatus(index, acao) {
@@ -306,7 +371,7 @@
 
       const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
       const payload = {
-        dataHora: linha[0],
+        dataHora: linha[0], // ISO puro para backend
         item: linha[1],
         novaAcao: acao
       };
@@ -369,29 +434,4 @@
             if(i === 0) {
               const dt = new Date(c);
               if (!isNaN(dt.getTime())) {
-                const dia = String(dt.getDate()).padStart(2, '0');
-                const mes = String(dt.getMonth() + 1).padStart(2, '0');
-                const ano = dt.getFullYear();
-                const hora = String(dt.getHours()).padStart(2, '0');
-                const min = String(dt.getMinutes()).padStart(2, '0');
-                return `${dia}/${mes}/${ano} - ${hora}:${min}`;
-              }
-              return c;
-            }
-            return c;
-          });
-          html += `<tr>${linhaFormatada.map(c => `<td>${c}</td>`).join('')}</tr>`;
-        });
-      }
-      html += '</table>';
-
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
-    }
-
-    carregarDados();
-  </script>
-</body>
-</html>
+                const dia = String(dt
