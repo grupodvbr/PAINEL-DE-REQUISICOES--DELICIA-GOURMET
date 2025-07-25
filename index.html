@@ -318,11 +318,22 @@ body {
         tdCheck.appendChild(checkbox);
         tr.appendChild(tdCheck);
 
-        linha.forEach(cel => {
-          const td = document.createElement('td');
-          td.textContent = cel;
-          tr.appendChild(td);
-        });
+        linha.forEach((cel, i) => {
+  const td = document.createElement('td');
+  if (i === 0) {
+    const dataOriginal = new Date(cel);
+    const dia = String(dataOriginal.getDate()).padStart(2, '0');
+    const mes = String(dataOriginal.getMonth() + 1).padStart(2, '0');
+    const ano = dataOriginal.getFullYear();
+    const hora = String(dataOriginal.getHours()).padStart(2, '0');
+    const minuto = String(dataOriginal.getMinutes()).padStart(2, '0');
+    td.textContent = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+  } else {
+    td.textContent = cel;
+  }
+  tr.appendChild(td);
+});
+
 
         const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
