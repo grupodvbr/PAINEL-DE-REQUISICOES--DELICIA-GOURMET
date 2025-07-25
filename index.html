@@ -14,7 +14,7 @@
       overflow-y: auto;
     }
 
-    .menu-fixo {
+    .topo-fixo {
       position: fixed;
       top: 0;
       left: 0;
@@ -24,22 +24,25 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    .barra-topo {
+    .cabecalho {
+      background: #b8860b;
+      color: white;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 10px 20px;
-      background: #b8860b;
-      color: white;
     }
 
-    .barra-topo h1 {
-      margin: 0 auto;
+    .cabecalho h1 {
+      margin: 0;
       font-size: 1.6em;
+      text-align: center;
+      flex: 1;
     }
 
-    .logo {
+    .cabecalho img {
       height: 40px;
+      margin-right: 20px;
     }
 
     .exportar {
@@ -65,10 +68,11 @@
     .filtros {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
-      padding: 15px 20px 10px;
-      background: #fff;
+      align-items: flex-end;
+      padding: 10px 20px;
+      background: white;
     }
 
     .filtros label {
@@ -78,7 +82,7 @@
     }
 
     .espaco-topo {
-      height: 160px;
+      height: 180px; /* altura total do topo fixo */
     }
 
     .container {
@@ -102,7 +106,7 @@
       background-color: #00796b;
       color: white;
       position: sticky;
-      top: 160px;
+      top: 180px;
       z-index: 998;
     }
 
@@ -128,9 +132,9 @@
   </style>
 </head>
 <body>
-  <div class="menu-fixo">
-    <div class="barra-topo">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" class="logo" />
+  <div class="topo-fixo">
+    <div class="cabecalho">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" />
       <h1>Painel de Requisições</h1>
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
