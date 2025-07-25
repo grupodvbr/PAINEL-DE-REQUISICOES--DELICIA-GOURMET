@@ -160,7 +160,7 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbxiJEb708Tj4HPnyY4qtuKtXs2NB2l-S7KBbET4k23RYpqb2wH9LkXGEm5gpY8A7Qzprw/exec';
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
