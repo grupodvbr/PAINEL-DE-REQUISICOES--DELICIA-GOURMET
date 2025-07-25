@@ -1,8 +1,9 @@
+<!-- FIXADO, COM CONCLUSÃO EM MASSA E SELECT NO SETOR -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
@@ -14,37 +15,77 @@
       background: #f1f1f1;
     }
 
-    .container {
-      height: 100%;
-      padding: 10px 20px 20px;
-      box-sizing: border-box;
+    .topo-fixo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    h1 {
-      text-align: center;
+    .cabecalho {
       background: #b8860b;
       color: white;
       padding: 12px;
-      margin: 0;
-      border-radius: 0;
+      text-align: center;
+      position: relative;
+    }
+
+    .logo {
+      position: absolute;
+      left: 20px;
+      top: 8px;
+      height: 40px;
+    }
+
+    .exportar {
+      position: absolute;
+      right: 20px;
+      top: 10px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .exportar button {
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 0.8em;
     }
 
     .filtros {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
       justify-content: center;
-      align-items: flex-end;
-      background: white;
+      gap: 10px;
       padding: 10px;
-      margin: 0;
       border-bottom: 1px solid #ccc;
+      background: white;
     }
 
     .filtros label {
       display: flex;
       flex-direction: column;
       font-size: 0.9em;
+    }
+
+    #btnFiltrar, #btnMassa {
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+
+    .espaco-topo {
+      height: 190px; /* Altura para compensar o topo fixo */
     }
 
     table {
@@ -73,80 +114,21 @@
       padding: 4px 8px;
     }
 
-    .exportar {
-      position: absolute;
-      top: 12px;
-      right: 30px;
-      display: flex;
-      gap: 5px;
-    }
-
-    .exportar button {
-      padding: 4px 8px;
-      font-size: 0.75em;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .logo {
-      position: absolute;
-      left: 30px;
-      top: 8px;
-      height: 40px;
-    }
-
-    #btnFiltrar {
-      padding: 4px 10px;
-      font-size: 0.8em;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      height: 32px;
-      width: 80px;
-    }
-
-    #modalAgrupar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #modalAgrupar .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-    }
-
-    #modalAgrupar select, #modalAgrupar button {
-      margin-top: 10px;
-      padding: 6px;
-      width: 100%;
+    .acoes input[type="checkbox"] {
+      transform: scale(1.2);
+      margin-right: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div style="position: relative">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
-      <h1>Painel de Requisições</h1>
+  <div class="topo-fixo">
+    <div class="cabecalho">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" class="logo">
+      <h2>Painel de Requisições</h2>
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
         <button onclick="enviarEmail()">✉️ Email</button>
-        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+        <button onclick="concluirMassa()">✅ Conclusão em Massa</button>
       </div>
     </div>
 
@@ -169,43 +151,36 @@
         </select>
       </label>
       <label>Setor:
-        <input type="text" id="filtroSetor" placeholder="Nome do setor">
+        <select id="filtroSetor">
+          <option value="">Todos</option>
+        </select>
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação">
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
-
-    <table id="tabelaExport">
-      <thead>
-        <tr>
-          <th>Data e Hora</th>
-          <th>Item</th>
-          <th>Unidade</th>
-          <th>Quantidade</th>
-          <th>Setor</th>
-          <th>Solicitante</th>
-          <th>Observações</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tabelaRequisicoes"></tbody>
-    </table>
   </div>
 
-  <div id="modalAgrupar">
-    <div class="box">
-      <h3>Como deseja agrupar para impressão?</h3>
-      <select id="seletorAgrupamento">
-        <option value="setor">Setor</option>
-        <option value="solicitante">Solicitante</option>
-      </select>
-      <button onclick="confirmarAgrupamento()">OK</button>
-      <button onclick="fecharModal()">Cancelar</button>
-    </div>
-  </div>
+  <div class="espaco-topo"></div>
+
+  <table id="tabelaExport">
+    <thead>
+      <tr>
+        <th>✔</th>
+        <th>Data e Hora</th>
+        <th>Item</th>
+        <th>Unidade</th>
+        <th>Quantidade</th>
+        <th>Setor</th>
+        <th>Solicitante</th>
+        <th>Observações</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaRequisicoes"></tbody>
+  </table>
 
   <script>
     let requisicoes = [];
@@ -214,19 +189,29 @@
       const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
       const res = await fetch(url);
       const dados = await res.json();
-      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherSolicitantes(requisicoes);
+      requisicoes = dados.map(l => l.map(c => c || ''));
+
+      preencherSelects(requisicoes);
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
     }
 
-    function preencherSolicitantes(lista) {
-      const seletor = document.getElementById('filtroSolicitante');
-      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
-      nomes.sort().forEach(nome => {
-        const opt = document.createElement('option');
-        opt.value = nome;
-        opt.textContent = nome;
-        seletor.appendChild(opt);
+    function preencherSelects(lista) {
+      const solicitantes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+      const setores = [...new Set(lista.map(l => l[4]).filter(n => n))];
+
+      const selSol = document.getElementById('filtroSolicitante');
+      const selSet = document.getElementById('filtroSetor');
+
+      solicitantes.sort().forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        selSol.appendChild(o);
+      });
+
+      setores.sort().forEach(n => {
+        const o = document.createElement('option');
+        o.value = n; o.textContent = n;
+        selSet.appendChild(o);
       });
     }
 
@@ -235,11 +220,16 @@
       tabela.innerHTML = '';
       lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
+        const check = document.createElement('td');
+        check.innerHTML = `<input type="checkbox" data-index="${idx}">`;
+        tr.appendChild(check);
+
         linha.forEach(cel => {
           const td = document.createElement('td');
           td.textContent = cel;
           tr.appendChild(td);
         });
+
         const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
 
@@ -255,11 +245,39 @@
       });
     }
 
-    async function filtrar() {
-      const btn = document.getElementById('btnFiltrar');
-      btn.textContent = '⏳ Carregando...';
-      btn.disabled = true;
+    async function atualizarStatus(index, acao) {
+      const linha = requisicoes[index];
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const payload = {
+        dataHora: linha[0],
+        item: linha[1],
+        novaAcao: acao
+      };
 
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        carregarDados();
+      } else {
+        alert('Erro ao atualizar.');
+      }
+    }
+
+    function concluirMassa() {
+      const selecionados = document.querySelectorAll('input[type="checkbox"]:checked');
+      if (selecionados.length === 0) return alert("Nenhuma linha selecionada.");
+
+      selecionados.forEach(input => {
+        const index = parseInt(input.dataset.index);
+        atualizarStatus(index, "Concluir");
+      });
+    }
+
+    async function filtrar() {
       const dataIni = document.getElementById('filtroDataInicio').value;
       const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
       const dataFim = document.getElementById('filtroDataFim').value;
@@ -279,82 +297,19 @@
           return (!dtInicio || dtLinha >= dtInicio) &&
                  (!dtFim || dtLinha <= dtFim) &&
                  (!solicitante || solicitanteLinha === solicitante) &&
-                 (!setor || setorLinha.includes(setor)) &&
+                 (!setor || setorLinha === setor) &&
                  (!palavra || item.includes(palavra) || obs.includes(palavra));
         });
 
       renderizarTabela(resultado);
-      btn.textContent = '🔍 Filtrar';
-      btn.disabled = false;
-    }
-
-    async function atualizarStatus(index, acao) {
-      const linha = requisicoes[index];
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
-      const payload = {
-        dataHora: linha[0],
-        item: linha[1],
-        novaAcao: acao
-      };
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (res.ok) {
-        alert(`Status atualizado para: ${acao}`);
-        carregarDados();
-      } else {
-        alert('Erro ao atualizar.');
-      }
     }
 
     function exportarPDF() {
-      const elemento = document.getElementById('tabelaExport');
-      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
+      html2pdf().from(document.getElementById('tabelaExport')).save('requisicoes.pdf');
     }
 
     function enviarEmail() {
-      alert("Funcionalidade de envio por email em desenvolvimento.");
-    }
-
-    function abrirModalAgrupar() {
-      document.getElementById("modalAgrupar").style.display = "flex";
-    }
-
-    function fecharModal() {
-      document.getElementById("modalAgrupar").style.display = "none";
-    }
-
-    function confirmarAgrupamento() {
-      const opcao = document.getElementById("seletorAgrupamento").value;
-      document.getElementById("modalAgrupar").style.display = "none";
-
-      const agrupado = {};
-      requisicoes.forEach(l => {
-        const chave = opcao === 'setor' ? l[4] : l[5];
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push(l);
-      });
-
-      let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
-      html += '<table border="1" cellspacing="0" cellpadding="5">';
-      html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
-
-      for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-        agrupado[grupo].forEach(l => {
-          html += `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`;
-        });
-      }
-      html += '</table>';
-
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
+      alert("Funcionalidade em desenvolvimento.");
     }
 
     carregarDados();
