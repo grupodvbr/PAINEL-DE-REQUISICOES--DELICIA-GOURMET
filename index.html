@@ -61,37 +61,16 @@
       box-sizing: border-box;
       padding: 0 20px 20px;
     }
-    .exportar button {
-  white-space: nowrap;
-}
-   .acoes button {
-  padding: 6px 10px;
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  margin-right: 5px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-  transition: background 0.3s ease, transform 0.2s;
-}
-
-.acoes button:hover {
-  transform: translateY(-1px);
-}
-
-.acoes button:nth-child(1) { background-color: #4caf50; } /* Concluir */
-.acoes button:nth-child(2) { background-color: #2196f3; } /* Comprar */
-.acoes button:nth-child(3) { background-color: #f44336; } /* Negar */
-
+    .acoes button {
+      margin-right: 5px;
     }
     .exportar {
-  display: flex;
-  gap: 10px;
-  position: absolute;
-  top: 12px;
-  left: 30px;
-}
+      position: absolute;
+      top: 12px;
+      left: 30px;
+      display: flex;
+      gap: 10px;
+    }
     .exportar button {
       display: flex;
       align-items: center;
@@ -146,16 +125,6 @@
       border-radius: 10px;
       width: 300px;
       text-align: center;
-      
-      #modalEmail {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 999;
-  justify-content: center;
-  align-items: center;
-}
     }
     #modalAgrupar select, #modalAgrupar button {
       margin-top: 10px;
@@ -169,7 +138,7 @@
     <div style="position: relative">
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
-        <button onclick="abrirModalEmail()">✉️ Email</button>
+        <button onclick="enviarEmail()">✉️ Email</button>
         <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
       </div>
       <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
@@ -232,22 +201,14 @@
       </select>
       <button onclick="confirmarAgrupamento()">OK</button>
       <button onclick="fecharModal()">Cancelar</button>
-
-</div>
     </div>
   </div>
-<div id="modalEmail" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center;">
-  <div style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
-    <h3>Enviar para:</h3>
-    <select id="selectEmail" style="width:100%; padding:6px;"></select>
-    <button onclick="confirmarEnvioEmail()" style="margin-top:10px; padding:6px 12px; background:#00796b; color:white; border:none; border-radius:5px;">Enviar</button>
-    <button onclick="fecharModalEmail()" style="margin-top:10px; padding:6px 12px; background:#ccc; border:none; border-radius:5px;">Cancelar</button>
-  </div>
+
   <script>
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
@@ -354,7 +315,7 @@
 
     async function atualizarStatus(index, acao) {
       const linha = requisicoes[index];
-      const url = 'https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
       const payload = {
         dataHora: linha[0],
         item: linha[1],
@@ -380,13 +341,17 @@
       html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
     }
 
+function enviarEmail() {
+  const tabelaHTML = document.getElementById('tabelaExport').outerHTML;
+  const destinatario = prompt("Digite o e-mail para envio:", "exemplo@email.com");
+  if (!destinatario) return;
 
   const payload = {
     email: destinatario,
     html: tabelaHTML
   };
 
-  fetch("https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyyXviu6__6o3Woqee1tJtZVf-YLQDS49G_cjWShU7JwjzJ_fMid-DToWqRCEo1R7zCzg/exec", {
     method: "POST",
     body: JSON.stringify(payload),
     headers: {
@@ -404,6 +369,7 @@
   });
 }
 
+    }
 
     function abrirModalAgrupar() {
       document.getElementById("modalAgrupar").style.display = "flex";
@@ -458,53 +424,6 @@
     }
 
     carregarDados();
-    function abrirModalEmail() {
-  fetch('https://script.google.com/macros/s/AKfycbyyXviu6__6o3Woqee1tJtZVf-YLQDS49G_cjWShU7JwjzJ_fMid-DToWqRCEo1R7zCzg/exec?emails=1')
-    .then(res => res.json())
-    .then(dados => {
-      const select = document.getElementById("selectEmail");
-      select.innerHTML = "";
-      dados.forEach(email => {
-        const opt = document.createElement("option");
-        opt.value = email;
-        opt.textContent = email;
-        select.appendChild(opt);
-      });
-      document.getElementById("modalEmail").style.display = "flex";
-    })
-    .catch(err => {
-      alert("Erro ao carregar e-mails.");
-      console.error(err);
-    });
-}
-function confirmarEnvioEmail() {
-  const email = document.getElementById("selectEmail").value;
-  const tabelaHTML = document.getElementById('tabelaExport').outerHTML;
-
-  const payload = {
-    email: email,
-    html: tabelaHTML
-  };
-
-  fetch("https://script.google.com/macros/s/AKfycbz_CmyHTQPwiHO8kpSG3xrjMcy-pkJwcYU7HTw8joynG6IL_Zt7dlKJ5kfwiNhZBhNuAg/exec", {
-    method: "POST",
-    body: JSON.stringify(payload),
-    headers: {
-      "Content-Type": "application/json"
-    }
-  }).then(res => {
-    if (res.ok) {
-      alert("📧 Email enviado com sucesso!");
-      fecharModalEmail();
-    } else {
-      alert("❌ Erro ao enviar email.");
-    }
-  });
-}
-function fecharModalEmail() {
-  document.getElementById("modalEmail").style.display = "none";
-}
-
   </script>
 </body>
 </html>
