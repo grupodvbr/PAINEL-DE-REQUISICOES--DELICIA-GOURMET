@@ -6,6 +6,98 @@
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
+
+<style>
+  /* Adicione ao seu CSS existente */
+  .topo-fixo {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: #fff;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ccc;
+  }
+  .logo {
+    position: relative;
+    margin-left: 30px;
+  }
+  .filtros {
+    margin-top: 10px;
+  }
+  .exportar {
+    position: fixed;
+    top: 20px;
+    right: 60px;
+    z-index: 1000;
+    display: flex;
+    gap: 5px;
+  }
+</style>
+
+<body>
+  <div class="container">
+    <div class="topo-fixo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo" />
+      <h1>Painel de Requisições</h1>
+      <div class="exportar">
+        <button onclick="exportarPDF()">📄 PDF</button>
+        <button onclick="enviarEmail()">✉️ Email</button>
+        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+      </div>
+
+      <div class="filtros">
+        <label>Data de:
+          <input type="date" id="filtroDataInicio" />
+        </label>
+        <label>Hora Inicial:
+          <input type="time" id="filtroHoraInicio" />
+        </label>
+        <label>Data até:
+          <input type="date" id="filtroDataFim" />
+        </label>
+        <label>Hora Final:
+          <input type="time" id="filtroHoraFim" />
+        </label>
+        <label>Solicitante:
+          <select id="filtroSolicitante">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>Setor:
+          <select id="filtroSetor">
+            <option value="">Todos</option>
+          </select>
+        </label>
+        <label>Palavra-chave:
+          <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
+        </label>
+        <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
+      </div>
+
+      <button id="btnConcluirSelecionados" onclick="concluirSelecionados()" disabled>✔️ Concluir Selecionados</button>
+    </div>
+
+    <table id="tabelaExport">
+      <thead>
+        <tr>
+          <th class="select-all"><input type="checkbox" id="selectAll" title="Selecionar todos" /></th>
+          <th>Data e Hora</th>
+          <th>Item</th>
+          <th>Unidade</th>
+          <th>Quantidade</th>
+          <th>Setor</th>
+          <th>Solicitante</th>
+          <th>Observações</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaRequisicoes"></tbody>
+    </table>
+  </div>
+</body>
+
     html, body {
   height: 100%;
 }
