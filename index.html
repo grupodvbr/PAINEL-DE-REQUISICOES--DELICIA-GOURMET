@@ -6,43 +6,93 @@
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-  html, body {
-  margin: 0;
-  padding: 0;
-  height: 100vh;
-  width: 100vw;
-  background: #f1f1f1;
-  font-family: Arial, sans-serif;
-}
-    h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
-    .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 20px; justify-content: center; align-items: flex-end; }
-    .filtros label { display: flex; flex-direction: column; font-size: 0.9em; }
-    table { width: 100%; border-collapse: collapse; background: #fff; }
-    th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
-    th { background-color: #00796b; color: white; }
-    tbody tr:nth-child(even) { background-color: #f9f9f9; }
-.container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
-  box-sizing: border-box;
-  padding: 0 20px 20px;
-}
-
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      width: 100vw;
+      background: #f1f1f1;
+      font-family: Arial, sans-serif;
+    }
+    h1 {
+      text-align: center;
+      background: #b8860b;
+      color: white;
+      padding: 10px;
+      margin: 0;
+      border-radius: 0 0 10px 10px;
+    }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0 20px;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .filtros label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+    }
+    th, td {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #00796b;
+      color: white;
+    }
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .container {
+      height: 100%;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      box-sizing: border-box;
+      padding: 0 20px 20px;
+    }
+    .acoes button {
+      margin-right: 5px;
+    }
     .exportar {
-  position: absolute;
-  top: 12px;
-  left: 30px;
-  display: flex;
-  gap: 5px;
-}
-sor: pointer;
+      position: absolute;
+      top: 12px;
+      left: 30px;
+      display: flex;
+      gap: 10px;
+    }
+    .exportar button {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 8px 12px;
+      font-size: 0.85em;
+      font-weight: bold;
+      background-color: #009688;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    .exportar button:hover {
+      background-color: #00796b;
+      transform: translateY(-1px);
     }
     .logo {
       position: absolute;
-      left: 30px;
+      right: 30px;
       top: 8px;
       height: 40px;
     }
@@ -86,13 +136,13 @@ sor: pointer;
 <body>
   <div class="container">
     <div style="position: relative">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
-      <h1>Painel de Requisições</h1>
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
         <button onclick="enviarEmail()">✉️ Email</button>
         <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
       </div>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
+      <h1>Painel de Requisições</h1>
     </div>
 
     <div class="filtros">
@@ -114,11 +164,10 @@ sor: pointer;
         </select>
       </label>
       <label>Setor:
-  <select id="filtroSetor">
-    <option value="">Todos</option>
-  </select>
-</label>
-
+        <select id="filtroSetor">
+          <option value="">Todos</option>
+        </select>
+      </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação">
       </label>
@@ -178,16 +227,18 @@ sor: pointer;
         seletor.appendChild(opt);
       });
     }
-function preencherSetores(lista) {
-  const seletor = document.getElementById('filtroSetor');
-  const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
-  setores.sort().forEach(setor => {
-    const opt = document.createElement('option');
-    opt.value = setor;
-    opt.textContent = setor;
-    seletor.appendChild(opt);
-  });
-}
+
+    function preencherSetores(lista) {
+      const seletor = document.getElementById('filtroSetor');
+      const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
+      setores.sort().forEach(setor => {
+        const opt = document.createElement('option');
+        opt.value = setor;
+        opt.textContent = setor;
+        seletor.appendChild(opt);
+      });
+    }
+
     function renderizarTabela(lista) {
       const tabela = document.getElementById('tabelaRequisicoes');
       tabela.innerHTML = '';
@@ -196,8 +247,6 @@ function preencherSetores(lista) {
 
         linha.forEach((cel, i) => {
           const td = document.createElement('td');
-
-          // Formatação especial para a coluna Data e Hora (índice 0)
           if (i === 0) {
             const dt = new Date(cel);
             if (!isNaN(dt.getTime())) {
@@ -208,12 +257,11 @@ function preencherSetores(lista) {
               const min = String(dt.getMinutes()).padStart(2, '0');
               td.textContent = `${dia}/${mes}/${ano} - ${hora}:${min}`;
             } else {
-              td.textContent = cel; // fallback se não for data válida
+              td.textContent = cel;
             }
           } else {
             td.textContent = cel;
           }
-
           tr.appendChild(td);
         });
 
@@ -251,12 +299,12 @@ function preencherSetores(lista) {
       const resultado = requisicoes
         .map((linha, idx) => ({ linha, idx }))
         .filter(({ linha }) => {
-          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
+          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs] = linha.map(c => c.toLowerCase());
           const dtLinha = new Date(linha[0]);
           return (!dtInicio || dtLinha >= dtInicio) &&
                  (!dtFim || dtLinha <= dtFim) &&
                  (!solicitante || solicitanteLinha === solicitante) &&
-                 (!setor || setorLinha.includes(setor)) &&
+                 (!setor || setorLinha === setor) &&
                  (!palavra || item.includes(palavra) || obs.includes(palavra));
         });
 
@@ -323,7 +371,6 @@ function preencherSetores(lista) {
       for (const grupo in agrupado) {
         html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
         agrupado[grupo].forEach(l => {
-          // Formata data/hora no agrupamento também:
           let linhaFormatada = l.map((c, i) => {
             if(i === 0) {
               const dt = new Date(c);
