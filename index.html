@@ -90,7 +90,7 @@
     }
 
     .espaco-topo {
-      height: 230px; /* Altura total da área fixa (cabeçalho + filtros + botão) */
+      height: 280px; /* altura total do topo fixo */
     }
 
     .container {
@@ -114,8 +114,9 @@
       background-color: #00796b;
       color: white;
       position: sticky;
-      top: 230px; /* mesmo valor da .espaco-topo */
-      z-index: 998;
+      top: 280px;
+      z-index: 999;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     tbody tr:nth-child(even) {
