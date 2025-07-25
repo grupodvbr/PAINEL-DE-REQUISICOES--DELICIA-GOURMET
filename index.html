@@ -8,86 +8,64 @@
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
     h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
-    .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 20px; justify-content: center; align-items: flex-end; }
-    .filtros label { display: flex; flex-direction: column; font-size: 0.9em; }
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0 20px;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .filtros label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9em;
+    }
+    .filtros button {
+      height: 32px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9em;
+      cursor: pointer;
+      padding: 0 12px;
+      white-space: nowrap;
+    }
+    #btnConcluirSelecionados {
+      background-color: #4caf50;
+    }
     table { width: 100%; border-collapse: collapse; background: #fff; }
     th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
     th { background-color: #00796b; color: white; }
     tbody tr:nth-child(even) { background-color: #f9f9f9; }
     .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
     .acoes button { margin-right: 5px; }
- .exportar {
-  position: absolute;
-  top: 12px;
-  right: 30px;
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;         /* permite quebrar linha se faltar espaço */
-  max-width: 400px;        /* limite máximo para o container */
-}
-
-.exportar button {
-  padding: 4px 6px;        /* menos padding horizontal */
-  font-size: 0.75em;
-  background-color: #00796b;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  white-space: nowrap;     /* evita quebra interna do texto */
-  min-width: 70px;         /* largura mínima para botões */
-}
-
-    .logo {
+    .exportar {
       position: absolute;
-      left: 30px;
-      top: 8px;
-      height: 40px;
+      top: 12px;
+      right: 30px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      max-width: 400px;
     }
-    #btnFiltrar {
-      padding: 4px 10px;
-      font-size: 0.8em;
+    .exportar button {
+      padding: 4px 6px;
+      font-size: 0.75em;
       background-color: #00796b;
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      height: 32px;
-      width: 80px;
+      white-space: nowrap;
+      min-width: 70px;
     }
-    #btnConcluirSelecionados {
-      margin-left: 10px;
-      padding: 6px 12px;
-      font-size: 0.9em;
-      background-color: #4caf50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    #modalAgrupar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-    }
-    #modalAgrupar .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-    }
-    #modalAgrupar select, #modalAgrupar button {
-      margin-top: 10px;
-      padding: 6px;
-      width: 100%;
+    .logo {
+      position: absolute;
+      left: 30px;
+      top: 8px;
+      height: 40px;
     }
   </style>
 </head>
@@ -100,7 +78,6 @@
         <button onclick="exportarPDF()">📄 PDF</button>
         <button onclick="enviarEmail()">✉️ Email</button>
         <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
-        <button id="btnConcluirSelecionados" onclick="concluirSelecionados()">✅ Concluir Selecionados</button>
       </div>
     </div>
 
@@ -129,6 +106,7 @@
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação" />
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
+      <button id="btnConcluirSelecionados" onclick="concluirSelecionados()">✅ Concluir Selecionados</button>
     </div>
 
     <table id="tabelaExport">
