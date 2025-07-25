@@ -200,7 +200,7 @@
       document.getElementById('tabelaExport').style.display = 'none';
       document.getElementById('semDados').style.display = 'none';
 
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const url = 'https://script.google.com/macros/s/AKfycbyhK02k_a0l3ItefQyv4ja84ZgBHc799j_xsbnpNsNa1TCA8vsCJvXmQkaDxXyjM7AVxg/exec';
       try {
         const res = await fetch(url);
         const dados = await res.json();
@@ -293,7 +293,7 @@
         const linha = requisicoes[idx];
         if (!linha) continue;
 
-        const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+        const url = 'https://script.google.com/macros/s/AKfycbyhK02k_a0l3ItefQyv4ja84ZgBHc799j_xsbnpNsNa1TCA8vsCJvXmQkaDxXyjM7AVxg/exec';
         const payload = {
           dataHora: linha[0], // envia ISO original da data
           item: linha[1],
