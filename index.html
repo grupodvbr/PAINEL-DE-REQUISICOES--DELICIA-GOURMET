@@ -114,8 +114,11 @@
         </select>
       </label>
       <label>Setor:
-        <input type="text" id="filtroSetor" placeholder="Nome do setor">
-      </label>
+  <select id="filtroSetor">
+    <option value="">Todos</option>
+  </select>
+</label>
+
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação">
       </label>
@@ -161,6 +164,7 @@
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
       preencherSolicitantes(requisicoes);
+      preencherSetores(requisicoes);
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
     }
 
@@ -174,7 +178,16 @@
         seletor.appendChild(opt);
       });
     }
-
+function preencherSetores(lista) {
+  const seletor = document.getElementById('filtroSetor');
+  const setores = [...new Set(lista.map(l => l[4]).filter(s => s))];
+  setores.sort().forEach(setor => {
+    const opt = document.createElement('option');
+    opt.value = setor;
+    opt.textContent = setor;
+    seletor.appendChild(opt);
+  });
+}
     function renderizarTabela(lista) {
       const tabela = document.getElementById('tabelaRequisicoes');
       tabela.innerHTML = '';
