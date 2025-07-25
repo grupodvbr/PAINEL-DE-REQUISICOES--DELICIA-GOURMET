@@ -1,4 +1,4 @@
-<!-- FIXADO, COM CONCLUSÃO EM MASSA E SELECT NO SETOR -->
+<!-- Painel com topo fixo, botão de impressão, conclusão em massa reposicionado -->
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -10,7 +10,6 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 100%;
       font-family: Arial, sans-serif;
       background: #f1f1f1;
     }
@@ -53,9 +52,16 @@
       color: white;
       border: none;
       border-radius: 4px;
-      padding: 5px 10px;
+      padding: 6px 12px;
       cursor: pointer;
       font-size: 0.8em;
+    }
+
+    .conclusao-massa {
+      display: flex;
+      justify-content: center;
+      background: white;
+      padding: 8px 10px 0;
     }
 
     .filtros {
@@ -63,8 +69,7 @@
       flex-wrap: wrap;
       justify-content: center;
       gap: 10px;
-      padding: 10px;
-      border-bottom: 1px solid #ccc;
+      padding: 10px 10px 15px;
       background: white;
     }
 
@@ -74,7 +79,7 @@
       font-size: 0.9em;
     }
 
-    #btnFiltrar, #btnMassa {
+    #btnFiltrar {
       background: #00796b;
       color: white;
       border: none;
@@ -85,7 +90,7 @@
     }
 
     .espaco-topo {
-      height: 190px; /* Altura para compensar o topo fixo */
+      height: 230px; /* compensação do topo fixo */
     }
 
     table {
@@ -127,9 +132,15 @@
       <h2>Painel de Requisições</h2>
       <div class="exportar">
         <button onclick="exportarPDF()">📄 PDF</button>
-        <button onclick="enviarEmail()">✉️ Email</button>
-        <button onclick="concluirMassa()">✅ Conclusão em Massa</button>
+        <button onclick="enviarEmail()">📧 Email</button>
+        <button onclick="abrirImpressao()">🖨️ Impressão</button>
       </div>
+    </div>
+
+    <div class="conclusao-massa">
+      <button onclick="concluirMassa()" style="background:#00796b;color:white;border:none;border-radius:4px;padding:6px 12px;font-size:0.9em;">
+        ✅ Conclusão em Massa
+      </button>
     </div>
 
     <div class="filtros">
@@ -190,7 +201,6 @@
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(l => l.map(c => c || ''));
-
       preencherSelects(requisicoes);
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
     }
@@ -260,21 +270,29 @@
         body: JSON.stringify(payload)
       });
 
-      if (res.ok) {
-        carregarDados();
-      } else {
-        alert('Erro ao atualizar.');
-      }
+      if (res.ok) carregarDados();
+      else alert('Erro ao atualizar.');
     }
 
     function concluirMassa() {
       const selecionados = document.querySelectorAll('input[type="checkbox"]:checked');
       if (selecionados.length === 0) return alert("Nenhuma linha selecionada.");
-
       selecionados.forEach(input => {
         const index = parseInt(input.dataset.index);
         atualizarStatus(index, "Concluir");
       });
+    }
+
+    function exportarPDF() {
+      html2pdf().from(document.getElementById('tabelaExport')).save('requisicoes.pdf');
+    }
+
+    function enviarEmail() {
+      alert("Funcionalidade de envio por email em desenvolvimento.");
+    }
+
+    function abrirImpressao() {
+      window.print();
     }
 
     async function filtrar() {
@@ -302,14 +320,6 @@
         });
 
       renderizarTabela(resultado);
-    }
-
-    function exportarPDF() {
-      html2pdf().from(document.getElementById('tabelaExport')).save('requisicoes.pdf');
-    }
-
-    function enviarEmail() {
-      alert("Funcionalidade em desenvolvimento.");
     }
 
     carregarDados();
