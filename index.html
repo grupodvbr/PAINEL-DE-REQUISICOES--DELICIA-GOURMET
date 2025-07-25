@@ -52,7 +52,7 @@
     }
 
     .espaco-topo {
-      height: 290px; /* altura do topo fixo + botão fixo */
+      height: 310px;
     }
 
     h1 {
@@ -90,12 +90,13 @@
       position: sticky;
       top: 250px;
       z-index: 999;
-      background: #f1f1f1;
-      padding: 5px 20px;
+      background: #e0e0e0;
+      padding: 8px 20px;
+      border-bottom: 1px solid #ccc;
     }
 
     .container {
-      padding: 10px 20px;
+      padding: 0 20px 20px;
     }
 
     table {
@@ -114,6 +115,9 @@
     th {
       background-color: #00796b;
       color: white;
+      position: sticky;
+      top: 310px; /* mesma altura total acima da tabela */
+      z-index: 998;
     }
 
     tbody tr:nth-child(even) {
@@ -128,7 +132,6 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      margin-bottom: 5px;
     }
 
     #btnConcluirSelecionados:disabled {
@@ -245,7 +248,7 @@
           <td>${linha[5]}</td>
           <td>${linha[6]}</td>
           <td>${linha[7]}</td>
-          <td class="acoes">
+          <td>
             <button onclick="atualizarStatus(${idx}, 'Concluído')">Concluir</button>
             <button onclick="atualizarStatus(${idx}, 'Negado')">Negar</button>
             <button onclick="atualizarStatus(${idx}, 'Comprar')">Comprar</button>
