@@ -1,110 +1,61 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Painel de Requisições</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
-    h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
-    .filtros {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin: 10px 0 20px;
-      justify-content: center;
-      align-items: flex-end;
-    }
-    .filtros label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9em;
-    }
-    .filtros button {
-      height: 32px;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.9em;
-      cursor: pointer;
-      padding: 0 12px;
-      white-space: nowrap;
-    }
-    #btnConcluirSelecionados {
-      background-color: #4caf50;
-    }
-    table { width: 100%; border-collapse: collapse; background: #fff; }
-    th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
-    th { background-color: #00796b; color: white; }
-    tbody tr:nth-child(even) { background-color: #f9f9f9; }
-    .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative; }
-    .acoes button { margin-right: 5px; }
-    .exportar {
-      position: absolute;
-      top: 12px;
-      right: 30px;
-      display: flex;
-      gap: 5px;
-      flex-wrap: wrap;
-      max-width: 400px;
-    }
-    .exportar button {
-      padding: 4px 6px;
-      font-size: 0.75em;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      white-space: nowrap;
-      min-width: 70px;
-    }
-    .logo {
-      position: absolute;
-      left: 30px;
-      top: 8px;
-      height: 40px;
-    }
-    #modalAgrupar {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 999;
-      justify-content: center;
-      align-items: center;
-    }
-    #modalAgrupar .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      width: 300px;
-      text-align: center;
-    }
-    #modalAgrupar select, #modalAgrupar button {
-      margin-top: 10px;
-      padding: 6px;
-      width: 100%;
-    }
-    #loading {
-      text-align: center;
-      font-size: 1.2em;
-      font-weight: bold;
-      padding: 15px;
-      color: #555;
-    }
-    #semDados {
-      text-align: center;
-      font-size: 1em;
-      color: #888;
-      padding: 10px 0;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Painel de Requisições</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
+  h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
+  .filtros {
+    display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 20px; justify-content: center; align-items: flex-end;
+  }
+  .filtros label {
+    display: flex; flex-direction: column; font-size: 0.9em;
+  }
+  .filtros button {
+    height: 32px; background-color: #00796b; color: white; border: none; border-radius: 4px; font-size: 0.9em;
+    cursor: pointer; padding: 0 12px; white-space: nowrap;
+  }
+  #btnConcluirSelecionados {
+    background-color: #4caf50;
+  }
+  table { width: 100%; border-collapse: collapse; background: #fff; }
+  th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
+  th { background-color: #00796b; color: white; }
+  tbody tr:nth-child(even) { background-color: #f9f9f9; }
+  .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative;
+  }
+  .acoes button { margin-right: 5px; }
+  .exportar {
+    position: absolute; top: 12px; right: 30px; display: flex; gap: 5px; flex-wrap: wrap; max-width: 400px;
+  }
+  .exportar button {
+    padding: 4px 6px; font-size: 0.75em; background-color: #00796b; color: white; border: none; border-radius: 4px;
+    cursor: pointer; white-space: nowrap; min-width: 70px;
+  }
+  .logo {
+    position: absolute; left: 30px; top: 8px; height: 40px;
+  }
+  #modalAgrupar {
+    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);
+    z-index: 999; justify-content: center; align-items: center;
+  }
+  #modalAgrupar .box {
+    background: #fff; padding: 20px; border-radius: 10px; width: 300px; text-align: center;
+  }
+  #modalAgrupar select, #modalAgrupar button {
+    margin-top: 10px; padding: 6px; width: 100%;
+  }
+  #loading {
+    text-align: center; font-size: 1.2em; font-weight: bold; padding: 15px; color: #555;
+  }
+  #semDados {
+    text-align: center; font-size: 1em; color: #888; padding: 10px 0;
+  }
+</style>
 </head>
 <body>
   <div class="container">
@@ -181,257 +132,274 @@
     </div>
   </div>
 
-  <script>
-    let requisicoes = [];
+<script>
+  const URL_API = 'https://script.google.com/macros/s/AKfycbyhK02k_a0l3ItefQyv4ja84ZgBHc799j_xsbnpNsNa1TCA8vsCJvXmQkaDxXyjM7AVxg/exec';
 
-    function formatarDataExibicao(isoStr) {
-      const dt = new Date(isoStr);
-      if (isNaN(dt)) return isoStr; // fallback se inválido
-      const dia = String(dt.getDate()).padStart(2, '0');
-      const mes = String(dt.getMonth() + 1).padStart(2, '0');
-      const ano = dt.getFullYear();
-      const hora = String(dt.getHours()).padStart(2, '0');
-      const min = String(dt.getMinutes()).padStart(2, '0');
-      return `${dia}/${mes}/${ano} - ${hora}:${min}`;
-    }
+  let requisicoes = [];
 
-    async function carregarDados() {
-      document.getElementById('loading').style.display = 'block';
-      document.getElementById('tabelaExport').style.display = 'none';
-      document.getElementById('semDados').style.display = 'none';
+  function formatarDataExibicao(isoStr) {
+    const dt = new Date(isoStr);
+    if (isNaN(dt)) return isoStr;
+    const dia = String(dt.getDate()).padStart(2, '0');
+    const mes = String(dt.getMonth() + 1).padStart(2, '0');
+    const ano = dt.getFullYear();
+    const hora = String(dt.getHours()).padStart(2, '0');
+    const min = String(dt.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${ano} - ${hora}:${min}`;
+  }
 
-      const url = 'https://script.google.com/macros/s/AKfycbyhK02k_a0l3ItefQyv4ja84ZgBHc799j_xsbnpNsNa1TCA8vsCJvXmQkaDxXyjM7AVxg/exec';
-      try {
-        const res = await fetch(url);
-        const dados = await res.json();
-        requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-        preencherSolicitantes(requisicoes);
-        if (requisicoes.length === 0) {
-          document.getElementById('semDados').style.display = 'block';
-        } else {
-          document.getElementById('tabelaExport').style.display = 'table';
-          renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
-        }
-      } catch (error) {
-        alert('Erro ao carregar dados da planilha.');
-        console.error(error);
-      } finally {
-        document.getElementById('loading').style.display = 'none';
-      }
-    }
+  async function carregarDados() {
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('tabelaExport').style.display = 'none';
+    document.getElementById('semDados').style.display = 'none';
 
-    function preencherSolicitantes(lista) {
-      const seletor = document.getElementById('filtroSolicitante');
-      seletor.innerHTML = '<option value="">Todos</option>';
-      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
-      nomes.sort().forEach(nome => {
-        const opt = document.createElement('option');
-        opt.value = nome;
-        opt.textContent = nome;
-        seletor.appendChild(opt);
-      });
-    }
+    try {
+      const res = await fetch(URL_API);
+      if (!res.ok) throw new Error(`Erro HTTP: ${res.status}`);
+      const dados = await res.json();
+      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
+      preencherSolicitantes(requisicoes);
 
-    function renderizarTabela(lista) {
-      const tabela = document.getElementById('tabelaRequisicoes');
-      tabela.innerHTML = '';
-      lista.forEach(({ linha, idx }) => {
-        const tr = document.createElement('tr');
-
-        // Checkbox para seleção individual
-        const tdCheckbox = document.createElement('td');
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.className = 'checkItem';
-        checkbox.dataset.idx = idx;
-        tdCheckbox.appendChild(checkbox);
-        tr.appendChild(tdCheckbox);
-
-        linha.forEach((cel, i) => {
-          const td = document.createElement('td');
-          if (i === 0) {
-            td.textContent = formatarDataExibicao(cel);
-          } else {
-            td.textContent = cel;
-          }
-          tr.appendChild(td);
-        });
-
-        const tdAcoes = document.createElement('td');
-        tdAcoes.className = 'acoes';
-
-        ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
-          const btn = document.createElement('button');
-          btn.textContent = acao;
-          btn.onclick = () => atualizarStatus(idx, acao);
-          tdAcoes.appendChild(btn);
-        });
-
-        tr.appendChild(tdAcoes);
-        tabela.appendChild(tr);
-      });
-    }
-
-    function selecionarTodos(source) {
-      const checkboxes = document.querySelectorAll('.checkItem');
-      checkboxes.forEach(cb => {
-        cb.checked = source.checked;
-      });
-    }
-
-    async function concluirSelecionados() {
-      const checkboxes = document.querySelectorAll('.checkItem:checked');
-      if (checkboxes.length === 0) {
-        alert('Selecione ao menos uma requisição para concluir.');
-        return;
-      }
-
-      if (!confirm(`Concluir ${checkboxes.length} requisição(ões)?`)) return;
-
-      for (const cb of checkboxes) {
-        const idx = parseInt(cb.dataset.idx, 10);
-        const linha = requisicoes[idx];
-        if (!linha) continue;
-
-        const url = 'https://script.google.com/macros/s/AKfycbyhK02k_a0l3ItefQyv4ja84ZgBHc799j_xsbnpNsNa1TCA8vsCJvXmQkaDxXyjM7AVxg/exec';
-        const payload = {
-          dataHora: linha[0], // envia ISO original da data
-          item: linha[1],
-          novaAcao: 'Concluir'
-        };
-
-        try {
-          const res = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          if (!res.ok) throw new Error('Erro ao atualizar');
-        } catch (e) {
-          alert('Erro ao atualizar uma ou mais requisições.');
-          console.error(e);
-          return;
-        }
-      }
-
-      alert('Status atualizado para "Concluir" nas requisições selecionadas.');
-      carregarDados();
-      document.getElementById('checkAll').checked = false;
-    }
-
-    async function filtrar() {
-      const btn = document.getElementById('btnFiltrar');
-      btn.textContent = '⏳ Carregando...';
-      btn.disabled = true;
-
-      const dataIni = document.getElementById('filtroDataInicio').value;
-      const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
-      const dataFim = document.getElementById('filtroDataFim').value;
-      const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
-      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-      const setor = document.getElementById('filtroSetor').value.toLowerCase();
-      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-      const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
-      const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
-
-      const resultado = requisicoes
-        .map((linha, idx) => ({ linha, idx }))
-        .filter(({ linha }) => {
-          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
-          const dtLinha = new Date(linha[0]);
-          return (!dtInicio || dtLinha >= dtInicio) &&
-                 (!dtFim || dtLinha <= dtFim) &&
-                 (!solicitante || solicitanteLinha === solicitante) &&
-                 (!setor || setorLinha.includes(setor)) &&
-                 (!palavra || item.includes(palavra) || obs.includes(palavra));
-        });
-
-      renderizarTabela(resultado);
-      btn.textContent = '🔍 Filtrar';
-      btn.disabled = false;
-      document.getElementById('checkAll').checked = false;
-
-      // Mostrar ou esconder tabela e mensagem sem dados
-      if (resultado.length === 0) {
-        document.getElementById('tabelaExport').style.display = 'none';
+      if (requisicoes.length === 0) {
         document.getElementById('semDados').style.display = 'block';
       } else {
         document.getElementById('tabelaExport').style.display = 'table';
-        document.getElementById('semDados').style.display = 'none';
+        renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
       }
+    } catch (error) {
+      alert('Erro ao carregar dados: ' + error.message);
+      console.error(error);
+    } finally {
+      document.getElementById('loading').style.display = 'none';
     }
+  }
 
-    async function atualizarStatus(index, acao) {
-      const linha = requisicoes[index];
-      if (!linha) {
-        alert('Item não encontrado');
-        return;
-      }
+  function preencherSolicitantes(lista) {
+    const seletor = document.getElementById('filtroSolicitante');
+    seletor.innerHTML = '<option value="">Todos</option>';
+    const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+    nomes.sort().forEach(nome => {
+      const opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome;
+      seletor.appendChild(opt);
+    });
+  }
 
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+  function renderizarTabela(lista) {
+    const tabela = document.getElementById('tabelaRequisicoes');
+    tabela.innerHTML = '';
+    lista.forEach(({ linha, idx }) => {
+      const tr = document.createElement('tr');
+
+      const tdCheckbox = document.createElement('td');
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.className = 'checkItem';
+      checkbox.dataset.idx = idx;
+      tdCheckbox.appendChild(checkbox);
+      tr.appendChild(tdCheckbox);
+
+      linha.forEach((cel, i) => {
+        const td = document.createElement('td');
+        td.textContent = i === 0 ? formatarDataExibicao(cel) : cel;
+        tr.appendChild(td);
+      });
+
+      const tdAcoes = document.createElement('td');
+      tdAcoes.className = 'acoes';
+
+      ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+        const btn = document.createElement('button');
+        btn.textContent = acao;
+        btn.onclick = () => atualizarStatus(idx, acao);
+        tdAcoes.appendChild(btn);
+      });
+
+      tr.appendChild(tdAcoes);
+      tabela.appendChild(tr);
+    });
+  }
+
+  function selecionarTodos(source) {
+    const checkboxes = document.querySelectorAll('.checkItem');
+    checkboxes.forEach(cb => cb.checked = source.checked);
+  }
+
+  async function concluirSelecionados() {
+    const checkboxes = document.querySelectorAll('.checkItem:checked');
+    if (checkboxes.length === 0) {
+      alert('Selecione ao menos uma requisição para concluir.');
+      return;
+    }
+    if (!confirm(`Concluir ${checkboxes.length} requisição(ões)?`)) return;
+
+    for (const cb of checkboxes) {
+      const idx = parseInt(cb.dataset.idx, 10);
+      const linha = requisicoes[idx];
+      if (!linha) continue;
+
       const payload = {
-        dataHora: linha[0], // ISO puro para backend
+        dataHora: linha[0],
         item: linha[1],
-        novaAcao: acao
+        novaAcao: 'Concluir'
       };
 
       try {
-        const res = await fetch(url, {
+        const res = await fetch(URL_API, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
-        if (res.ok) {
-          alert(`Status atualizado para: ${acao}`);
-          await carregarDados();
-        } else {
-          alert('Erro ao atualizar o status.');
-        }
-      } catch (error) {
-        alert('Erro de conexão ao atualizar o status.');
-        console.error(error);
+        if (!res.ok) throw new Error('Erro ao atualizar');
+      } catch (e) {
+        alert('Erro ao atualizar uma ou mais requisições.');
+        console.error(e);
+        return;
       }
     }
 
-    function exportarPDF() {
-      const elemento = document.getElementById('tabelaExport');
-      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
-    }
+    alert('Status atualizado para "Concluir" nas requisições selecionadas.');
+    carregarDados();
+    document.getElementById('checkAll').checked = false;
+  }
 
-    function enviarEmail() {
-      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
-    }
+  async function filtrar() {
+    const btn = document.getElementById('btnFiltrar');
+    btn.textContent = '⏳ Carregando...';
+    btn.disabled = true;
 
-    function abrirModalAgrupar() {
-      document.getElementById("modalAgrupar").style.display = "flex";
-    }
+    const dataIni = document.getElementById('filtroDataInicio').value;
+    const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
+    const dataFim = document.getElementById('filtroDataFim').value;
+    const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
+    const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
+    const setor = document.getElementById('filtroSetor').value.toLowerCase();
+    const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
 
-    function fecharModal() {
-      document.getElementById("modalAgrupar").style.display = "none";
-    }
+    const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
+    const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
 
-    function confirmarAgrupamento() {
-      const opcao = document.getElementById("seletorAgrupamento").value;
-      document.getElementById("modalAgrupar").style.display = "none";
-
-      const agrupado = {};
-      requisicoes.forEach(l => {
-        const chave = opcao === 'setor' ? l[4] : l[5];
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push(l);
+    const resultado = requisicoes
+      .map((linha, idx) => ({ linha, idx }))
+      .filter(({ linha }) => {
+        const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
+        const dtLinha = new Date(linha[0]);
+        return (!dtInicio || dtLinha >= dtInicio) &&
+               (!dtFim || dtLinha <= dtFim) &&
+               (!solicitante || solicitanteLinha === solicitante) &&
+               (!setor || setorLinha.includes(setor)) &&
+               (!palavra || item.includes(palavra) || obs.includes(palavra));
       });
 
-      let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
-      html += '<table border="1" cellspacing="0" cellpadding="5">';
-      html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
+    renderizarTabela(resultado);
+    btn.textContent = '🔍 Filtrar';
+    btn.disabled = false;
+    document.getElementById('checkAll').checked = false;
 
-      for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-        agrupado[grupo].forEach(l => {
-          let linhaFormatada = l.map((c, i) => {
-            if(i === 0) {
-              const dt = new Date(c);
-              if (!isNaN(dt.getTime())) {
-                const dia = String(dt
+    if (resultado.length === 0) {
+      document.getElementById('tabelaExport').style.display = 'none';
+      document.getElementById('semDados').style.display = 'block';
+    } else {
+      document.getElementById('tabelaExport').style.display = 'table';
+      document.getElementById('semDados').style.display = 'none';
+    }
+  }
+
+  async function atualizarStatus(index, acao) {
+    const linha = requisicoes[index];
+    if (!linha) {
+      alert('Item não encontrado');
+      return;
+    }
+
+    const payload = {
+      dataHora: linha[0],
+      item: linha[1],
+      novaAcao: acao
+    };
+
+    try {
+      const res = await fetch(URL_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert(`Status atualizado para: ${acao}`);
+        await carregarDados();
+      } else {
+        alert('Erro ao atualizar o status.');
+      }
+    } catch (error) {
+      alert('Erro de conexão ao atualizar o status.');
+      console.error(error);
+    }
+  }
+
+  function exportarPDF() {
+    const elemento = document.getElementById('tabelaExport');
+    html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
+  }
+
+  function enviarEmail() {
+    alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
+  }
+
+  function abrirModalAgrupar() {
+    document.getElementById("modalAgrupar").style.display = "flex";
+  }
+
+  function fecharModal() {
+    document.getElementById("modalAgrupar").style.display = "none";
+  }
+
+  function confirmarAgrupamento() {
+    const opcao = document.getElementById("seletorAgrupamento").value;
+    document.getElementById("modalAgrupar").style.display = "none";
+
+    const agrupado = {};
+    requisicoes.forEach(l => {
+      const chave = opcao === 'setor' ? l[4] : l[5];
+      if (!agrupado[chave]) agrupado[chave] = [];
+      agrupado[chave].push(l);
+    });
+
+    let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
+    html += '<table border="1" cellspacing="0" cellpadding="5">';
+    html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
+
+    for (const grupo in agrupado) {
+      html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+      agrupado[grupo].forEach(l => {
+        let linhaFormatada = l.map((c, i) => {
+          if(i === 0) {
+            const dt = new Date(c);
+            if (!isNaN(dt.getTime())) {
+              const dia = String(dt.getDate()).padStart(2, '0');
+              const mes = String(dt.getMonth() + 1).padStart(2, '0');
+              const ano = dt.getFullYear();
+              const hora = String(dt.getHours()).padStart(2, '0');
+              const min = String(dt.getMinutes()).padStart(2, '0');
+              return `${dia}/${mes}/${ano} - ${hora}:${min}`;
+            }
+            return c;
+          }
+          return c;
+        });
+        html += `<tr>${linhaFormatada.map(c => `<td>${c}</td>`).join('')}</tr>`;
+      });
+    }
+    html += '</table>';
+
+    const janela = window.open('', '_blank');
+    janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
+    janela.document.close();
+    janela.print();
+  }
+
+  window.onload = carregarDados;
+</script>
+</body>
+</html>
