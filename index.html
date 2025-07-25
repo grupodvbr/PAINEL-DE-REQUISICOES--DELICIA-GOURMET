@@ -28,7 +28,40 @@
   .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1); position: relative;
   }
-  .acoes button { margin-right: 5px; }
+  .acoes button {
+    margin-right: 8px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85em;
+    transition: background-color 0.3s ease;
+  }
+  .acoes button:nth-child(1) {
+    background-color: #4caf50; /* verde */
+    color: white;
+  }
+  .acoes button:nth-child(1):hover {
+    background-color: #45a049;
+  }
+  .acoes button:nth-child(2) {
+    background-color: #2196f3; /* azul */
+    color: white;
+  }
+  .acoes button:nth-child(2):hover {
+    background-color: #1976d2;
+  }
+  .acoes button:nth-child(3) {
+    background-color: #f44336; /* vermelho */
+    color: white;
+  }
+  .acoes button:nth-child(3):hover {
+    background-color: #d32f2f;
+  }
+  .acoes {
+    display: flex;
+    align-items: center;
+  }
   .exportar {
     position: absolute; top: 12px; right: 30px; display: flex; gap: 5px; flex-wrap: wrap; max-width: 400px;
   }
