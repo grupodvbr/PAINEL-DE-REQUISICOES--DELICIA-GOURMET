@@ -263,6 +263,16 @@
       <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
+      <label>
+    Status:
+    <select id="filtroStatus" onchange="filtrar()">
+      <option value="">Todos</option>
+      <option value="PENDENTE">PENDENTE</option>
+      <option value="Concluir">Concluir</option>
+      <option value="Negar">Negar</option>
+      <option value="Comprar">Comprar</option>
+    </select>
+  </label>
     <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
   </div>
 
@@ -356,6 +366,7 @@
 
 
   function filtrar() {
+    const status = document.getElementById('filtroStatus').value.toLowerCase();
     const inicioData = document.getElementById('filtroDataInicio').value;
     const fimData = document.getElementById('filtroDataFim').value;
     const inicioHora = document.getElementById('filtroHoraInicio').value;
@@ -376,6 +387,11 @@
           const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
           if (dataHora > dataFim) return false;
         }
+        if (status) {
+  const statusAtual = linha[7].toLowerCase() === "processando" ? "pendente" : linha[7].toLowerCase();
+  if (!statusAtual.includes(status)) return false;
+}
+
         if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
         if (setor && !linha[4].toLowerCase().includes(setor)) return false;
         if (palavra) {
