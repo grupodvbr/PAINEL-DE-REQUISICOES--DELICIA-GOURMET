@@ -402,6 +402,13 @@
 
 
   <script>
+  let carrinhoCompras = [];
+
+const carrinhoSalvo = localStorage.getItem("carrinhoCompras");
+if (carrinhoSalvo) {
+  carrinhoCompras = JSON.parse(carrinhoSalvo);
+}
+
   let requisicoes = [];
   let listaFiltrada = [];
 
@@ -774,14 +781,18 @@ function atualizarCarrinhoVisual() {
 function abrirCarrinho() {
   atualizarCarrinhoModal();
   document.getElementById('modalCarrinho').style.display = 'flex';
+
 }
 
 function fecharCarrinho() {
   document.getElementById('modalCarrinho').style.display = 'none';
+
 }
 
 function atualizarCarrinhoModal() {
   const tbody = document.getElementById("tabelaCarrinhoModal");
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
+
   tbody.innerHTML = "";
 
   carrinhoCompras.forEach(item => {
@@ -800,6 +811,8 @@ function atualizarCarrinhoModal() {
 function enviarCarrinhoWhatsApp() {
   if (carrinhoCompras.length === 0) {
     alert("O carrinho está vazio.");
+    localStorage.removeItem("carrinhoCompras");
+
     return;
   }
 
