@@ -208,24 +208,64 @@
       z-index: 999;
     }
 
-    @media (max-width: 768px) {
-      .filtros { flex-direction: column; }
-      .botoes-acoes { justify-content: center; flex-wrap: wrap; }
+   @media (max-width: 768px) {
+  body {
+    font-size: 0.95em;
+  }
 
-      .header-flex {
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-      }
+  .header-flex {
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    text-align: center;
+  }
 
-      .logo-area, .espaco-direito {
-        display: none;
-      }
+  .logo-area, .espaco-direito {
+    display: none;
+  }
 
-      .titulo-area {
-        text-align: center;
-      }
-    }
+  .titulo-area {
+    text-align: center;
+  }
+
+  .botoes-acoes {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .filtros {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .filtros label {
+    width: 100%;
+    min-width: unset;
+  }
+
+  #btnFiltrar, .btn-massa {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .tabela-container {
+    max-height: none;
+    overflow-x: scroll;
+    padding-bottom: 100px;
+  }
+
+  table {
+    font-size: 0.85em;
+  }
+
+  .acoes button {
+    font-size: 0.75em;
+    padding: 4px 6px;
+  }
+}
+
 
     table th:nth-child(2),
     table td:nth-child(2) {
@@ -235,6 +275,12 @@
       word-wrap: break-word !important;
       white-space: normal !important;
     }
+    @media (max-width: 768px) {
+  body {
+    overflow: auto !important;
+  }
+}
+
   </style>
 
 </head>
