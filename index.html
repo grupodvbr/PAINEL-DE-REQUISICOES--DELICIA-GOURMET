@@ -257,8 +257,12 @@
       const tdAcoes = document.createElement('td');
       tdAcoes.className = 'acoes';
       ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
-        const btn = document.createElement('button');
-        btn.textContent = acao;
+  const btn = document.createElement('button');
+  btn.textContent = acao;
+  btn.onclick = () => atualizarStatus(idx, acao);
+  tdAcoes.appendChild(btn);
+});
+
         tdAcoes.appendChild(btn);
       });
       tr.appendChild(tdAcoes);
@@ -441,6 +445,20 @@
     document.getElementById("modalAgruparWhatsApp").style.display = "none";
     enviarWhatsApp(criterio);
   }
+    function atualizarStatus(linhaIndex, novoStatus) {
+  fetch('https://script.google.com/macros/s/AKfycbzCfSOjuKLSZnJBx1t7Cwy-KVozKP9jY-zgPHVmyVUbWxP2Ygl28rjDLMDXnSLoANqePg/exec', {
+    method: 'POST',
+    body: JSON.stringify({ linha: linhaIndex, status: novoStatus }),
+    headers: { 'Content-Type': 'application/json' }
+  })
+  .then(r => r.text())
+  .then(res => {
+    alert(res);
+    carregarDados(); // recarrega a tabela com status atualizado
+  })
+  .catch(err => alert("Erro ao atualizar status: " + err));
+}
+
 
   carregarDados();
 </script>
