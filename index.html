@@ -415,8 +415,10 @@ tdAcoes = document.createElement('td');
     }
 
     function abrirModalAgrupar() {
-      document.getElementById("modalAgrupar").style.display = "flex";
-    }
+  const modal = document.getElementById("modalAgrupar");
+  modal.dataset.origem = "print";
+  modal.style.display = "flex";
+}
 
     function fecharModal() {
       document.getElementById("modalAgrupar").style.display = "none";
@@ -454,9 +456,10 @@ html += `<tr>${ordem.map(i => `<td>${i === 1 ? `<strong>${l[i]}</strong>` : l[i]
     }
     function abrirModalPDF() {
   const modal = document.getElementById("modalAgrupar");
-  modal.dataset.origem = "pdf";
+  modal.dataset.origem = "pdf"; // define origem para o botão OK saber
   modal.style.display = "flex";
 }
+
 
 async function gerarPDFAgrupado(opcao) {
   const agrupado = {};
