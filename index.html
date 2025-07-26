@@ -218,7 +218,7 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const res = await fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec');
+      const res = await fetch('https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec');
       const dados = await res.json();
       requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
