@@ -175,7 +175,7 @@
     <h1>Painel de Requisições</h1>
     <div class="botoes-acoes">
       <button onclick="abrirModalAgrupar('pdf')">📄 PDF</button>
-      <button onclick="enviarWhatsApp()">📱 WhatsApp</button>
+      <button onclick="abrirModalAgruparWhatsApp()">📱 WhatsApp</button>
       <button onclick="abrirModalAgrupar('print')">🖨️ Imprimir</button>
     </div>
     <div class="filtros">
@@ -213,6 +213,19 @@
       <button onclick="document.getElementById('modalAgrupar').style.display='none'">Cancelar</button>
     </div>
   </div>
+  <div id="modalAgruparWhatsApp" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:999;">
+  <div class="box" style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
+    <h3>Como deseja agrupar no WhatsApp?</h3>
+    <select id="seletorAgrupamentoWhatsApp">
+      <option value="setor">Setor</option>
+      <option value="solicitante">Solicitante</option>
+      <option value="status">Status</option>
+    </select>
+    <button onclick="confirmarAgrupamentoWhatsApp()">Enviar</button>
+    <button onclick="document.getElementById('modalAgruparWhatsApp').style.display='none'">Cancelar</button>
+  </div>
+</div>
+
 
  <script>
   let requisicoes = [];
@@ -377,7 +390,7 @@
     janela.print();
   }
 
-  function enviarWhatsApp() {
+ function enviarWhatsApp(criterio = 'setor') {
   const hoje = new Date();
   const dataFormatada = hoje.toLocaleDateString('pt-BR');
   const titulo = `**COMPRAS DELÍCIA GOURMET - ${dataFormatada}**\n\n`;
@@ -386,19 +399,24 @@
   const fonte = listaFiltrada.length ? listaFiltrada : requisicoes.map((linha, idx) => ({ linha, idx }));
 
   fonte.forEach(({ linha }) => {
-    const setor = linha[4] || 'Sem Setor';
+    let chave = '';
+    if (criterio === 'setor') chave = linha[4];
+    else if (criterio === 'solicitante') chave = linha[5];
+    else if (criterio === 'status') chave = linha[7];
+    else chave = 'Outro';
+
     const item = linha[1];
     const unidade = linha[2];
     const quantidade = linha[3];
 
-    if (!agrupado[setor]) agrupado[setor] = [];
-    agrupado[setor].push({ item, quantidade, unidade });
+    if (!agrupado[chave]) agrupado[chave] = [];
+    agrupado[chave].push({ item, quantidade, unidade });
   });
 
   let mensagem = titulo;
-  for (const setor in agrupado) {
-    mensagem += `🛒 *${setor}*\n`;
-    agrupado[setor].forEach(({ item, quantidade, unidade }) => {
+  for (const grupo in agrupado) {
+    mensagem += `🛒 *${grupo}*\n`;
+    agrupado[grupo].forEach(({ item, quantidade, unidade }) => {
       mensagem += `- ${item} — ${quantidade} ${unidade}\n`;
     });
     mensagem += `\n`;
@@ -406,6 +424,16 @@
 
   const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
   window.open(link, '_blank');
+}
+
+function abrirModalAgruparWhatsApp() {
+  document.getElementById("modalAgruparWhatsApp").style.display = "flex";
+}
+
+function confirmarAgrupamentoWhatsApp() {
+  const criterio = document.getElementById("seletorAgrupamentoWhatsApp").value;
+  document.getElementById("modalAgruparWhatsApp").style.display = "none";
+  enviarWhatsApp(criterio);
 }
 
 
