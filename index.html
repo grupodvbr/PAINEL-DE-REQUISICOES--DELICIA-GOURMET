@@ -265,7 +265,7 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
