@@ -388,17 +388,18 @@
   fonte.forEach(({ linha }) => {
     const setor = linha[4] || 'Sem Setor';
     const item = linha[1];
+    const unidade = linha[2];
     const quantidade = linha[3];
 
     if (!agrupado[setor]) agrupado[setor] = [];
-    agrupado[setor].push({ item, quantidade });
+    agrupado[setor].push({ item, quantidade, unidade });
   });
 
   let mensagem = titulo;
   for (const setor in agrupado) {
     mensagem += `🛒 *${setor}*\n`;
-    agrupado[setor].forEach(({ item, quantidade }) => {
-      mensagem += `- ${item} — ${quantidade}\n`;
+    agrupado[setor].forEach(({ item, quantidade, unidade }) => {
+      mensagem += `- ${item} — ${quantidade} ${unidade}\n`;
     });
     mensagem += `\n`;
   }
@@ -406,6 +407,7 @@
   const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
   window.open(link, '_blank');
 }
+
 
   carregarDados();
 </script>
