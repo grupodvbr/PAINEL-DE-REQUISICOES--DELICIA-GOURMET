@@ -207,27 +207,6 @@
       align-items: center;
       z-index: 999;
     }
-    #modalHistorico {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.4);
-  justify-content: center;
-  align-items: center;
-  z-index: 999;
-}
-
-#modalHistorico .box {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 700px;
-  max-height: 80vh;
-  overflow-y: auto;
-  text-align: left;
-}
-
 
    @media (max-width: 768px) {
   body {
@@ -337,7 +316,7 @@
       <button onclick="abrirCarrinho()" style="margin-top: 10px; background: none; border: none; font-size: 1.8em; cursor: pointer;" title="Ver carrinho">
   🛒
 </button>
-<button onclick="abrirHistorico()">🕘 Histórico</button>
+
 
 </div>
   <div style="margin-left: 20px; display: inline-block;">
@@ -390,11 +369,7 @@
       📲 Enviar via WhatsApp
     </button>
     <button onclick="fecharCarrinho()" style="margin-left:10px; padding:10px 20px; background:#ccc; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
-  <button onclick="abrirHistoricoEnvios()" style="margin-left:10px; padding:10px 20px; background:#ffc107; color:black; border:none; border-radius:6px; cursor:pointer;">
-  ⏱️ Histórico
-</button>
-
-</div>
+  </div>
 </div>
 
   <div id="modalAgrupar">
@@ -854,13 +829,6 @@ function enviarCarrinhoWhatsApp() {
 
   const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
   window.open(url, '_blank');
-  const historico = JSON.parse(localStorage.getItem("historicoEnvios")) || [];
-historico.push({
-  data: new Date().toLocaleString('pt-BR'),
-  itens: [...carrinhoCompras]
-});
-localStorage.setItem("historicoEnvios", JSON.stringify(historico));
-
 }
 
 function removerItemCarrinho(index) {
@@ -876,25 +844,6 @@ function editarQuantidade(index, novaQtd) {
 function editarUnidade(index, novaUnidade) {
   carrinhoCompras[index].unidade = novaUnidade;
   localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-}
-function abrirHistoricoEnvios() {
-  const lista = document.getElementById("listaHistorico");
-  const historico = JSON.parse(localStorage.getItem("historicoEnvios")) || [];
-
-  lista.innerHTML = "";
-  historico.reverse().forEach(envio => {
-    const li = document.createElement("li");
-    li.style.marginBottom = "10px";
-    let texto = `<strong>${envio.data}</strong><ul>`;
-    envio.itens.forEach(item => {
-      texto += `<li>${item.item} — ${item.quantidade} ${item.unidade}</li>`;
-    });
-    texto += `</ul>`;
-    li.innerHTML = texto;
-    lista.appendChild(li);
-  });
-
-  document.getElementById("modalHistorico").style.display = "flex";
 }
 
 
