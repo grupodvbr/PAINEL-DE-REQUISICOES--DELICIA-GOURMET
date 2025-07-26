@@ -122,10 +122,37 @@
     }
 
     table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.95em;
-    }
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+  table-layout: auto;
+}
+
+thead th {
+  text-align: center;
+  background: var(--cor-botao); /* mantém o azul do cabeçalho */
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+}
+
+tbody td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Alinha colunas específicas */
+tbody td:nth-child(1), /* Qtd */
+tbody td:nth-child(2)  /* Unidade */ {
+  text-align: center;
+}
+
+tbody td:nth-child(3), /* Setor */
+tbody td:nth-child(4)  /* Solicitante */ {
+  text-align: left;
+}
+
+
 
     thead th {
       position: sticky;
