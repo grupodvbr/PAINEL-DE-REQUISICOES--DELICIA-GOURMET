@@ -377,7 +377,7 @@
   let listaFiltrada = [];
 
   async function carregarDados() {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbwthVWj2-S052pYx6pHD-dlV30axHkByWyp3eLL1FLASHxcgFMA0QJn6SEb8jVMxPyAow/exec');
+    const res = await fetch('https://script.google.com/macros/s/AKfycbvyvWYeg-NXuSrqcDpml94jeXUOam0K5Ie0Jk5KCmDZ8nAPcFvsa6qJ-lbWOQCoHzc14A/exec');
     const dados = await res.json();
     requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
     renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
@@ -620,7 +620,7 @@ else if (criterio === 'status') {
     enviarWhatsApp(criterio);
   }
     function atualizarStatus(linhaIndex, novoStatus) {
-  fetch('https://script.google.com/macros/s/AKfycbwthVWj2-S052pYx6pHD-dlV30axHkByWyp3eLL1FLASHxcgFMA0QJn6SEb8jVMxPyAow/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbvyvWYeg-NXuSrqcDpml94jeXUOam0K5Ie0Jk5KCmDZ8nAPcFvsa6qJ-lbWOQCoHzc14A/exec', {
   method: 'POST',
   body: JSON.stringify({ linha: linhaIndex, status: novoStatus }),
   headers: { 'Content-Type': 'application/json' }
