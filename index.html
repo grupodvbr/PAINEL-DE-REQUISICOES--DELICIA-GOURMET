@@ -314,7 +314,21 @@
       <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
-
+    <div style="margin-top: 20px; width: 100%;">
+  <h3 style="margin-left: 20px;">🛒 Itens no Carrinho</h3>
+  <table style="margin: 0 20px; width: calc(100% - 40px); border-collapse: collapse; font-size: 0.9em;">
+    <thead>
+      <tr style="background: #eee;">
+        <th style="border: 1px solid #ccc; padding: 8px;">Item</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Qtd</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Unidade</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Setor</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Solicitante</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaCarrinho"></tbody>
+  </table>
+</div>
   <div style="margin-left: 20px; display: inline-block;">
   <label style="font-weight: bold; font-size: 0.9em;">
     Status:
@@ -621,7 +635,9 @@
     enviarWhatsApp(criterio);
   }
 
-  function atualizarStatus(linhaIndex, novoStatus) {
+  let carrinhoCompras = [];
+
+function atualizarStatus(linhaIndex, novoStatus) {
   const dadosOriginais = requisicoes[linhaIndex].linha;
 
   const payload = {
@@ -636,29 +652,35 @@
     novoStatus: novoStatus
   };
 
-  const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-const urlCompras = 'https://script.google.com/macros/s/AKfycbyuUFYFkbQ-vvOxwkO2-fTkHhS4NImlk7iHBpsCt9_KsL4L9Wwu3O07fPCPVtlGfsRB-Q/exec';
+  if (novoStatus === 'Comprar') {
+    carrinhoCompras.push(payload);
+    atualizarCarrinhoVisual();
+    const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
+    btns.forEach(btn => {
+      btn.disabled = true;
+      btn.textContent = '🛒 No carrinho';
+    });
+  } else {
+    const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
 
-const urlDestino = novoStatus === 'Comprar' ? urlCompras : urlStatus;
-
-fetch(urlDestino, {
-
-    method: 'POST',
-    body: JSON.stringify(payload),
-    headers: { 'Content-Type': 'application/json' }
-  })
+    fetch(urlStatus, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' }
+    })
     .then(res => res.text())
     .then(msg => {
       const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
       btns.forEach(btn => {
         btn.disabled = true;
         if (novoStatus === 'Concluir') btn.textContent = '✔️ Concluído';
-        else if (novoStatus === 'Comprar') btn.textContent = '🛒 Enviado para compra';
         else if (novoStatus === 'Negar') btn.textContent = '❌ Negado';
       });
     })
     .catch(err => alert("Erro ao registrar: " + err));
+  }
 }
+
     function concluirEmMassa() {
   const pendentes = listaFiltrada
     .map((item, idx) => ({ item, idx }))
@@ -711,6 +733,23 @@ fetch(urlDestino, {
     .catch(err => console.error("Erro em massa:", err));
   });
 }
+function atualizarCarrinhoVisual() {
+  const tbody = document.getElementById("tabelaCarrinho");
+  tbody.innerHTML = "";
+
+  carrinhoCompras.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="border: 1px solid #ccc; padding: 6px;">${item.item}</td>
+      <td style="border: 1px solid #ccc; padding: 6px;">${item.quantidade}</td>
+      <td style="border: 1px solid #ccc; padding: 6px;">${item.unidade}</td>
+      <td style="border: 1px solid #ccc; padding: 6px;">${item.setor}</td>
+      <td style="border: 1px solid #ccc; padding: 6px;">${item.solicitante}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
 
 
 
