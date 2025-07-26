@@ -620,7 +620,7 @@ else if (criterio === 'status') {
     enviarWhatsApp(criterio);
   }
     function atualizarStatus(linhaIndex, novoStatus) {
-  fetch('https://script.google.com/macros/s/AKfycbwQX1-90_cIcg46UI7VlszhCAVdZ0swo9DcSOqoziM2Ph3RHP0jRJQbvWea0892mc0Dfg/exec', {
+  fetch('https://script.google.com/macros/s/AKfycbzgt3a_WkSea-tNEE3u2UgsxPOLdo2gP45gtRUcT8-DMO6THqW_P1ShhsXTVhBSCIN8/exec', {
   method: 'POST',
   body: JSON.stringify({ linha: linhaIndex, status: novoStatus }),
   headers: { 'Content-Type': 'application/json' }
