@@ -752,12 +752,22 @@ function atualizarCarrinhoVisual() {
   carrinhoCompras.forEach(item => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="border: 1px solid #ccc; padding: 6px;">${item.item}</td>
-      <td style="border: 1px solid #ccc; padding: 6px;">${item.quantidade}</td>
-      <td style="border: 1px solid #ccc; padding: 6px;">${item.unidade}</td>
-      <td style="border: 1px solid #ccc; padding: 6px;">${item.setor}</td>
-      <td style="border: 1px solid #ccc; padding: 6px;">${item.solicitante}</td>
-    `;
+  <td style="border:1px solid #ccc; padding:6px;">${item.item}</td>
+  <td style="border:1px solid #ccc; padding:6px;">
+    <input type="number" value="${item.quantidade}" min="1" style="width:60px;" onchange="carrinhoCompras[${index}].quantidade = this.value">
+  </td>
+  <td style="border:1px solid #ccc; padding:6px;">
+    <select onchange="carrinhoCompras[${index}].unidade = this.value">
+      <option value="UN." ${item.unidade === 'UN.' ? 'selected' : ''}>UN.</option>
+      <option value="CX" ${item.unidade === 'CX' ? 'selected' : ''}>CX</option>
+      <option value="KG" ${item.unidade === 'KG' ? 'selected' : ''}>KG</option>
+      <option value="PC" ${item.unidade === 'PC' ? 'selected' : ''}>PC</option>
+    </select>
+  </td>
+  <td style="border:1px solid #ccc; padding:6px;">${item.setor}</td>
+  <td style="border:1px solid #ccc; padding:6px;">${item.solicitante}</td>
+`;
+
     tbody.appendChild(tr);
   });
 }
