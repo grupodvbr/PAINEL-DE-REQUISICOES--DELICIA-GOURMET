@@ -7,11 +7,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
-      --cor-primaria: #2e7d59; /* Verde escuro do botão */
-      --cor-secundaria: #d8af3f; /* Amarelo mostarda do fundo */
-      --cor-fundo: #fff8e1; /* fundo claro */
-      --cor-texto: #222;
-      --cor-botao-vermelho: #a72828;
+      --cor-fundo: #ffffff;
+      --cor-texto: #000000;
+      --cor-botao: #007bff; /* azul */
+      --cor-botao-vermelho: #dc3545; /* vermelho */
+      --cor-destaque: #007bff;
+      --cor-cinza-claro: #f8f9fa;
     }
 
     * { box-sizing: border-box; }
@@ -19,7 +20,7 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: var(--cor-secundaria);
+      background: var(--cor-fundo);
       color: var(--cor-texto);
     }
 
@@ -27,17 +28,17 @@
       margin: 0;
       padding: 15px;
       text-align: center;
-      background: var(--cor-primaria);
-      color: white;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
       font-size: 1.6em;
     }
 
     .top-bar {
       position: sticky;
       top: 0;
-      background: var(--cor-secundaria);
+      background: var(--cor-fundo);
       z-index: 1000;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      border-bottom: 1px solid #ccc;
     }
 
     .botoes-acoes {
@@ -48,12 +49,12 @@
     }
 
     .botoes-acoes button {
-      background: var(--cor-primaria);
+      background: var(--cor-botao);
       color: white;
       border: none;
-      padding: 6px 12px;
-      font-size: 0.85em;
-      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.9em;
+      border-radius: 6px;
       cursor: pointer;
     }
 
@@ -63,8 +64,8 @@
       gap: 10px;
       padding: 10px 20px;
       justify-content: space-between;
-      background: var(--cor-fundo);
-      border-radius: 0 0 10px 10px;
+      background: var(--cor-cinza-claro);
+      border-radius: 8px;
     }
 
     .filtros label {
@@ -81,26 +82,27 @@
       padding: 10px;
       font-size: 1em;
       border: 1px solid #ccc;
-      border-radius: 8px;
+      border-radius: 6px;
+      background: white;
     }
 
     #btnFiltrar {
       padding: 10px 16px;
-      background: var(--cor-primaria);
+      background: var(--cor-botao);
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 1em;
       margin-top: 25px;
     }
 
     .btn-massa {
-      background: #9c27b0;
+      background: var(--cor-botao-vermelho);
       color: white;
       border: none;
       padding: 10px 16px;
-      border-radius: 8px;
+      border-radius: 6px;
       margin: 10px 20px;
       font-size: 1em;
       cursor: pointer;
@@ -110,7 +112,7 @@
       max-width: 98%;
       margin: 0 auto 20px;
       background: white;
-      border-radius: 10px;
+      border-radius: 8px;
       overflow-x: auto;
       overflow-y: auto;
       max-height: 65vh;
@@ -126,12 +128,12 @@
     thead th {
       position: sticky;
       top: 0;
-      background: var(--cor-primaria);
+      background: var(--cor-botao);
       color: white;
       z-index: 10;
     }
 
-    tbody tr:nth-child(even) { background: #f1f1f1; }
+    tbody tr:nth-child(even) { background: #f2f2f2; }
     tbody tr:nth-child(odd) { background: #ffffff; }
     tbody tr { border-bottom: 1px solid #ccc; }
 
@@ -140,7 +142,7 @@
       padding: 6px 10px;
       font-size: 0.85em;
       border: none;
-      background: #666;
+      background: #6c757d;
       color: white;
       border-radius: 6px;
       cursor: pointer;
