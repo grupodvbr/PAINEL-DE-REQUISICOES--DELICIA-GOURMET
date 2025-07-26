@@ -47,6 +47,22 @@
       gap: 8px;
       padding: 10px 20px 0;
     }
+   .td-conteudo {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+  height: 100%;
+  width: 100%;
+}
+
+
+td, th {
+  vertical-align: middle;
+  text-align: left;
+  white-space: nowrap;
+}
 
     .botoes-acoes button {
       background: var(--cor-botao);
@@ -267,29 +283,36 @@
   let valor = linha[i];
   if (i === 7 && valor.toLowerCase() === "processando") valor = "PENDENTE";
 
-  td.innerHTML = i === 0
-    ? new Date(linha[i]).toLocaleString('pt-BR')
-    : i === 1
-    ? `<strong>${linha[i]}</strong>`
-    : valor;
+ const divConteudo = document.createElement('div');
+divConteudo.className = 'td-conteudo';
+divConteudo.innerHTML = i === 0
+  ? new Date(linha[i]).toLocaleString('pt-BR')
+  : i === 1
+  ? `<strong>${linha[i]}</strong>`
+  : valor;
+
+td.appendChild(divConteudo);
+
 
   tr.appendChild(td);
 });
 
     const tdAcoes = document.createElement('td');
-    tdAcoes.className = 'acoes';
+tdAcoes.className = 'acoes';
 
-    ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
-      const btn = document.createElement('button');
-      btn.textContent = acao;
-      btn.onclick = () => atualizarStatus(idx, acao);
-      tdAcoes.appendChild(btn);
-    });
+const divAcoes = document.createElement('div');
+divAcoes.className = 'td-conteudo';
 
-    tr.appendChild(tdAcoes);
-    tabela.appendChild(tr);
-  });
-}
+['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+  const btn = document.createElement('button');
+  btn.textContent = acao;
+  btn.onclick = () => atualizarStatus(idx, acao);
+  divAcoes.appendChild(btn);
+});
+
+tdAcoes.appendChild(divAcoes);
+tr.appendChild(tdAcoes);
+
 
 
   function filtrar() {
