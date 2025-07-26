@@ -47,22 +47,6 @@
       gap: 8px;
       padding: 10px 20px 0;
     }
-   .td-conteudo {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 6px;
-  height: 100%;
-  width: 100%;
-}
-
-
-td, th {
-  vertical-align: middle;
-  text-align: left;
-  white-space: nowrap;
-}
 
     .botoes-acoes button {
       background: var(--cor-botao);
@@ -283,36 +267,29 @@ td, th {
   let valor = linha[i];
   if (i === 7 && valor.toLowerCase() === "processando") valor = "PENDENTE";
 
- const divConteudo = document.createElement('div');
-divConteudo.className = 'td-conteudo';
-divConteudo.innerHTML = i === 0
-  ? new Date(linha[i]).toLocaleString('pt-BR')
-  : i === 1
-  ? `<strong>${linha[i]}</strong>`
-  : valor;
-
-td.appendChild(divConteudo);
-
+  td.innerHTML = i === 0
+    ? new Date(linha[i]).toLocaleString('pt-BR')
+    : i === 1
+    ? `<strong>${linha[i]}</strong>`
+    : valor;
 
   tr.appendChild(td);
 });
 
     const tdAcoes = document.createElement('td');
-tdAcoes.className = 'acoes';
+    tdAcoes.className = 'acoes';
 
-const divAcoes = document.createElement('div');
-divAcoes.className = 'td-conteudo';
+    ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+      const btn = document.createElement('button');
+      btn.textContent = acao;
+      btn.onclick = () => atualizarStatus(idx, acao);
+      tdAcoes.appendChild(btn);
+    });
 
-['Concluir', 'Comprar', 'Negar'].forEach(acao => {
-  const btn = document.createElement('button');
-  btn.textContent = acao;
-  btn.onclick = () => atualizarStatus(idx, acao);
-  divAcoes.appendChild(btn);
-});
-
-tdAcoes.appendChild(divAcoes);
-tr.appendChild(tdAcoes);
-
+    tr.appendChild(tdAcoes);
+    tabela.appendChild(tr);
+  });
+}
 
 
   function filtrar() {
