@@ -29,6 +29,7 @@
       font-family: Arial, sans-serif;
     }
 
+
     h1 {
       margin: 0;
       padding: 15px 0;
@@ -102,6 +103,9 @@
   min-width: 150px;
   flex: 1;
   font-weight: bold;
+}
+#filtroStatus {
+  margin-left: 15px;
 }
 
 
@@ -264,9 +268,7 @@
       <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
-      <label>
-        <div class="filtros">
-  <label>
+
     Data de:
     <input type="date" id="filtroDataInicio" />
   </label>
