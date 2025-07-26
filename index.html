@@ -8,58 +8,104 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
       background: #f1f1f1;
+      margin: 0;
+      padding: 0;
     }
-    .menu-fixo {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      padding: 10px 20px 0;
-    }
-    .espaco-topo {
-      height: 310px;
-    }
+
     h1 {
       text-align: center;
       background: #b8860b;
       color: white;
-      padding: 10px;
+      padding: 15px;
       margin: 0;
-      border-radius: 8px;
     }
+
+    .topo {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
     .filtros {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin: 10px 0 20px;
       justify-content: center;
-      align-items: flex-end;
+      padding: 10px;
     }
+
     .filtros label {
       display: flex;
       flex-direction: column;
       font-size: 0.9em;
     }
+
+    .filtros input,
+    .filtros select {
+      padding: 4px;
+      font-size: 0.9em;
+    }
+
+    #btnFiltrar {
+      padding: 6px 12px;
+      font-size: 0.85em;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .exportar {
+      text-align: right;
+      padding: 10px 20px 0;
+    }
+
+    .exportar button {
+      padding: 5px 10px;
+      font-size: 0.8em;
+      margin-left: 5px;
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .tabela-container {
+      max-width: 100%;
+      max-height: 70vh;
+      overflow-y: auto;
+      margin: 10px auto 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
+      background: white;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
     }
+
     th, td {
       padding: 8px 10px;
       border: 1px solid #ccc;
       text-align: left;
       vertical-align: top;
     }
-    th {
+
+    thead th {
+      position: sticky;
+      top: 0;
       background-color: #00796b;
       color: white;
+      z-index: 10;
     }
+
     th:nth-child(1), td:nth-child(1) { min-width: 160px; }
     th:nth-child(2), td:nth-child(2) { min-width: 200px; }
     th:nth-child(3), td:nth-child(3) { min-width: 140px; }
@@ -71,58 +117,19 @@
     th:nth-child(9), td:nth-child(9) { min-width: 140px; }
 
     .acoes button {
-      margin-right: 5px;
-    }
-    .exportar {
-      position: absolute;
-      top: 12px;
-      right: 30px;
-      display: flex;
-      gap: 5px;
-    }
-    .exportar button {
-      padding: 4px 8px;
-      font-size: 0.75em;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .logo {
-      position: absolute;
-      left: 30px;
-      top: 8px;
-      height: 40px;
-    }
-    #btnFiltrar {
-      padding: 4px 10px;
+      margin: 2px 4px 2px 0;
+      padding: 3px 6px;
       font-size: 0.8em;
-      background-color: #00796b;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      height: 32px;
-      width: 80px;
-    }
-    .container {
-      max-width: 1200px;
-      margin: auto;
     }
   </style>
 </head>
 <body>
+  <div class="topo">
+    <h1>Painel de Requisições</h1>
 
-  <div class="menu-fixo">
-    <div style="position: relative">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1024px-React-icon.svg.png" alt="Logo" class="logo">
-      <h1>Painel de Requisições</h1>
-      <div class="exportar">
-        <button onclick="exportarPDF()">📄 PDF</button>
-        <button onclick="enviarEmail()">✉️ Email</button>
-        <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
-      </div>
+    <div class="exportar">
+      <button onclick="exportarPDF()">📄 PDF</button>
+      <button onclick="enviarEmail()">✉️ Email</button>
     </div>
 
     <div class="filtros">
@@ -151,7 +158,9 @@
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
+  </div>
 
+  <div class="tabela-container">
     <table id="tabelaExport">
       <thead>
         <tr>
@@ -166,28 +175,10 @@
           <th>Ações</th>
         </tr>
       </thead>
+      <tbody id="tabelaRequisicoes">
+        <!-- conteúdo gerado dinamicamente -->
+      </tbody>
     </table>
-  </div>
-
-  <div class="espaco-topo"></div>
-
-  <div class="container">
-    <table>
-      <tbody id="tabelaRequisicoes"></tbody>
-    </table>
-  </div>
-
-  <!-- Modal -->
-  <div id="modalAgrupar" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;justify-content:center;align-items:center;">
-    <div class="box" style="background:white;padding:20px;border-radius:10px;width:300px;text-align:center;">
-      <h3>Como deseja agrupar para impressão?</h3>
-      <select id="seletorAgrupamento">
-        <option value="setor">Setor</option>
-        <option value="solicitante">Solicitante</option>
-      </select>
-      <button onclick="confirmarAgrupamento()">OK</button>
-      <button onclick="fecharModal()">Cancelar</button>
-    </div>
   </div>
 
   <script>
@@ -223,6 +214,7 @@
           td.innerHTML = (i === 1) ? `<strong>${cel}</strong>` : cel;
           tr.appendChild(td);
         });
+
         const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
         ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
@@ -231,6 +223,7 @@
           btn.onclick = () => atualizarStatus(idx, acao);
           tdAcoes.appendChild(btn);
         });
+
         tr.appendChild(tdAcoes);
         tabela.appendChild(tr);
       });
@@ -297,43 +290,6 @@
 
     function enviarEmail() {
       alert("Funcionalidade de envio por email em desenvolvimento.");
-    }
-
-    function abrirModalAgrupar() {
-      document.getElementById("modalAgrupar").style.display = "flex";
-    }
-
-    function fecharModal() {
-      document.getElementById("modalAgrupar").style.display = "none";
-    }
-
-    function confirmarAgrupamento() {
-      const opcao = document.getElementById("seletorAgrupamento").value;
-      document.getElementById("modalAgrupar").style.display = "none";
-
-      const agrupado = {};
-      requisicoes.forEach(l => {
-        const chave = opcao === 'setor' ? l[4] : l[5];
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push(l);
-      });
-
-      let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
-      html += '<table border="1" cellspacing="0" cellpadding="5">';
-      html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
-
-      for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-        agrupado[grupo].forEach(l => {
-          html += `<tr>${l.map((c, i) => `<td>${i === 1 ? `<strong>${c}</strong>` : c}</td>`).join('')}</tr>`;
-        });
-      }
-      html += '</table>';
-
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
     }
 
     carregarDados();
