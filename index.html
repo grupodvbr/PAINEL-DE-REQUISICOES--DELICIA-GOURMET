@@ -60,11 +60,7 @@
     }
 
     .top-bar {
-      position: sticky;
-      top: 0;
       background: var(--cor-fundo);
-      z-index: 1000;
-      border-bottom: 1px solid #ccc;
     }
 
     .botoes-acoes {
@@ -221,14 +217,21 @@
     }
   </style>
 </head>
+
 <body>
+
+  <!-- ✅ Cabeçalho com logo e título centralizado -->
+  <div class="header-flex">
+    <div class="logo-area">
+      <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="Logo" />
+    </div>
+    <div class="titulo-area">
+      <h1>Painel de Requisições</h1>
+    </div>
+    <div class="espaco-direito"></div>
+  </div>
+
   <div class="top-bar">
-    <h1>Painel de Requisições</h1>
-<div class="topo-logo">
-  <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png">
-</div>
-
-
     <div class="botoes-acoes">
       <button onclick="abrirModalAgrupar('pdf')">📚 PDF</button>
       <button onclick="abrirModalAgruparWhatsApp()">📱 WhatsApp</button>
