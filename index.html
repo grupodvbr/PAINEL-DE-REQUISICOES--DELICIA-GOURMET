@@ -429,248 +429,8 @@
     });
   }
 
-  function filtrar() {
-    const status = document.getElementById('filtroStatus').value.toLowerCase();
-    const inicioData = document.getElementById('filtroDataInicio').value;
-    const fimData = document.getElementById('filtroDataFim').value;
-    const inicioHora = document.getElementById('filtroHoraInicio').value;
-    const fimHora = document.getElementById('filtroHoraFim').value;
-    const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-    const setor = document.getElementById('filtroSetor').value.toLowerCase();
-    const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-    listaFiltrada = requisicoes
-      .filter(({ linha }) => {
-        const dataHora = new Date(linha[0]);
-        if (inicioData) {
-          const dataInicio = new Date(`${inicioData}T${inicioHora || '00:00'}`);
-          if (dataHora < dataInicio) return false;
-        }
-        if (fimData) {
-          const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
-          if (dataHora > dataFim) return false;
-        }
-        if (status && status !== '') {
-          const statusAtual = linha[7].toLowerCase() === "processando" ? "pendente" : linha[7].toLowerCase();
-          if (statusAtual !== status) return false;
-        }
-        if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
-        if (setor && !linha[4].toLowerCase().includes(setor)) return false;
-        if (palavra) {
-          const item = linha[1].toLowerCase();
-          const obs = (linha[6] || '').toLowerCase();
-          if (!item.includes(palavra) && !obs.includes(palavra)) return false;
-        }
-        return true;
-      });
-
-    renderizarTabela(listaFiltrada);
-  }
-
-  function popularFiltros() {
-    const solicitantes = new Set();
-    const setores = new Set();
-    requisicoes.forEach(({ linha }) => {
-      solicitantes.add(linha[5]);
-      setores.add(linha[4]);
-    });
-
-    const solicitanteSelect = document.getElementById('filtroSolicitante');
-    const setorSelect = document.getElementById('filtroSetor');
-
-    solicitantes.forEach(nome => {
-      const option = document.createElement('option');
-      option.value = nome;
-      option.textContent = nome;
-      solicitanteSelect.appendChild(option);
-    });
-
-    setores.forEach(nome => {
-      const option = document.createElement('option');
-      option.value = nome;
-      option.textContent = nome;
-      setorSelect.appendChild(option);
-    });
-  }
-
-  function agruparPor(campo, lista = requisicoes) {
-    const agrupado = {};
-    lista.forEach(({ linha }) => {
-      let chave = '';
-      if (campo === 'setor') chave = linha[4];
-      else if (campo === 'solicitante') chave = linha[5];
-      else if (campo === 'status') {
-        const raw = linha[7].toLowerCase();
-        chave = raw === "processando" ? "PENDENTE" : raw.toUpperCase();
-      } else chave = 'Outro';
-
-      if (!agrupado[chave]) agrupado[chave] = [];
-      agrupado[chave].push(linha);
-    });
-    return agrupado;
-  }
-
-  function gerarHTMLAgrupado(agrupado, opcao) {
-    const logoURL = "https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png";
-    let html = `
-      <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-        <img src="${logoURL}" style="height:50px; max-width:150px;">
-        <h2 style="margin:0;">Requisições agrupadas por ${opcao}</h2>
-      </div>
-    `;
-    html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
-    html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
-
-    for (const grupo in agrupado) {
-      html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-      agrupado[grupo].forEach(l => {
-        const data = new Date(l[0]).toLocaleString('pt-BR');
-        html += `<tr>
-          <td>${data}</td>
-          <td><strong>${l[1]}</strong></td>
-          <td>${l[3]}</td>
-          <td>${l[2]}</td>
-          <td>${l[4]}</td>
-          <td>${l[5]}</td>
-          <td>${l[6]}</td>
-          <td>${l[7]}</td>
-        </tr>`;
-      });
-    }
-
-    html += '</table>';
-    return html;
-  }
-
-  function gerarPDFAgrupado(opcao) {
-    const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => ({ linha: x.linha })) : requisicoes);
-    const html = gerarHTMLAgrupado(agrupado, opcao);
-    const container = document.createElement('div');
-    container.innerHTML = html;
-    html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
-  }
-
-  function imprimirAgrupado(opcao) {
-    const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => ({ linha: x.linha })) : requisicoes);
-    const html = gerarHTMLAgrupado(agrupado, opcao);
-    const janela = window.open('', '_blank');
-    janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-    janela.document.close();
-    janela.print();
-  }
-
-  function enviarWhatsApp(criterio = 'setor') {
-    const hoje = new Date();
-    const dataFormatada = hoje.toLocaleDateString('pt-BR');
-    const titulo = `**COMPRAS DELÍCIA GOURMET - ${dataFormatada}**\n\n`;
-
-    const agrupado = {};
-    const fonte = listaFiltrada.length ? listaFiltrada : requisicoes;
-
-    fonte.forEach(({ linha }) => {
-      let chave = '';
-      if (criterio === 'setor') chave = linha[4];
-      else if (criterio === 'solicitante') chave = linha[5];
-      else if (criterio === 'status') {
-        const raw = linha[7].toLowerCase();
-        chave = raw === "processando" ? "PENDENTE" : raw.toUpperCase();
-      } else chave = 'Outro';
-
-      const item = linha[1];
-      const unidade = linha[2];
-      const quantidade = linha[3];
-
-      if (!agrupado[chave]) agrupado[chave] = [];
-      agrupado[chave].push({ item, quantidade, unidade });
-    });
-
-    let mensagem = titulo;
-    for (const grupo in agrupado) {
-      mensagem += `🛒 *${grupo}*\n`;
-      agrupado[grupo].forEach(({ item, quantidade, unidade }) => {
-        mensagem += `- ${item} — ${quantidade} ${unidade}\n`;
-      });
-      mensagem += `\n`;
-    }
-
-    const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-    window.open(link, '_blank');
-  }
-
-  function abrirModalAgrupar(origem) {
-    const modal = document.getElementById("modalAgrupar");
-    modal.dataset.origem = origem;
-    modal.style.display = "flex";
-  }
-
-  function confirmarAgrupamento() {
-    const opcao = document.getElementById("seletorAgrupamento").value;
-    const origem = document.getElementById("modalAgrupar").dataset.origem;
-    document.getElementById("modalAgrupar").style.display = "none";
-    if (origem === "pdf") gerarPDFAgrupado(opcao);
-    else imprimirAgrupado(opcao);
-  }
-
-  function abrirModalAgruparWhatsApp() {
-    document.getElementById("modalAgruparWhatsApp").style.display = "flex";
-  }
-
-  function confirmarAgrupamentoWhatsApp() {
-    const criterio = document.getElementById("seletorAgrupamentoWhatsApp").value;
-    document.getElementById("modalAgruparWhatsApp").style.display = "none";
-    enviarWhatsApp(criterio);
-  }
-
   function atualizarStatus(linhaIndex, novoStatus) {
-  const dadosOriginais = requisicoes[linhaIndex].linha;
-
-  const payload = {
-    dataHoraOriginal: dadosOriginais[0],
-    item: dadosOriginais[1],
-    unidade: dadosOriginais[2],
-    quantidade: dadosOriginais[3],
-    setor: dadosOriginais[4],
-    solicitante: dadosOriginais[5],
-    observacoes: dadosOriginais[6],
-    statusOriginal: dadosOriginais[7],
-    novoStatus: novoStatus
-  };
-
-  fetch('https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    headers: { 'Content-Type': 'application/json' }
-  })
-    .then(res => res.text())
-    .then(msg => {
-      const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
-      btns.forEach(btn => {
-        btn.disabled = true;
-        if (novoStatus === 'Concluir') btn.textContent = '✔️ Concluído';
-        else if (novoStatus === 'Comprar') btn.textContent = '🛒 Enviado para compra';
-        else if (novoStatus === 'Negar') btn.textContent = '❌ Negado';
-      });
-    })
-    .catch(err => alert("Erro ao registrar: " + err));
-}
-    function concluirEmMassa() {
-  const pendentes = listaFiltrada
-    .map((item, idx) => ({ item, idx }))
-    .filter(({ item }) => {
-      const status = item.linha[7].toLowerCase();
-      return status === "processando" || status === "pendente";
-    });
-
-  if (pendentes.length === 0) {
-    alert("Nenhuma requisição com status PENDENTE encontrada.");
-    return;
-  }
-
-  const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como CONCLUÍDAS?`);
-  if (!confirmacao) return;
-
-  pendentes.forEach(({ item, idx }) => {
-    const dadosOriginais = item.linha;
+    const dadosOriginais = requisicoes[linhaIndex].linha;
 
     const payload = {
       dataHoraOriginal: dadosOriginais[0],
@@ -681,7 +441,7 @@
       solicitante: dadosOriginais[5],
       observacoes: dadosOriginais[6],
       statusOriginal: dadosOriginais[7],
-      novoStatus: "Concluir"
+      novoStatus: novoStatus
     };
 
     fetch('https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec', {
@@ -690,20 +450,67 @@
       headers: { 'Content-Type': 'application/json' }
     })
     .then(() => {
-      const btns = document.querySelectorAll(`tr:nth-child(${idx + 1}) .acoes button`);
+      const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
       btns.forEach(btn => {
         btn.disabled = true;
-        btn.textContent = '✔️ Concluído';
+        if (novoStatus === 'Concluir') btn.textContent = '✔️ Concluído';
+        else if (novoStatus === 'Comprar') btn.textContent = '🛒 Enviado para compra';
+        else if (novoStatus === 'Negar') btn.textContent = '❌ Negado';
       });
     })
-    .catch(err => console.error("Erro em massa:", err));
-  });
-}
+    .catch(err => alert("Erro ao registrar: " + err));
+  }
 
+  function concluirEmMassa() {
+    const pendentes = listaFiltrada
+      .map((item, idx) => ({ item, idx }))
+      .filter(({ item }) => {
+        const status = item.linha[7].toLowerCase();
+        return status === "processando" || status === "pendente";
+      });
 
+    if (pendentes.length === 0) {
+      alert("Nenhuma requisição com status PENDENTE encontrada.");
+      return;
+    }
+
+    const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como CONCLUÍDAS?`);
+    if (!confirmacao) return;
+
+    pendentes.forEach(({ item, idx }) => {
+      const dados = item.linha;
+
+      const payload = {
+        dataHoraOriginal: dados[0],
+        item: dados[1],
+        unidade: dados[2],
+        quantidade: dados[3],
+        setor: dados[4],
+        solicitante: dados[5],
+        observacoes: dados[6],
+        statusOriginal: dados[7],
+        novoStatus: "Concluir"
+      };
+
+      fetch('https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(() => {
+        const btns = document.querySelectorAll(`tr:nth-child(${idx + 1}) .acoes button`);
+        btns.forEach(btn => {
+          btn.disabled = true;
+          btn.textContent = '✔️ Concluído';
+        });
+      })
+      .catch(err => console.error("Erro em massa:", err));
+    });
+  }
 
   carregarDados();
 </script>
+
 
 
 </body>
