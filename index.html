@@ -329,7 +329,7 @@
 </div>
 
   </label>
-  <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
+  <button onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
   </div>
 
   <div class="tabela-container">
@@ -619,26 +619,44 @@
   }
 
   function atualizarStatus(linhaIndex, novoStatus) {
-    fetch('https://script.google.com/macros/s/AKfycbxnYCiItXTkagcDS9vjJgFNVhKFbgQxiPAWZ9UE3eCUIGM-ZXSveyP6A6lQ8C5rwoUMEA/exec', {
-      method: 'POST',
-      body: JSON.stringify({ linha: linhaIndex, status: novoStatus }),
-      headers: { 'Content-Type': 'application/json' }
-    })
-      .then(r => r.text())
-      .then(res => {
-        alert(res);
-        carregarDados();
-      })
-      .catch(err => {
-        console.error("Erro ao atualizar:", err);
-        alert("Erro ao atualizar status: " + err);
+  const dadosOriginais = requisicoes[linhaIndex].linha;
+
+  const payload = {
+    dataHoraOriginal: dadosOriginais[0],
+    item: dadosOriginais[1],
+    unidade: dadosOriginais[2],
+    quantidade: dadosOriginais[3],
+    setor: dadosOriginais[4],
+    solicitante: dadosOriginais[5],
+    observacoes: dadosOriginais[6],
+    statusOriginal: dadosOriginais[7],
+    novoStatus: novoStatus
+  };
+
+  fetch('https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    headers: { 'Content-Type': 'application/json' }
+  })
+    .then(res => res.text())
+    .then(msg => {
+      const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
+      btns.forEach(btn => {
+        btn.disabled = true;
+        if (novoStatus === 'Concluir') btn.textContent = '✔️ Concluído';
+        else if (novoStatus === 'Comprar') btn.textContent = '🛒 Enviado para compra';
+        else if (novoStatus === 'Negar') btn.textContent = '❌ Negado';
       });
-  }
+    })
+    .catch(err => alert("Erro ao registrar: " + err));
+}
     function concluirEmMassa() {
-  const pendentes = listaFiltrada.filter(({ linha }) => {
-    const status = linha[7].toLowerCase();
-    return status === "processando" || status === "pendente";
-  });
+  const pendentes = listaFiltrada
+    .map((item, idx) => ({ item, idx }))
+    .filter(({ item }) => {
+      const status = item.linha[7].toLowerCase();
+      return status === "processando" || status === "pendente";
+    });
 
   if (pendentes.length === 0) {
     alert("Nenhuma requisição com status PENDENTE encontrada.");
@@ -648,26 +666,37 @@
   const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como CONCLUÍDAS?`);
   if (!confirmacao) return;
 
-  let atualizados = 0;
+  pendentes.forEach(({ item, idx }) => {
+    const dadosOriginais = item.linha;
 
-  pendentes.forEach(({ idx }, i) => {
-    fetch('https://script.google.com/macros/s/AKfycbxnYCiItXTkagcDS9vjJgFNVhKFbgQxiPAWZ9UE3eCUIGM-ZXSveyP6A6lQ8C5rwoUMEA/exec', {
+    const payload = {
+      dataHoraOriginal: dadosOriginais[0],
+      item: dadosOriginais[1],
+      unidade: dadosOriginais[2],
+      quantidade: dadosOriginais[3],
+      setor: dadosOriginais[4],
+      solicitante: dadosOriginais[5],
+      observacoes: dadosOriginais[6],
+      statusOriginal: dadosOriginais[7],
+      novoStatus: "Concluir"
+    };
+
+    fetch('https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec', {
       method: 'POST',
-      body: JSON.stringify({ linha: idx, status: "Concluir" }),
+      body: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json' }
     })
     .then(() => {
-      atualizados++;
-      if (atualizados === pendentes.length) {
-        alert("✅ Todas as requisições pendentes foram concluídas.");
-        carregarDados(); // atualiza a tabela
-      }
+      const btns = document.querySelectorAll(`tr:nth-child(${idx + 1}) .acoes button`);
+      btns.forEach(btn => {
+        btn.disabled = true;
+        btn.textContent = '✔️ Concluído';
+      });
     })
-    .catch((err) => {
-      console.error("Erro ao concluir:", err);
-    });
+    .catch(err => console.error("Erro em massa:", err));
   });
 }
+
 
 
   carregarDados();
