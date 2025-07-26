@@ -222,6 +222,7 @@
       const dados = await res.json();
       requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+      popularFiltros();
     }
 
     function renderizarTabela(lista) {
@@ -247,6 +248,69 @@
       });
     }
 
+    function filtrar() {
+      const inicioData = document.getElementById('filtroDataInicio').value;
+      const fimData = document.getElementById('filtroDataFim').value;
+      const inicioHora = document.getElementById('filtroHoraInicio').value;
+      const fimHora = document.getElementById('filtroHoraFim').value;
+      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
+      const setor = document.getElementById('filtroSetor').value.toLowerCase();
+      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
+
+      const listaFiltrada = requisicoes
+        .map((linha, idx) => ({ linha, idx }))
+        .filter(({ linha }) => {
+          const dataHora = new Date(linha[0]);
+
+          if (inicioData) {
+            const dataInicio = new Date(`${inicioData}T${inicioHora || '00:00'}`);
+            if (dataHora < dataInicio) return false;
+          }
+          if (fimData) {
+            const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
+            if (dataHora > dataFim) return false;
+          }
+
+          if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
+          if (setor && !linha[4].toLowerCase().includes(setor)) return false;
+          if (palavra) {
+            const item = linha[1].toLowerCase();
+            const obs = (linha[6] || '').toLowerCase();
+            if (!item.includes(palavra) && !obs.includes(palavra)) return false;
+          }
+
+          return true;
+        });
+
+      renderizarTabela(listaFiltrada);
+    }
+
+    function popularFiltros() {
+      const solicitantes = new Set();
+      const setores = new Set();
+      requisicoes.forEach(l => {
+        solicitantes.add(l[5]);
+        setores.add(l[4]);
+      });
+
+      const solicitanteSelect = document.getElementById('filtroSolicitante');
+      const setorSelect = document.getElementById('filtroSetor');
+
+      solicitantes.forEach(nome => {
+        const option = document.createElement('option');
+        option.value = nome;
+        option.textContent = nome;
+        solicitanteSelect.appendChild(option);
+      });
+
+      setores.forEach(nome => {
+        const option = document.createElement('option');
+        option.value = nome;
+        option.textContent = nome;
+        setorSelect.appendChild(option);
+      });
+    }
+
     function abrirModalAgrupar(origem) {
       const modal = document.getElementById("modalAgrupar");
       modal.dataset.origem = origem;
@@ -259,23 +323,6 @@
       document.getElementById("modalAgrupar").style.display = "none";
       if (origem === "pdf") gerarPDFAgrupado(opcao);
       else imprimirAgrupado(opcao);
-    }
-
-    function gerarPDFAgrupado(opcao) {
-      const agrupado = agruparPor(opcao);
-      const html = gerarHTMLAgrupado(agrupado, opcao);
-      const container = document.createElement('div');
-      container.innerHTML = html;
-      html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
-    }
-
-    function imprimirAgrupado(opcao) {
-      const agrupado = agruparPor(opcao);
-      const html = gerarHTMLAgrupado(agrupado, opcao);
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
     }
 
     function agruparPor(campo) {
@@ -312,8 +359,29 @@
       return html;
     }
 
+    function gerarPDFAgrupado(opcao) {
+      const agrupado = agruparPor(opcao);
+      const html = gerarHTMLAgrupado(agrupado, opcao);
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
+    }
+
+    function imprimirAgrupado(opcao) {
+      const agrupado = agruparPor(opcao);
+      const html = gerarHTMLAgrupado(agrupado, opcao);
+      const janela = window.open('', '_blank');
+      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
+      janela.document.close();
+      janela.print();
+    }
+
     function enviarEmail() {
       alert("Funcionalidade em desenvolvimento.");
+    }
+
+    function concluirEmMassa() {
+      alert("Funcionalidade de conclusão em massa em desenvolvimento.");
     }
 
     carregarDados();
