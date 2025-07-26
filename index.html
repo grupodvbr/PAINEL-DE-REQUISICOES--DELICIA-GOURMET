@@ -6,42 +6,54 @@
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f1f1f1;
-      margin: 0;
-      padding: 0;
+    :root {
+      --cor-primaria: #00796b;
+      --cor-secundaria: #b8860b;
+      --cor-fundo: #f9f9f9;
+      --cor-texto: #333;
     }
 
-    .topo-fixo {
-      position: sticky;
-      top: 0;
-      background: white;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: var(--cor-fundo);
+      color: var(--cor-texto);
     }
 
     h1 {
       margin: 0;
-      padding: 10px;
-      background: #b8860b;
-      color: white;
+      padding: 15px;
       text-align: center;
+      background: var(--cor-secundaria);
+      color: white;
+      font-size: 1.5em;
     }
 
-    .exportar {
+    .top-bar {
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .botoes-acoes {
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 8px;
       padding: 10px 20px 0;
     }
 
-    .exportar button {
-      padding: 5px 10px;
-      font-size: 0.85em;
-      background: #00796b;
+    .botoes-acoes button {
+      background: var(--cor-primaria);
       color: white;
       border: none;
+      padding: 6px 12px;
+      font-size: 0.85em;
       border-radius: 4px;
       cursor: pointer;
     }
@@ -50,94 +62,97 @@
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      justify-content: center;
-      padding: 10px;
-      background: #fff;
+      padding: 10px 20px 5px;
+      justify-content: space-between;
+      align-items: flex-end;
     }
 
     .filtros label {
       display: flex;
       flex-direction: column;
-      font-size: 0.9em;
+      font-size: 0.85em;
+      min-width: 150px;
+      flex: 1;
     }
 
-    .filtros input, .filtros select {
-      padding: 5px;
-      font-size: 0.9em;
+    .filtros input,
+    .filtros select {
+      padding: 6px;
+      font-size: 0.85em;
+      border: 1px solid #ccc;
+      border-radius: 4px;
     }
 
     #btnFiltrar {
-      padding: 6px 12px;
-      font-size: 0.9em;
-      background-color: #00796b;
+      padding: 7px 14px;
+      background: var(--cor-primaria);
       color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      align-self: flex-end;
+      font-size: 0.9em;
     }
 
     .btn-massa {
-      margin: 10px 20px 0;
-      font-size: 0.85em;
-      padding: 6px 12px;
       background: #9c27b0;
       color: white;
       border: none;
+      padding: 7px 14px;
       border-radius: 4px;
+      margin: 10px 20px;
+      font-size: 0.9em;
       cursor: pointer;
     }
 
     .tabela-container {
-      max-height: 70vh;
-      overflow-y: auto;
-      margin: 10px auto;
-      border-radius: 6px;
-      max-width: 95%;
+      max-width: 98%;
+      margin: 0 auto 20px;
       background: white;
+      border-radius: 8px;
+      overflow-x: auto;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-    }
-
-    th, td {
-      padding: 8px 10px;
-      border: 1px solid #ccc;
-      text-align: left;
-      vertical-align: top;
+      font-size: 0.9em;
     }
 
     thead th {
       position: sticky;
       top: 0;
-      background: #00796b;
+      background: var(--cor-primaria);
       color: white;
-      z-index: 10;
+      padding: 10px 8px;
+      border-bottom: 1px solid #ccc;
     }
 
-    th:nth-child(1), td:nth-child(1) { min-width: 160px; }
-    th:nth-child(2), td:nth-child(2) { min-width: 200px; }
-    th:nth-child(3), td:nth-child(3) { min-width: 140px; }
-    th:nth-child(4), td:nth-child(4) { min-width: 120px; }
-    th:nth-child(5), td:nth-child(5) { min-width: 140px; }
-    th:nth-child(6), td:nth-child(6) { min-width: 160px; }
-    th:nth-child(7), td:nth-child(7) { min-width: 200px; }
-    th:nth-child(8), td:nth-child(8) { min-width: 100px; }
-    th:nth-child(9), td:nth-child(9) { min-width: 140px; }
+    td {
+      padding: 8px;
+      border-bottom: 1px solid #eee;
+    }
+
+    td:nth-child(2) strong {
+      font-weight: bold;
+    }
 
     .acoes button {
       margin: 2px 4px;
-      padding: 3px 6px;
+      padding: 4px 8px;
       font-size: 0.8em;
+      border: none;
+      background: #666;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
     }
 
     #modalAgrupar {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
       justify-content: center;
       align-items: center;
       z-index: 999;
@@ -151,18 +166,26 @@
       text-align: center;
     }
 
-    #modalAgrupar select, #modalAgrupar button {
-      margin-top: 10px;
-      padding: 6px;
+    #modalAgrupar select,
+    #modalAgrupar button {
       width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+      .filtros {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="topo-fixo">
+
+  <div class="top-bar">
     <h1>Painel de Requisições</h1>
 
-    <div class="exportar">
+    <div class="botoes-acoes">
       <button onclick="exportarPDF()">📄 PDF</button>
       <button onclick="enviarEmail()">✉️ Email</button>
       <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
@@ -182,9 +205,7 @@
         <input type="time" id="filtroHoraFim">
       </label>
       <label>Solicitante:
-        <select id="filtroSolicitante">
-          <option value="">Todos</option>
-        </select>
+        <select id="filtroSolicitante"><option value="">Todos</option></select>
       </label>
       <label>Setor:
         <input type="text" id="filtroSetor" placeholder="Nome do setor">
@@ -194,6 +215,7 @@
       </label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
+
     <button class="btn-massa" onclick="alert('Funcionalidade em desenvolvimento')">✅ Conclusão em Massa</button>
   </div>
 
