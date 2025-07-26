@@ -47,6 +47,18 @@
       gap: 8px;
       padding: 10px 20px 0;
     }
+.topo-logo {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px 0;
+  gap: 15px;
+}
+
+.topo-logo img {
+  height: 50px;
+  max-width: 150px;
+  object-fit: contain;
+}
 
     .botoes-acoes button {
       background: var(--cor-botao);
@@ -185,6 +197,12 @@
 <body>
   <div class="top-bar">
     <h1>Painel de Requisições</h1>
+<div class="topo-logo">
+  <img src="https://seusite.com/sualogo.png" alt="Logo" id="logoRelatorio">
+  <h1>Painel de Requisições</h1>
+</div>
+
+
     <div class="botoes-acoes">
       <button onclick="abrirModalAgrupar('pdf')">📚 PDF</button>
       <button onclick="abrirModalAgruparWhatsApp()">📱 WhatsApp</button>
@@ -383,28 +401,40 @@
 
 
   function gerarHTMLAgrupado(agrupado, opcao) {
-    let html = `<h2 style="text-align:center">Requisições agrupadas por ${opcao}</h2>`;
-    html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
-    html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
-    for (const grupo in agrupado) {
-      html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-      agrupado[grupo].forEach(l => {
-        const data = new Date(l[0]).toLocaleString('pt-BR');
-        html += `<tr>
-          <td>${data}</td>
-          <td><strong>${l[1]}</strong></td>
-          <td>${l[3]}</td>
-          <td>${l[2]}</td>
-          <td>${l[4]}</td>
-          <td>${l[5]}</td>
-          <td>${l[6]}</td>
-          <td>${l[7]}</td>
-        </tr>`;
-      });
-    }
-    html += '</table>';
-    return html;
+  // 🔽 Substitua a URL abaixo pela URL da sua imagem
+  const logoURL = "https://SEU_SITE.com/sua-logo.png";
+
+  let html = `
+    <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
+      <img src="${logoURL}" style="height:50px; max-width:150px;">
+      <h2 style="margin:0;">Requisições agrupadas por ${opcao}</h2>
+    </div>
+  `;
+
+  html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
+  html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
+
+  for (const grupo in agrupado) {
+    html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+    agrupado[grupo].forEach(l => {
+      const data = new Date(l[0]).toLocaleString('pt-BR');
+      html += `<tr>
+        <td>${data}</td>
+        <td><strong>${l[1]}</strong></td>
+        <td>${l[3]}</td>
+        <td>${l[2]}</td>
+        <td>${l[4]}</td>
+        <td>${l[5]}</td>
+        <td>${l[6]}</td>
+        <td>${l[7]}</td>
+      </tr>`;
+    });
   }
+
+  html += '</table>';
+  return html;
+}
+
 
   function gerarPDFAgrupado(opcao) {
     const agrupado = agruparPor(opcao);
