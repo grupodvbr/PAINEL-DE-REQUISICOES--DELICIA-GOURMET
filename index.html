@@ -379,7 +379,9 @@
   async function carregarDados() {
     const res = await fetch('https://script.google.com/macros/s/AKfycbz-SfG7skNM7eElBNJ0go6epBodOGl_O-472tEeB-Aup4Ruvw7NxhlNL3W25MBmw4fs/exec');
     const dados = await res.json();
-    requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
+    requisicoes = dados
+  .map(l => l.map(c => (c || '').toString().trim()))
+  .sort((a, b) => new Date(a[0]) - new Date(b[0]));
     renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
     popularFiltros();
   }
