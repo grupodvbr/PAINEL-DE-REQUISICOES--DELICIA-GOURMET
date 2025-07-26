@@ -791,22 +791,30 @@ function fecharCarrinho() {
 
 function atualizarCarrinhoModal() {
   const tbody = document.getElementById("tabelaCarrinhoModal");
-  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-
   tbody.innerHTML = "";
 
-  carrinhoCompras.forEach(item => {
+  carrinhoCompras.forEach((item, index) => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td style="border:1px solid #ccc; padding:6px;">${item.item}</td>
-      <td style="border:1px solid #ccc; padding:6px;">${item.quantidade}</td>
-      <td style="border:1px solid #ccc; padding:6px;">${item.unidade}</td>
+      <td style="border:1px solid #ccc; padding:6px;">
+        <input type="number" value="${item.quantidade}" min="1" style="width:50px" onchange="editarQuantidade(${index}, this.value)">
+      </td>
+      <td style="border:1px solid #ccc; padding:6px;">
+        <input type="text" value="${item.unidade}" style="width:50px" onchange="editarUnidade(${index}, this.value)">
+      </td>
       <td style="border:1px solid #ccc; padding:6px;">${item.setor}</td>
       <td style="border:1px solid #ccc; padding:6px;">${item.solicitante}</td>
+      <td style="border:1px solid #ccc; padding:6px; text-align:center;">
+        <button onclick="removerItemCarrinho(${index})" style="padding:4px 8px; background:red; color:white; border:none; border-radius:4px;">🗑️</button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
+
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
 }
+
 
 function enviarCarrinhoWhatsApp() {
   if (carrinhoCompras.length === 0) {
@@ -825,6 +833,20 @@ function enviarCarrinhoWhatsApp() {
   window.open(url, '_blank');
 }
 
+function removerItemCarrinho(index) {
+  carrinhoCompras.splice(index, 1);
+  atualizarCarrinhoModal();
+}
+
+function editarQuantidade(index, novaQtd) {
+  carrinhoCompras[index].quantidade = novaQtd;
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
+}
+
+function editarUnidade(index, novaUnidade) {
+  carrinhoCompras[index].unidade = novaUnidade;
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
+}
 
 
 
