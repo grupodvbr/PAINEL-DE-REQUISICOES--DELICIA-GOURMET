@@ -128,9 +128,20 @@
       border-bottom: 1px solid #ccc;
     }
 
+    tbody tr:nth-child(even) {
+      background: #f1f1f1;
+    }
+
+    tbody tr:nth-child(odd) {
+      background: #ffffff;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #ccc;
+    }
+
     td {
       padding: 8px;
-      border-bottom: 1px solid #eee;
     }
 
     td:nth-child(2) strong {
@@ -208,7 +219,7 @@
         <select id="filtroSolicitante"><option value="">Todos</option></select>
       </label>
       <label>Setor:
-        <input type="text" id="filtroSetor" placeholder="Nome do setor">
+        <select id="filtroSetor"><option value="">Todos</option></select>
       </label>
       <label>Palavra-chave:
         <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação">
@@ -216,7 +227,7 @@
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
 
-    <button class="btn-massa" onclick="alert('Funcionalidade em desenvolvimento')">✅ Conclusão em Massa</button>
+    <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
   </div>
 
   <div class="tabela-container">
@@ -254,22 +265,33 @@
     let requisicoes = [];
 
     async function carregarDados() {
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const url = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
       const res = await fetch(url);
       const dados = await res.json();
       requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherSolicitantes(requisicoes);
+      preencherFiltros(requisicoes);
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
     }
 
-    function preencherSolicitantes(lista) {
-      const seletor = document.getElementById('filtroSolicitante');
+    function preencherFiltros(lista) {
+      const seletorSolic = document.getElementById('filtroSolicitante');
+      const seletorSetor = document.getElementById('filtroSetor');
+
       const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+      const setores = [...new Set(lista.map(l => l[4]).filter(n => n))];
+
       nomes.sort().forEach(nome => {
         const opt = document.createElement('option');
         opt.value = nome;
         opt.textContent = nome;
-        seletor.appendChild(opt);
+        seletorSolic.appendChild(opt);
+      });
+
+      setores.sort().forEach(setor => {
+        const opt = document.createElement('option');
+        opt.value = setor;
+        opt.textContent = setor;
+        seletorSetor.appendChild(opt);
       });
     }
 
@@ -304,17 +326,30 @@
         item: linha[1],
         novaAcao: acao
       };
-      const res = await fetch(url, {
+      await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      if (res.ok) {
-        alert(`Status atualizado para: ${acao}`);
-        carregarDados();
-      } else {
-        alert('Erro ao atualizar.');
+      carregarDados();
+    }
+
+    async function concluirEmMassa() {
+      if (!confirm("Tem certeza que deseja concluir todas as requisições filtradas?")) return;
+      const linhas = document.querySelectorAll('#tabelaRequisicoes tr');
+      for (const tr of linhas) {
+        const tds = tr.querySelectorAll('td');
+        const dataHora = tds[0]?.textContent;
+        const item = tds[1]?.textContent;
+        if (!dataHora || !item) continue;
+        await fetch('https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataHora, item, novaAcao: 'Concluir' })
+        });
       }
+      alert("Requisições concluídas com sucesso!");
+      carregarDados();
     }
 
     function filtrar() {
