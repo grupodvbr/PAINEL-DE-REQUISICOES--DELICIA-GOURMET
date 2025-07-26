@@ -11,13 +11,6 @@
       margin: 0;
       background: #f1f1f1;
     }
-    h1 {
-      text-align: center;
-      background: #b8860b;
-      color: white;
-      padding: 10px;
-      margin: 0;
-    }
     .menu-fixo {
       position: fixed;
       top: 0;
@@ -29,7 +22,15 @@
       padding: 10px 20px 0;
     }
     .espaco-topo {
-      height: 300px; /* espaço para compensar a altura do topo fixo */
+      height: 310px;
+    }
+    h1 {
+      text-align: center;
+      background: #b8860b;
+      color: white;
+      padding: 10px;
+      margin: 0;
+      border-radius: 8px;
     }
     .filtros {
       display: flex;
@@ -53,14 +54,22 @@
       padding: 8px 10px;
       border: 1px solid #ccc;
       text-align: left;
+      vertical-align: top;
     }
     th {
       background-color: #00796b;
       color: white;
     }
-    tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
+    th:nth-child(1), td:nth-child(1) { min-width: 160px; }
+    th:nth-child(2), td:nth-child(2) { min-width: 200px; }
+    th:nth-child(3), td:nth-child(3) { min-width: 140px; }
+    th:nth-child(4), td:nth-child(4) { min-width: 120px; }
+    th:nth-child(5), td:nth-child(5) { min-width: 140px; }
+    th:nth-child(6), td:nth-child(6) { min-width: 160px; }
+    th:nth-child(7), td:nth-child(7) { min-width: 200px; }
+    th:nth-child(8), td:nth-child(8) { min-width: 100px; }
+    th:nth-child(9), td:nth-child(9) { min-width: 140px; }
+
     .acoes button {
       margin-right: 5px;
     }
@@ -168,7 +177,7 @@
     </table>
   </div>
 
-  <!-- Modal de Agrupamento -->
+  <!-- Modal -->
   <div id="modalAgrupar" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;justify-content:center;align-items:center;">
     <div class="box" style="background:white;padding:20px;border-radius:10px;width:300px;text-align:center;">
       <h3>Como deseja agrupar para impressão?</h3>
@@ -209,21 +218,19 @@
       tabela.innerHTML = '';
       lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
-        linha.forEach(cel => {
+        linha.forEach((cel, i) => {
           const td = document.createElement('td');
-          td.textContent = cel;
+          td.innerHTML = (i === 1) ? `<strong>${cel}</strong>` : cel;
           tr.appendChild(td);
         });
         const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
-
         ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
           const btn = document.createElement('button');
           btn.textContent = acao;
           btn.onclick = () => atualizarStatus(idx, acao);
           tdAcoes.appendChild(btn);
         });
-
         tr.appendChild(tdAcoes);
         tabela.appendChild(tr);
       });
@@ -231,7 +238,7 @@
 
     async function filtrar() {
       const btn = document.getElementById('btnFiltrar');
-      btn.textContent = '⏳ Carregando...';
+      btn.textContent = '⏳';
       btn.disabled = true;
 
       const dataIni = document.getElementById('filtroDataInicio').value;
@@ -245,17 +252,15 @@
       const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
       const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
 
-      const resultado = requisicoes
-        .map((linha, idx) => ({ linha, idx }))
-        .filter(({ linha }) => {
-          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
-          const dtLinha = new Date(linha[0]);
-          return (!dtInicio || dtLinha >= dtInicio) &&
-                 (!dtFim || dtLinha <= dtFim) &&
-                 (!solicitante || solicitanteLinha === solicitante) &&
-                 (!setor || setorLinha.includes(setor)) &&
-                 (!palavra || item.includes(palavra) || obs.includes(palavra));
-        });
+      const resultado = requisicoes.map((linha, idx) => ({ linha, idx })).filter(({ linha }) => {
+        const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
+        const dtLinha = new Date(linha[0]);
+        return (!dtInicio || dtLinha >= dtInicio) &&
+               (!dtFim || dtLinha <= dtFim) &&
+               (!solicitante || solicitanteLinha === solicitante) &&
+               (!setor || setorLinha.includes(setor)) &&
+               (!palavra || item.includes(palavra) || obs.includes(palavra));
+      });
 
       renderizarTabela(resultado);
       btn.textContent = '🔍 Filtrar';
@@ -291,7 +296,7 @@
     }
 
     function enviarEmail() {
-      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
+      alert("Funcionalidade de envio por email em desenvolvimento.");
     }
 
     function abrirModalAgrupar() {
@@ -320,7 +325,7 @@
       for (const grupo in agrupado) {
         html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
         agrupado[grupo].forEach(l => {
-          html += `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`;
+          html += `<tr>${l.map((c, i) => `<td>${i === 1 ? `<strong>${c}</strong>` : c}</td>`).join('')}</tr>`;
         });
       }
       html += '</table>';
