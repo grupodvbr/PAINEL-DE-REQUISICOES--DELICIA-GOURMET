@@ -402,7 +402,6 @@
 
 
   <script>
-  let carrinhoCompras = [];
 
 const carrinhoSalvo = localStorage.getItem("carrinhoCompras");
 if (carrinhoSalvo) {
@@ -753,7 +752,7 @@ fetch(urlDestino, {
   });
 }
 function atualizarCarrinhoVisual() {
-  const tbody = document.getElementById("tabelaCarrinho");
+  const tbody = document.getElementById("tabelaCarrinhoModal");
   tbody.innerHTML = "";
 
   carrinhoCompras.forEach(item => {
