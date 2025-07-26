@@ -4,7 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Painel de Requisições</title>
-  <script src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png"></script>
+<div class="header-flex">
+  <div class="logo-area">
+    <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="Logo" />
+  </div>
+  <div class="titulo-area">
+    <h1>Painel de Requisições</h1>
+  </div>
+  <div class="espaco-direito"></div>
+</div>
+
   <style>
     :root {
       --cor-fundo: #ffffff;
@@ -47,19 +56,32 @@
       gap: 8px;
       padding: 10px 20px 0;
     }
-.topo-logo {
+.header-flex {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   padding: 10px 20px;
-  gap: 15px;
 }
 
-.topo-logo img {
+.logo-area {
+  flex: 1;
+}
+
+.titulo-area {
+  flex: 1;
+  text-align: center;
+}
+
+.espaco-direito {
+  flex: 1;
+}
+
+.logo-area img {
   height: 50px;
-  max-width: 140px;
+  max-width: 150px;
   object-fit: contain;
 }
+
 
 
     .botoes-acoes button {
