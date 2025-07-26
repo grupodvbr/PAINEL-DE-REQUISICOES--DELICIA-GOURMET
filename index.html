@@ -329,7 +329,7 @@
 </div>
 
   </label>
-    <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
+  <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
   </div>
 
   <div class="tabela-container">
@@ -634,6 +634,41 @@
         alert("Erro ao atualizar status: " + err);
       });
   }
+    function concluirEmMassa() {
+  const pendentes = listaFiltrada.filter(({ linha }) => {
+    const status = linha[7].toLowerCase();
+    return status === "processando" || status === "pendente";
+  });
+
+  if (pendentes.length === 0) {
+    alert("Nenhuma requisição com status PENDENTE encontrada.");
+    return;
+  }
+
+  const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como CONCLUÍDAS?`);
+  if (!confirmacao) return;
+
+  let atualizados = 0;
+
+  pendentes.forEach(({ idx }, i) => {
+    fetch('https://script.google.com/macros/s/AKfycbxnYCiItXTkagcDS9vjJgFNVhKFbgQxiPAWZ9UE3eCUIGM-ZXSveyP6A6lQ8C5rwoUMEA/exec', {
+      method: 'POST',
+      body: JSON.stringify({ linha: idx, status: "Concluir" }),
+      headers: { 'Content-Type': 'application/json' }
+    })
+    .then(() => {
+      atualizados++;
+      if (atualizados === pendentes.length) {
+        alert("✅ Todas as requisições pendentes foram concluídas.");
+        carregarDados(); // atualiza a tabela
+      }
+    })
+    .catch((err) => {
+      console.error("Erro ao concluir:", err);
+    });
+  });
+}
+
 
   carregarDados();
 </script>
