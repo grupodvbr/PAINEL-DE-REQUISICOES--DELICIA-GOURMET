@@ -619,7 +619,7 @@
   }
 
   function atualizarStatus(linhaIndex, novoStatus) {
-    fetch('https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbxnYCiItXTkagcDS9vjJgFNVhKFbgQxiPAWZ9UE3eCUIGM-ZXSveyP6A6lQ8C5rwoUMEA/exec', {
       method: 'POST',
       body: JSON.stringify({ linha: linhaIndex, status: novoStatus }),
       headers: { 'Content-Type': 'application/json' }
