@@ -1,3 +1,5 @@
+ME MANDA ELE PARA FICAR EM TELA CHEIAA
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -6,72 +8,16 @@
   <title>Painel de Requisições</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      font-family: Arial, sans-serif;
-      background: #f1f1f1;
-    }
-
-    .container {
-      height: 100%;
-      padding: 10px 20px 20px;
-      box-sizing: border-box;
-    }
-
-    h1 {
-      text-align: center;
-      background: #b8860b;
-      color: white;
-      padding: 12px;
-      margin: 0;
-      border-radius: 0;
-    }
-
-    .filtros {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      align-items: flex-end;
-      background: white;
-      padding: 10px;
-      margin: 0;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .filtros label {
-      display: flex;
-      flex-direction: column;
-      font-size: 0.9em;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-    }
-
-    th, td {
-      padding: 8px 10px;
-      border: 1px solid #ccc;
-      text-align: left;
-    }
-
-    th {
-      background-color: #00796b;
-      color: white;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    .acoes button {
-      margin-right: 5px;
-    }
-
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
+    h1 { text-align: center; background: #b8860b; color: white; padding: 10px; border-radius: 10px 10px 0 0; margin-top: 0; }
+    .filtros { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 20px; justify-content: center; align-items: flex-end; }
+    .filtros label { display: flex; flex-direction: column; font-size: 0.9em; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 8px 10px; border: 1px solid #ccc; text-align: left; }
+    th { background-color: #00796b; color: white; }
+    tbody tr:nth-child(even) { background-color: #f9f9f9; }
+    .container { max-width: 1200px; margin: auto; background: #fff; padding: 0 20px 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    .acoes button { margin-right: 5px; }
     .exportar {
       position: absolute;
       top: 12px;
@@ -79,7 +25,6 @@
       display: flex;
       gap: 5px;
     }
-
     .exportar button {
       padding: 4px 8px;
       font-size: 0.75em;
@@ -89,14 +34,12 @@
       border-radius: 4px;
       cursor: pointer;
     }
-
     .logo {
       position: absolute;
       left: 30px;
       top: 8px;
       height: 40px;
     }
-
     #btnFiltrar {
       padding: 4px 10px;
       font-size: 0.8em;
@@ -108,7 +51,6 @@
       height: 32px;
       width: 80px;
     }
-
     #modalAgrupar {
       display: none;
       position: fixed;
@@ -121,7 +63,6 @@
       justify-content: center;
       align-items: center;
     }
-
     #modalAgrupar .box {
       background: #fff;
       padding: 20px;
@@ -129,7 +70,6 @@
       width: 300px;
       text-align: center;
     }
-
     #modalAgrupar select, #modalAgrupar button {
       margin-top: 10px;
       padding: 6px;
@@ -194,8 +134,169 @@
     </table>
   </div>
 
-  <!-- O restante do seu script JavaScript permanece igual -->
-  <!-- Inclui modalAgrupar e funções de carregamento -->
+  <div id="modalAgrupar">
+    <div class="box">
+      <h3>Como deseja agrupar para impressão?</h3>
+      <select id="seletorAgrupamento">
+        <option value="setor">Setor</option>
+        <option value="solicitante">Solicitante</option>
+      </select>
+      <button onclick="confirmarAgrupamento()">OK</button>
+      <button onclick="fecharModal()">Cancelar</button>
+    </div>
+  </div>
 
+  <script>
+    let requisicoes = [];
+
+    async function carregarDados() {
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const res = await fetch(url);
+      const dados = await res.json();
+      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
+      preencherSolicitantes(requisicoes);
+      renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+    }
+
+    function preencherSolicitantes(lista) {
+      const seletor = document.getElementById('filtroSolicitante');
+      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
+      nomes.sort().forEach(nome => {
+        const opt = document.createElement('option');
+        opt.value = nome;
+        opt.textContent = nome;
+        seletor.appendChild(opt);
+      });
+    }
+
+    function renderizarTabela(lista) {
+      const tabela = document.getElementById('tabelaRequisicoes');
+      tabela.innerHTML = '';
+      lista.forEach(({ linha, idx }) => {
+        const tr = document.createElement('tr');
+        linha.forEach(cel => {
+          const td = document.createElement('td');
+          td.textContent = cel;
+          tr.appendChild(td);
+        });
+        const tdAcoes = document.createElement('td');
+        tdAcoes.className = 'acoes';
+
+        ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+          const btn = document.createElement('button');
+          btn.textContent = acao;
+          btn.onclick = () => atualizarStatus(idx, acao);
+          tdAcoes.appendChild(btn);
+        });
+
+        tr.appendChild(tdAcoes);
+        tabela.appendChild(tr);
+      });
+    }
+
+    async function filtrar() {
+      const btn = document.getElementById('btnFiltrar');
+      btn.textContent = '⏳ Carregando...';
+      btn.disabled = true;
+
+      const dataIni = document.getElementById('filtroDataInicio').value;
+      const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
+      const dataFim = document.getElementById('filtroDataFim').value;
+      const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
+      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
+      const setor = document.getElementById('filtroSetor').value.toLowerCase();
+      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
+
+      const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
+      const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
+
+      const resultado = requisicoes
+        .map((linha, idx) => ({ linha, idx }))
+        .filter(({ linha }) => {
+          const [dataHora, item, unidade, quantidade, setorLinha, solicitanteLinha, obs, status] = linha.map(c => c.toLowerCase());
+          const dtLinha = new Date(linha[0]);
+          return (!dtInicio || dtLinha >= dtInicio) &&
+                 (!dtFim || dtLinha <= dtFim) &&
+                 (!solicitante || solicitanteLinha === solicitante) &&
+                 (!setor || setorLinha.includes(setor)) &&
+                 (!palavra || item.includes(palavra) || obs.includes(palavra));
+        });
+
+      renderizarTabela(resultado);
+      btn.textContent = '🔍 Filtrar';
+      btn.disabled = false;
+    }
+
+    async function atualizarStatus(index, acao) {
+      const linha = requisicoes[index];
+      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
+      const payload = {
+        dataHora: linha[0],
+        item: linha[1],
+        novaAcao: acao
+      };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        alert(`Status atualizado para: ${acao}`);
+        carregarDados();
+      } else {
+        alert('Erro ao atualizar.');
+      }
+    }
+
+    function exportarPDF() {
+      const elemento = document.getElementById('tabelaExport');
+      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
+    }
+
+    function enviarEmail() {
+      alert("Funcionalidade de envio por email em desenvolvimento. Entre em contato para ativar via Apps Script.");
+    }
+
+    function abrirModalAgrupar() {
+      document.getElementById("modalAgrupar").style.display = "flex";
+    }
+
+    function fecharModal() {
+      document.getElementById("modalAgrupar").style.display = "none";
+    }
+
+    function confirmarAgrupamento() {
+      const opcao = document.getElementById("seletorAgrupamento").value;
+      document.getElementById("modalAgrupar").style.display = "none";
+
+      const agrupado = {};
+      requisicoes.forEach(l => {
+        const chave = opcao === 'setor' ? l[4] : l[5];
+        if (!agrupado[chave]) agrupado[chave] = [];
+        agrupado[chave].push(l);
+      });
+
+      let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
+      html += '<table border="1" cellspacing="0" cellpadding="5">';
+      html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
+
+      for (const grupo in agrupado) {
+        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+        agrupado[grupo].forEach(l => {
+          html += `<tr>${l.map(c => `<td>${c}</td>`).join('')}</tr>`;
+        });
+      }
+      html += '</table>';
+
+      const janela = window.open('', '_blank');
+      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
+      janela.document.close();
+      janela.print();
+    }
+
+    carregarDados();
+  </script>
 </body>
 </html>
