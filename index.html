@@ -313,6 +313,10 @@
       <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
       <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
+      <button onclick="abrirCarrinho()" style="margin-top: 10px; background: none; border: none; font-size: 1.8em; cursor: pointer;" title="Ver carrinho">
+  🛒
+</button>
+
    
     <div style="margin-top: 20px; width: 100%;">
   <h3 style="margin-left: 20px;">🛒 Itens no Carrinho</h3>
@@ -360,6 +364,28 @@
       <tbody id="tabelaRequisicoes"></tbody>
     </table>
   </div>
+<div id="modalCarrinho" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:600px;">
+    <h3>🛒 Itens no Carrinho</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
+      <thead>
+        <tr style="background:#007bff; color:white;">
+          <th style="padding:8px; border:1px solid #ccc;">Item</th>
+          <th style="padding:8px; border:1px solid #ccc;">Qtd</th>
+          <th style="padding:8px; border:1px solid #ccc;">Unidade</th>
+          <th style="padding:8px; border:1px solid #ccc;">Setor</th>
+          <th style="padding:8px; border:1px solid #ccc;">Solicitante</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaCarrinhoModal"></tbody>
+    </table>
+    <br>
+    <button onclick="enviarCarrinhoWhatsApp()" style="padding:10px 20px; background:#25d366; color:white; border:none; border-radius:6px; cursor:pointer;">
+      📲 Enviar via WhatsApp
+    </button>
+    <button onclick="fecharCarrinho()" style="margin-left:10px; padding:10px 20px; background:#ccc; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
+  </div>
+</div>
 
   <div id="modalAgrupar">
     <div class="box">
@@ -749,6 +775,46 @@ function atualizarCarrinhoVisual() {
     `;
     tbody.appendChild(tr);
   });
+}
+function abrirCarrinho() {
+  atualizarCarrinhoModal();
+  document.getElementById('modalCarrinho').style.display = 'flex';
+}
+
+function fecharCarrinho() {
+  document.getElementById('modalCarrinho').style.display = 'none';
+}
+
+function atualizarCarrinhoModal() {
+  const tbody = document.getElementById("tabelaCarrinhoModal");
+  tbody.innerHTML = "";
+
+  carrinhoCompras.forEach(item => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="border:1px solid #ccc; padding:6px;">${item.item}</td>
+      <td style="border:1px solid #ccc; padding:6px;">${item.quantidade}</td>
+      <td style="border:1px solid #ccc; padding:6px;">${item.unidade}</td>
+      <td style="border:1px solid #ccc; padding:6px;">${item.setor}</td>
+      <td style="border:1px solid #ccc; padding:6px;">${item.solicitante}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function enviarCarrinhoWhatsApp() {
+  if (carrinhoCompras.length === 0) {
+    alert("O carrinho está vazio.");
+    return;
+  }
+
+  let mensagem = `🛒 *Itens para Compra:*\n\n`;
+  carrinhoCompras.forEach(item => {
+    mensagem += `• ${item.item} — ${item.quantidade} ${item.unidade} (${item.setor})\n`;
+  });
+
+  const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+  window.open(url, '_blank');
 }
 
 
