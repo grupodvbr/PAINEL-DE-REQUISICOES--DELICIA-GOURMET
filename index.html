@@ -206,7 +206,7 @@ td, th {
     <h1>Painel de Requisições</h1>
 
     <div class="botoes-acoes">
-      <button onclick="exportarPDF()">📄 PDF</button>
+      <button onclick="abrirModalPDF()">📄 PDF</button>
       <button onclick="enviarEmail()">✉️ Email</button>
       <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
     </div>
@@ -423,14 +423,16 @@ tdAcoes = document.createElement('td');
     }
 
     function confirmarAgrupamento() {
-      const opcao = document.getElementById("seletorAgrupamento").value;
-      document.getElementById("modalAgrupar").style.display = "none";
-      const agrupado = {};
-      requisicoes.forEach(l => {
-        const chave = opcao === 'setor' ? l[4] : l[5];
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push(l);
-      });
+  const opcao = document.getElementById("seletorAgrupamento").value;
+  const origem = document.getElementById("modalAgrupar").dataset.origem;
+  document.getElementById("modalAgrupar").style.display = "none";
+
+  if (origem === "pdf") {
+    gerarPDFAgrupado(opcao);
+  } else {
+    imprimirAgrupado(opcao);
+  }
+}
 
       let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
       html += '<table border="1" cellspacing="0" cellpadding="5">';
@@ -450,6 +452,49 @@ html += `<tr>${ordem.map(i => `<td>${i === 1 ? `<strong>${l[i]}</strong>` : l[i]
       janela.document.close();
       janela.print();
     }
+    function abrirModalPDF() {
+  const modal = document.getElementById("modalAgrupar");
+  modal.dataset.origem = "pdf";
+  modal.style.display = "flex";
+}
+
+async function gerarPDFAgrupado(opcao) {
+  const agrupado = {};
+  requisicoes.forEach(l => {
+    const chave = opcao === 'setor' ? l[4] : l[5];
+    if (!agrupado[chave]) agrupado[chave] = [];
+    agrupado[chave].push(l);
+  });
+
+  let html = `<h2 style="text-align:center">Requisições agrupadas por ${opcao}</h2>`;
+  html += '<table style="width:100%; border-collapse:collapse" border="1" cellspacing="0" cellpadding="5">';
+  html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
+
+  for (const grupo in agrupado) {
+    html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+    agrupado[grupo].forEach(l => {
+      const data = new Date(l[0]);
+      const dataFormatada = `${data.toLocaleDateString('pt-BR')} - ${data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+      html += `<tr>
+        <td>${dataFormatada}</td>
+        <td><strong>${l[1]}</strong></td>
+        <td>${l[3]}</td>
+        <td>${l[2]}</td>
+        <td>${l[4]}</td>
+        <td>${l[5]}</td>
+        <td>${l[6]}</td>
+        <td>${l[7]}</td>
+      </tr>`;
+    });
+  }
+
+  html += '</table>';
+
+  const container = document.createElement('div');
+  container.innerHTML = html;
+  html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
+}
+
 
     carregarDados();
   </script>
