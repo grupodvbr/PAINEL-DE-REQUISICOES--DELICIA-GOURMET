@@ -317,7 +317,22 @@
   🛒
 </button>
 
-
+   
+    <div style="margin-top: 20px; width: 100%;">
+  <h3 style="margin-left: 20px;">🛒 Itens no Carrinho</h3>
+  <table style="margin: 0 20px; width: calc(100% - 40px); border-collapse: collapse; font-size: 0.9em;">
+    <thead>
+      <tr style="background: #eee;">
+        <th style="border: 1px solid #ccc; padding: 8px;">Item</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Qtd</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Unidade</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Setor</th>
+        <th style="border: 1px solid #ccc; padding: 8px;">Solicitante</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaCarrinho"></tbody>
+  </table>
+  </div>
 </div>
   <div style="margin-left: 20px; display: inline-block;">
   <label style="font-weight: bold; font-size: 0.9em;">
@@ -349,7 +364,21 @@
       <tbody id="tabelaRequisicoes"></tbody>
     </table>
   </div>
-
+<div id="modalCarrinho" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:600px;">
+    <h3>🛒 Itens no Carrinho</h3>
+    <table style="width:100%; border-collapse:collapse; font-size:0.9em;">
+      <thead>
+        <tr style="background:#007bff; color:white;">
+          <th style="padding:8px; border:1px solid #ccc;">Item</th>
+          <th style="padding:8px; border:1px solid #ccc;">Qtd</th>
+          <th style="padding:8px; border:1px solid #ccc;">Unidade</th>
+          <th style="padding:8px; border:1px solid #ccc;">Setor</th>
+          <th style="padding:8px; border:1px solid #ccc;">Solicitante</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaCarrinhoModal"></tbody>
+    </table>
     <br>
     <button onclick="enviarCarrinhoWhatsApp()" style="padding:10px 20px; background:#25d366; color:white; border:none; border-radius:6px; cursor:pointer;">
       📲 Enviar via WhatsApp
@@ -652,25 +681,20 @@ function atualizarStatus(linhaIndex, novoStatus) {
 
   if (novoStatus === 'Comprar') {
     carrinhoCompras.push(payload);
-    atualizarCarrinhoModal();
-
+    atualizarCarrinhoVisual();
     const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
     btns.forEach(btn => {
       btn.disabled = true;
-      if (btn.textContent === 'Comprar') btn.textContent = '🛒 No carrinho';
+      btn.textContent = '🛒 No carrinho';
     });
+  } else {
+    const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
 
-    return;
-  }
-
-  // Para outros status, continuar com envio ao Apps Script
-  const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-
-  fetch(urlStatus, {
-    method: 'POST',
-    body: JSON.stringify(payload),
-    headers: { 'Content-Type': 'application/json' }
-  })
+    fetch(urlStatus, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' }
+    })
     .then(res => res.text())
     .then(msg => {
       const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
@@ -681,8 +705,8 @@ function atualizarStatus(linhaIndex, novoStatus) {
       });
     })
     .catch(err => alert("Erro ao registrar: " + err));
+  }
 }
-
 
     function concluirEmMassa() {
   const pendentes = listaFiltrada
@@ -718,14 +742,14 @@ function atualizarStatus(linhaIndex, novoStatus) {
 const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
 const urlCompras = 'https://script.google.com/macros/s/AKfycbyuUFYFkbQ-vvOxwkO2-fTkHhS4NImlk7iHBpsCt9_KsL4L9Wwu3O07fPCPVtlGfsRB-Q/exec';
 
-const urlDestino = payload.novoStatus === 'Comprar' ? urlCompras : urlStatus;
+const urlDestino = novoStatus === 'Comprar' ? urlCompras : urlStatus;
 
 fetch(urlDestino, {
-  method: 'POST',
-  body: JSON.stringify(payload),
-  headers: { 'Content-Type': 'application/json' }
-})
 
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' }
+    })
     .then(() => {
       const btns = document.querySelectorAll(`tr:nth-child(${idx + 1}) .acoes button`);
       btns.forEach(btn => {
