@@ -718,14 +718,14 @@ function atualizarStatus(linhaIndex, novoStatus) {
 const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
 const urlCompras = 'https://script.google.com/macros/s/AKfycbyuUFYFkbQ-vvOxwkO2-fTkHhS4NImlk7iHBpsCt9_KsL4L9Wwu3O07fPCPVtlGfsRB-Q/exec';
 
-const urlDestino = novoStatus === 'Comprar' ? urlCompras : urlStatus;
+const urlDestino = payload.novoStatus === 'Comprar' ? urlCompras : urlStatus;
 
 fetch(urlDestino, {
+  method: 'POST',
+  body: JSON.stringify(payload),
+  headers: { 'Content-Type': 'application/json' }
+})
 
-      method: 'POST',
-      body: JSON.stringify(payload),
-      headers: { 'Content-Type': 'application/json' }
-    })
     .then(() => {
       const btns = document.querySelectorAll(`tr:nth-child(${idx + 1}) .acoes button`);
       btns.forEach(btn => {
