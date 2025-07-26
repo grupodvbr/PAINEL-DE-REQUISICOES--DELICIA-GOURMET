@@ -186,39 +186,7 @@
       <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
       <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
       <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
-      function filtrar() {
-  const btn = document.getElementById('btnFiltrar');
-  btn.disabled = true;
-  btn.textContent = '⏳';
-
-  const dataIni = document.getElementById('filtroDataInicio').value;
-  const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
-  const dataFim = document.getElementById('filtroDataFim').value;
-  const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
-  const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-  const setor = document.getElementById('filtroSetor').value.toLowerCase();
-  const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-  const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
-  const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
-
-  const resultado = requisicoes
-    .map((linha, idx) => ({ linha, idx }))
-    .filter(({ linha }) => {
-      const [dataHora, item, unidade, qtd, setorL, solicitanteL, obs] = linha.map(c => c.toLowerCase());
-      const dtLinha = new Date(linha[0]);
-      return (!dtInicio || dtLinha >= dtInicio) &&
-             (!dtFim || dtLinha <= dtFim) &&
-             (!solicitante || solicitanteL === solicitante) &&
-             (!setor || setorL === setor) &&
-             (!palavra || item.includes(palavra) || obs.includes(palavra));
-    });
-
-  renderizarTabela(resultado);
-  btn.textContent = '🔍 Filtrar';
-  btn.disabled = false;
-}
-
+      <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
     <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
   </div>
