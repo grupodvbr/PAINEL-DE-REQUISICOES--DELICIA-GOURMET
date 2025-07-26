@@ -13,9 +13,7 @@
       --cor-texto: #333;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: Arial, sans-serif;
@@ -23,11 +21,12 @@
       background: var(--cor-fundo);
       color: var(--cor-texto);
     }
-td, th {
-  text-align: left;
-  vertical-align: middle;
-  padding: 8px 10px;
-}
+
+    td, th {
+      text-align: left;
+      vertical-align: middle;
+      padding: 8px 10px;
+    }
 
     h1 {
       margin: 0;
@@ -80,8 +79,7 @@ td, th {
       flex: 1;
     }
 
-    .filtros input,
-    .filtros select {
+    .filtros input, .filtros select {
       padding: 6px;
       font-size: 0.85em;
       border: 1px solid #ccc;
@@ -109,17 +107,16 @@ td, th {
       cursor: pointer;
     }
 
-   .tabela-container {
-  max-width: 98%;
-  margin: 0 auto 20px;
-  background: white;
-  border-radius: 8px;
-  overflow-x: auto;
-  overflow-y: auto;       /* 👈 adicione esta linha */
-  max-height: 65vh;       /* 👈 altura máxima visível para ativar rolagem */
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-}
-
+    .tabela-container {
+      max-width: 98%;
+      margin: 0 auto 20px;
+      background: white;
+      border-radius: 8px;
+      overflow-x: auto;
+      overflow-y: auto;
+      max-height: 65vh;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
 
     table {
       width: 100%;
@@ -127,35 +124,17 @@ td, th {
       font-size: 0.9em;
     }
 
-   thead th {
-  position: sticky;
-  top: 0;
-  background: var(--cor-primaria);
-  color: white;
-  z-index: 10;
-}
-
-
-
-    tbody tr:nth-child(even) {
-      background: #f1f1f1;
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--cor-primaria);
+      color: white;
+      z-index: 10;
     }
 
-    tbody tr:nth-child(odd) {
-      background: #ffffff;
-    }
-
-    tbody tr {
-      border-bottom: 1px solid #ccc;
-    }
-
-    td {
-      padding: 8px;
-    }
-
-    td:nth-child(2) strong {
-      font-weight: bold;
-    }
+    tbody tr:nth-child(even) { background: #f1f1f1; }
+    tbody tr:nth-child(odd) { background: #ffffff; }
+    tbody tr { border-bottom: 1px solid #ccc; }
 
     .acoes button {
       margin: 2px 4px;
@@ -186,56 +165,29 @@ td, th {
       text-align: center;
     }
 
-    #modalAgrupar select,
-    #modalAgrupar button {
-      width: 100%;
-      padding: 8px;
-      margin-top: 10px;
-    }
-
     @media (max-width: 768px) {
-      .filtros {
-        flex-direction: column;
-      }
+      .filtros { flex-direction: column; }
     }
   </style>
 </head>
 <body>
-
   <div class="top-bar">
     <h1>Painel de Requisições</h1>
-
     <div class="botoes-acoes">
-      <button onclick="abrirModalPDF()">📄 PDF</button>
+      <button onclick="abrirModalAgrupar('pdf')">📄 PDF</button>
       <button onclick="enviarEmail()">✉️ Email</button>
-      <button onclick="abrirModalAgrupar()">🖨️ Imprimir</button>
+      <button onclick="abrirModalAgrupar('print')">🖨️ Imprimir</button>
     </div>
-
     <div class="filtros">
-      <label>Data de:
-        <input type="date" id="filtroDataInicio">
-      </label>
-      <label>Hora Inicial:
-        <input type="time" id="filtroHoraInicio">
-      </label>
-      <label>Data até:
-        <input type="date" id="filtroDataFim">
-      </label>
-      <label>Hora Final:
-        <input type="time" id="filtroHoraFim">
-      </label>
-      <label>Solicitante:
-        <select id="filtroSolicitante"><option value="">Todos</option></select>
-      </label>
-      <label>Setor:
-        <select id="filtroSetor"><option value="">Todos</option></select>
-      </label>
-      <label>Palavra-chave:
-        <input type="text" id="filtroPalavra" placeholder="Buscar item ou observação">
-      </label>
+      <label>Data de:<input type="date" id="filtroDataInicio"></label>
+      <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
+      <label>Data até:<input type="date" id="filtroDataFim"></label>
+      <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
+      <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
+      <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
+      <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
       <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
     </div>
-
     <button class="btn-massa" onclick="concluirEmMassa()">✅ Conclusão em Massa</button>
   </div>
 
@@ -243,15 +195,7 @@ td, th {
     <table id="tabelaExport">
       <thead>
         <tr>
-          <th>Data e Hora</th>
-          <th>Item</th>
-          <th>Quantidade</th>
-          <th>Unidade</th>
-          <th>Setor</th>
-          <th>Solicitante</th>
-          <th>Observações</th>
-          <th>Status</th>
-          <th>Ações</th>
+          <th>Data e Hora</th><th>Item</th><th>Quantidade</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th><th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaRequisicoes"></tbody>
@@ -260,13 +204,13 @@ td, th {
 
   <div id="modalAgrupar">
     <div class="box">
-      <h3>Como deseja agrupar para impressão?</h3>
+      <h3>Como deseja agrupar?</h3>
       <select id="seletorAgrupamento">
         <option value="setor">Setor</option>
         <option value="solicitante">Solicitante</option>
       </select>
       <button onclick="confirmarAgrupamento()">OK</button>
-      <button onclick="fecharModal()">Cancelar</button>
+      <button onclick="document.getElementById('modalAgrupar').style.display='none'">Cancelar</button>
     </div>
   </div>
 
@@ -274,34 +218,10 @@ td, th {
     let requisicoes = [];
 
     async function carregarDados() {
-const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
-      const res = await fetch(url);
+      const res = await fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec');
       const dados = await res.json();
-      requisicoes = dados.map(linha => linha.map(c => (c || '').toString().trim()));
-      preencherFiltros(requisicoes);
+      requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
       renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
-    }
-
-    function preencherFiltros(lista) {
-      const seletorSolic = document.getElementById('filtroSolicitante');
-      const seletorSetor = document.getElementById('filtroSetor');
-
-      const nomes = [...new Set(lista.map(l => l[5]).filter(n => n))];
-      const setores = [...new Set(lista.map(l => l[4]).filter(n => n))];
-
-      nomes.sort().forEach(nome => {
-        const opt = document.createElement('option');
-        opt.value = nome;
-        opt.textContent = nome;
-        seletorSolic.appendChild(opt);
-      });
-
-      setores.sort().forEach(setor => {
-        const opt = document.createElement('option');
-        opt.value = setor;
-        opt.textContent = setor;
-        seletorSetor.appendChild(opt);
-      });
     }
 
     function renderizarTabela(lista) {
@@ -309,29 +229,17 @@ const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy
       tabela.innerHTML = '';
       lista.forEach(({ linha, idx }) => {
         const tr = document.createElement('tr');
-        const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7]; // nova ordem das colunas
-novaOrdem.forEach((i, posicao) => {
-  const td = document.createElement('td');
-
-  if (i === 0) {
-    const data = new Date(linha[i]);
-    const dataFormatada = `${data.toLocaleDateString('pt-BR')} - ${data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-    td.textContent = dataFormatada;
-  } else if (i === 1) {
-    td.innerHTML = `<strong>${linha[i]}</strong>`;
-  } else {
-    td.textContent = linha[i];
-  }
-
-  tr.appendChild(td);
-
-});
-tdAcoes = document.createElement('td');
+        const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
+        novaOrdem.forEach(i => {
+          const td = document.createElement('td');
+          td.innerHTML = i === 0 ? new Date(linha[i]).toLocaleString('pt-BR') : i === 1 ? `<strong>${linha[i]}</strong>` : linha[i];
+          tr.appendChild(td);
+        });
+        const tdAcoes = document.createElement('td');
         tdAcoes.className = 'acoes';
         ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
           const btn = document.createElement('button');
           btn.textContent = acao;
-          btn.onclick = () => atualizarStatus(idx, acao);
           tdAcoes.appendChild(btn);
         });
         tr.appendChild(tdAcoes);
@@ -339,165 +247,74 @@ tdAcoes = document.createElement('td');
       });
     }
 
-    async function atualizarStatus(index, acao) {
-      const linha = requisicoes[index];
-      const url = 'https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec';
-      const payload = {
-        dataHora: linha[0],
-        item: linha[1],
-        novaAcao: acao
-      };
-      await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      carregarDados();
-    }
-
-    async function concluirEmMassa() {
-      if (!confirm("Tem certeza que deseja concluir todas as requisições filtradas?")) return;
-      const linhas = document.querySelectorAll('#tabelaRequisicoes tr');
-      for (const tr of linhas) {
-        const tds = tr.querySelectorAll('td');
-        const dataHora = tds[0]?.textContent;
-        const item = tds[1]?.textContent;
-        if (!dataHora || !item) continue;
-        await fetch('https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ dataHora, item, novaAcao: 'Concluir' })
-        });
-      }
-      alert("Requisições concluídas com sucesso!");
-      carregarDados();
-    }
-
-    function filtrar() {
-      const btn = document.getElementById('btnFiltrar');
-      btn.disabled = true;
-      btn.textContent = '⏳';
-      const dataIni = document.getElementById('filtroDataInicio').value;
-      const horaIni = document.getElementById('filtroHoraInicio').value || '00:00';
-      const dataFim = document.getElementById('filtroDataFim').value;
-      const horaFim = document.getElementById('filtroHoraFim').value || '23:59';
-      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-      const setor = document.getElementById('filtroSetor').value.toLowerCase();
-      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-      const dtInicio = dataIni ? new Date(`${dataIni}T${horaIni}`) : null;
-      const dtFim = dataFim ? new Date(`${dataFim}T${horaFim}`) : null;
-
-      const resultado = requisicoes
-        .map((linha, idx) => ({ linha, idx }))
-        .filter(({ linha }) => {
-          const [dataHora, item, unidade, qtd, setorL, solicitanteL, obs] = linha.map(c => c.toLowerCase());
-          const dtLinha = new Date(linha[0]);
-          return (!dtInicio || dtLinha >= dtInicio) &&
-                 (!dtFim || dtLinha <= dtFim) &&
-                 (!solicitante || solicitanteL === solicitante) &&
-                 (!setor || setorL.includes(setor)) &&
-                 (!palavra || item.includes(palavra) || obs.includes(palavra));
-        });
-
-      renderizarTabela(resultado);
-      btn.textContent = '🔍 Filtrar';
-      btn.disabled = false;
-    }
-
-    function exportarPDF() {
-      const elemento = document.getElementById('tabelaExport');
-      html2pdf().from(elemento).save('relatorio_requisicoes.pdf');
-    }
-
-    function enviarEmail() {
-      alert("Funcionalidade de envio por email em desenvolvimento.");
-    }
-
-    function abrirModalAgrupar() {
-  const modal = document.getElementById("modalAgrupar");
-  modal.dataset.origem = "print";
-  modal.style.display = "flex";
-}
-
-    function fecharModal() {
-      document.getElementById("modalAgrupar").style.display = "none";
+    function abrirModalAgrupar(origem) {
+      const modal = document.getElementById("modalAgrupar");
+      modal.dataset.origem = origem;
+      modal.style.display = "flex";
     }
 
     function confirmarAgrupamento() {
-  const opcao = document.getElementById("seletorAgrupamento").value;
-  const origem = document.getElementById("modalAgrupar").dataset.origem;
-  document.getElementById("modalAgrupar").style.display = "none";
+      const opcao = document.getElementById("seletorAgrupamento").value;
+      const origem = document.getElementById("modalAgrupar").dataset.origem;
+      document.getElementById("modalAgrupar").style.display = "none";
+      if (origem === "pdf") gerarPDFAgrupado(opcao);
+      else imprimirAgrupado(opcao);
+    }
 
-  if (origem === "pdf") {
-    gerarPDFAgrupado(opcao);
-  } else {
-    imprimirAgrupado(opcao);
-  }
-}
+    function gerarPDFAgrupado(opcao) {
+      const agrupado = agruparPor(opcao);
+      const html = gerarHTMLAgrupado(agrupado, opcao);
+      const container = document.createElement('div');
+      container.innerHTML = html;
+      html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
+    }
 
-      let html = `<h2>Requisições agrupadas por ${opcao}</h2>`;
-      html += '<table border="1" cellspacing="0" cellpadding="5">';
-      html += '<tr><th>Data e Hora</th><th>Item</th><th>Unidade</th><th>Qtd</th><th>Setor</th><th>Solicitante</th><th>Obs.</th><th>Status</th></tr>';
-
-      for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-        agrupado[grupo].forEach(l => {
-          const ordem = [0, 1, 3, 2, 4, 5, 6, 7];
-html += `<tr>${ordem.map(i => `<td>${i === 1 ? `<strong>${l[i]}</strong>` : l[i]}</td>`).join('')}</tr>`;
-
-        });
-      }
-
+    function imprimirAgrupado(opcao) {
+      const agrupado = agruparPor(opcao);
+      const html = gerarHTMLAgrupado(agrupado, opcao);
       const janela = window.open('', '_blank');
       janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
       janela.document.close();
       janela.print();
     }
-    function abrirModalPDF() {
-  const modal = document.getElementById("modalAgrupar");
-  modal.dataset.origem = "pdf"; // define origem para o botão OK saber
-  modal.style.display = "flex";
-}
 
+    function agruparPor(campo) {
+      const agrupado = {};
+      requisicoes.forEach(l => {
+        const chave = campo === 'setor' ? l[4] : l[5];
+        if (!agrupado[chave]) agrupado[chave] = [];
+        agrupado[chave].push(l);
+      });
+      return agrupado;
+    }
 
-async function gerarPDFAgrupado(opcao) {
-  const agrupado = {};
-  requisicoes.forEach(l => {
-    const chave = opcao === 'setor' ? l[4] : l[5];
-    if (!agrupado[chave]) agrupado[chave] = [];
-    agrupado[chave].push(l);
-  });
+    function gerarHTMLAgrupado(agrupado, opcao) {
+      let html = `<h2 style="text-align:center">Requisições agrupadas por ${opcao}</h2>`;
+      html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
+      html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
+      for (const grupo in agrupado) {
+        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+        agrupado[grupo].forEach(l => {
+          const data = new Date(l[0]).toLocaleString('pt-BR');
+          html += `<tr>
+            <td>${data}</td>
+            <td><strong>${l[1]}</strong></td>
+            <td>${l[3]}</td>
+            <td>${l[2]}</td>
+            <td>${l[4]}</td>
+            <td>${l[5]}</td>
+            <td>${l[6]}</td>
+            <td>${l[7]}</td>
+          </tr>`;
+        });
+      }
+      html += '</table>';
+      return html;
+    }
 
-  let html = `<h2 style="text-align:center">Requisições agrupadas por ${opcao}</h2>`;
-  html += '<table style="width:100%; border-collapse:collapse" border="1" cellspacing="0" cellpadding="5">';
-  html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
-
-  for (const grupo in agrupado) {
-    html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-    agrupado[grupo].forEach(l => {
-      const data = new Date(l[0]);
-      const dataFormatada = `${data.toLocaleDateString('pt-BR')} - ${data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-      html += `<tr>
-        <td>${dataFormatada}</td>
-        <td><strong>${l[1]}</strong></td>
-        <td>${l[3]}</td>
-        <td>${l[2]}</td>
-        <td>${l[4]}</td>
-        <td>${l[5]}</td>
-        <td>${l[6]}</td>
-        <td>${l[7]}</td>
-      </tr>`;
-    });
-  }
-
-  html += '</table>';
-
-  const container = document.createElement('div');
-  container.innerHTML = html;
-  html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
-}
-
+    function enviarEmail() {
+      alert("Funcionalidade em desenvolvimento.");
+    }
 
     carregarDados();
   </script>
