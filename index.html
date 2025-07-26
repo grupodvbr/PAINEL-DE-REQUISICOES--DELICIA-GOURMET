@@ -378,36 +378,34 @@
   }
 
   function enviarWhatsApp() {
-    const hoje = new Date();
-    const dataFormatada = hoje.toLocaleDateString('pt-BR');
-    const titulo = `**COMPRAS DELÍCIA GOURMET - ${dataFormatada}**\n\n`;
+  const hoje = new Date();
+  const dataFormatada = hoje.toLocaleDateString('pt-BR');
+  const titulo = `**COMPRAS DELÍCIA GOURMET - ${dataFormatada}**\n\n`;
 
-    const agrupado = {};
-    const fonte = listaFiltrada.length ? listaFiltrada : requisicoes.map((linha, idx) => ({ linha, idx }));
+  const agrupado = {};
+  const fonte = listaFiltrada.length ? listaFiltrada : requisicoes.map((linha, idx) => ({ linha, idx }));
 
-    fonte.forEach(({ linha }) => {
-      const setor = linha[4] || 'Sem Setor';
-      const item = linha[1];
-      if (!agrupado[setor]) agrupado[setor] = new Set();
-      agrupado[setor].add(item);
+  fonte.forEach(({ linha }) => {
+    const setor = linha[4] || 'Sem Setor';
+    const item = linha[1];
+    const quantidade = linha[3];
+
+    if (!agrupado[setor]) agrupado[setor] = [];
+    agrupado[setor].push({ item, quantidade });
+  });
+
+  let mensagem = titulo;
+  for (const setor in agrupado) {
+    mensagem += `🛒 *${setor}*\n`;
+    agrupado[setor].forEach(({ item, quantidade }) => {
+      mensagem += `- ${item} — ${quantidade}\n`;
     });
-
-    let mensagem = titulo;
-    for (const setor in agrupado) {
-      mensagem += `📦 *${setor}*\n`;
-      agrupado[setor].forEach(prod => {
-        mensagem += `- ${prod}\n`;
-      });
-      mensagem += `\n`;
-    }
-
-    const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-    window.open(link, '_blank');
+    mensagem += `\n`;
   }
 
-  function concluirEmMassa() {
-    alert("Funcionalidade de conclusão em massa em desenvolvimento.");
-  }
+  const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+  window.open(link, '_blank');
+}
 
   carregarDados();
 </script>
