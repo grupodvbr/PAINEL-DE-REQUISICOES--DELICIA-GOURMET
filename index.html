@@ -376,15 +376,18 @@
   let requisicoes = [];
   let listaFiltrada = [];
 
-  async function carregarDados() {
-    const res = await fetch('https://script.google.com/macros/s/AKfycbz-SfG7skNM7eElBNJ0go6epBodOGl_O-472tEeB-Aup4Ruvw7NxhlNL3W25MBmw4fs/exec');
-    const dados = await res.json();
-    requisicoes = dados
-  .map(l => l.map(c => (c || '').toString().trim()))
-  .sort((a, b) => new Date(a[0]) - new Date(b[0]));
-    renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
-    popularFiltros();
-  }
+ async function carregarDados() {
+  const res = await fetch('https://script.google.com/macros/s/AKfycbz-SfG7skNM7eElBNJ0go6epBodOG1_O-472tEeB-Aup4Ruvw7NxhlNL3W25MBmw4fs/exec');
+  const dados = await res.json();
+
+  requisicoes = dados
+    .map(l => l.map(c => (c || '').toString().trim()))
+    .sort((a, b) => new Date(a[0]) - new Date(b[0])); // ordenação por data
+
+  listaFiltrada = requisicoes.map((linha, idx) => ({ linha, idx })); // força mostrar tudo
+  renderizarTabela(listaFiltrada); // renderiza na tela
+  popularFiltros(); // carrega filtros
+}
 
   function renderizarTabela(lista) {
   const tabela = document.getElementById('tabelaRequisicoes');
@@ -445,10 +448,11 @@
           const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
           if (dataHora > dataFim) return false;
         }
-        if (status) {
+        if (status && status !== '') {
   const statusAtual = linha[7].toLowerCase() === "processando" ? "pendente" : linha[7].toLowerCase();
-  if (!statusAtual.includes(status)) return false;
+  if (statusAtual !== status.toLowerCase()) return false;
 }
+
 
         if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
         if (setor && !linha[4].toLowerCase().includes(setor)) return false;
