@@ -175,7 +175,7 @@
     <h1>Painel de Requisições</h1>
     <div class="botoes-acoes">
       <button onclick="abrirModalAgrupar('pdf')">📄 PDF</button>
-      <button onclick="enviarEmail()">✉️ Email</button>
+      <button onclick="enviarWhatsApp()">📱 WhatsApp</button>
       <button onclick="abrirModalAgrupar('print')">🖨️ Imprimir</button>
     </div>
     <div class="filtros">
@@ -214,177 +214,202 @@
     </div>
   </div>
 
-  <script>
-    let requisicoes = [];
+ <script>
+  let requisicoes = [];
+  let listaFiltrada = [];
 
-    async function carregarDados() {
-      const res = await fetch('https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec');
-      const dados = await res.json();
-      requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
-      renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
-      popularFiltros();
-    }
+  async function carregarDados() {
+    const res = await fetch('https://script.google.com/macros/s/AKfycbwthsBTwGrsafdkZXVhBV0lDSiy3dHcTinf9rKU0_1sQ96PAhqr9k7AIOdkcGtExUzVrw/exec');
+    const dados = await res.json();
+    requisicoes = dados.map(l => l.map(c => (c || '').toString().trim()));
+    renderizarTabela(requisicoes.map((linha, idx) => ({ linha, idx })));
+    popularFiltros();
+  }
 
-    function renderizarTabela(lista) {
-      const tabela = document.getElementById('tabelaRequisicoes');
-      tabela.innerHTML = '';
-      lista.forEach(({ linha, idx }) => {
-        const tr = document.createElement('tr');
-        const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
-        novaOrdem.forEach(i => {
-          const td = document.createElement('td');
-          td.innerHTML = i === 0 ? new Date(linha[i]).toLocaleString('pt-BR') : i === 1 ? `<strong>${linha[i]}</strong>` : linha[i];
-          tr.appendChild(td);
-        });
-        const tdAcoes = document.createElement('td');
-        tdAcoes.className = 'acoes';
-        ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
-          const btn = document.createElement('button');
-          btn.textContent = acao;
-          tdAcoes.appendChild(btn);
-        });
-        tr.appendChild(tdAcoes);
-        tabela.appendChild(tr);
+  function renderizarTabela(lista) {
+    const tabela = document.getElementById('tabelaRequisicoes');
+    tabela.innerHTML = '';
+    lista.forEach(({ linha, idx }) => {
+      const tr = document.createElement('tr');
+      const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
+      novaOrdem.forEach(i => {
+        const td = document.createElement('td');
+        td.innerHTML = i === 0 ? new Date(linha[i]).toLocaleString('pt-BR') : i === 1 ? `<strong>${linha[i]}</strong>` : linha[i];
+        tr.appendChild(td);
       });
-    }
+      const tdAcoes = document.createElement('td');
+      tdAcoes.className = 'acoes';
+      ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+        const btn = document.createElement('button');
+        btn.textContent = acao;
+        tdAcoes.appendChild(btn);
+      });
+      tr.appendChild(tdAcoes);
+      tabela.appendChild(tr);
+    });
+  }
 
-    function filtrar() {
-      const inicioData = document.getElementById('filtroDataInicio').value;
-      const fimData = document.getElementById('filtroDataFim').value;
-      const inicioHora = document.getElementById('filtroHoraInicio').value;
-      const fimHora = document.getElementById('filtroHoraFim').value;
-      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-      const setor = document.getElementById('filtroSetor').value.toLowerCase();
-      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
+  function filtrar() {
+    const inicioData = document.getElementById('filtroDataInicio').value;
+    const fimData = document.getElementById('filtroDataFim').value;
+    const inicioHora = document.getElementById('filtroHoraInicio').value;
+    const fimHora = document.getElementById('filtroHoraFim').value;
+    const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
+    const setor = document.getElementById('filtroSetor').value.toLowerCase();
+    const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
 
-      const listaFiltrada = requisicoes
-        .map((linha, idx) => ({ linha, idx }))
-        .filter(({ linha }) => {
-          const dataHora = new Date(linha[0]);
+    listaFiltrada = requisicoes
+      .map((linha, idx) => ({ linha, idx }))
+      .filter(({ linha }) => {
+        const dataHora = new Date(linha[0]);
 
-          if (inicioData) {
-            const dataInicio = new Date(`${inicioData}T${inicioHora || '00:00'}`);
-            if (dataHora < dataInicio) return false;
-          }
-          if (fimData) {
-            const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
-            if (dataHora > dataFim) return false;
-          }
+        if (inicioData) {
+          const dataInicio = new Date(`${inicioData}T${inicioHora || '00:00'}`);
+          if (dataHora < dataInicio) return false;
+        }
+        if (fimData) {
+          const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
+          if (dataHora > dataFim) return false;
+        }
 
-          if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
-          if (setor && !linha[4].toLowerCase().includes(setor)) return false;
-          if (palavra) {
-            const item = linha[1].toLowerCase();
-            const obs = (linha[6] || '').toLowerCase();
-            if (!item.includes(palavra) && !obs.includes(palavra)) return false;
-          }
+        if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
+        if (setor && !linha[4].toLowerCase().includes(setor)) return false;
+        if (palavra) {
+          const item = linha[1].toLowerCase();
+          const obs = (linha[6] || '').toLowerCase();
+          if (!item.includes(palavra) && !obs.includes(palavra)) return false;
+        }
 
-          return true;
-        });
-
-      renderizarTabela(listaFiltrada);
-    }
-
-    function popularFiltros() {
-      const solicitantes = new Set();
-      const setores = new Set();
-      requisicoes.forEach(l => {
-        solicitantes.add(l[5]);
-        setores.add(l[4]);
+        return true;
       });
 
-      const solicitanteSelect = document.getElementById('filtroSolicitante');
-      const setorSelect = document.getElementById('filtroSetor');
+    renderizarTabela(listaFiltrada);
+  }
 
-      solicitantes.forEach(nome => {
-        const option = document.createElement('option');
-        option.value = nome;
-        option.textContent = nome;
-        solicitanteSelect.appendChild(option);
+  function popularFiltros() {
+    const solicitantes = new Set();
+    const setores = new Set();
+    requisicoes.forEach(l => {
+      solicitantes.add(l[5]);
+      setores.add(l[4]);
+    });
+
+    const solicitanteSelect = document.getElementById('filtroSolicitante');
+    const setorSelect = document.getElementById('filtroSetor');
+
+    solicitantes.forEach(nome => {
+      const option = document.createElement('option');
+      option.value = nome;
+      option.textContent = nome;
+      solicitanteSelect.appendChild(option);
+    });
+
+    setores.forEach(nome => {
+      const option = document.createElement('option');
+      option.value = nome;
+      option.textContent = nome;
+      setorSelect.appendChild(option);
+    });
+  }
+
+  function abrirModalAgrupar(origem) {
+    const modal = document.getElementById("modalAgrupar");
+    modal.dataset.origem = origem;
+    modal.style.display = "flex";
+  }
+
+  function confirmarAgrupamento() {
+    const opcao = document.getElementById("seletorAgrupamento").value;
+    const origem = document.getElementById("modalAgrupar").dataset.origem;
+    document.getElementById("modalAgrupar").style.display = "none";
+    if (origem === "pdf") gerarPDFAgrupado(opcao);
+    else imprimirAgrupado(opcao);
+  }
+
+  function agruparPor(campo) {
+    const agrupado = {};
+    requisicoes.forEach(l => {
+      const chave = campo === 'setor' ? l[4] : l[5];
+      if (!agrupado[chave]) agrupado[chave] = [];
+      agrupado[chave].push(l);
+    });
+    return agrupado;
+  }
+
+  function gerarHTMLAgrupado(agrupado, opcao) {
+    let html = `<h2 style="text-align:center">Requisições agrupadas por ${opcao}</h2>`;
+    html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
+    html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
+    for (const grupo in agrupado) {
+      html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
+      agrupado[grupo].forEach(l => {
+        const data = new Date(l[0]).toLocaleString('pt-BR');
+        html += `<tr>
+          <td>${data}</td>
+          <td><strong>${l[1]}</strong></td>
+          <td>${l[3]}</td>
+          <td>${l[2]}</td>
+          <td>${l[4]}</td>
+          <td>${l[5]}</td>
+          <td>${l[6]}</td>
+          <td>${l[7]}</td>
+        </tr>`;
       });
+    }
+    html += '</table>';
+    return html;
+  }
 
-      setores.forEach(nome => {
-        const option = document.createElement('option');
-        option.value = nome;
-        option.textContent = nome;
-        setorSelect.appendChild(option);
+  function gerarPDFAgrupado(opcao) {
+    const agrupado = agruparPor(opcao);
+    const html = gerarHTMLAgrupado(agrupado, opcao);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
+  }
+
+  function imprimirAgrupado(opcao) {
+    const agrupado = agruparPor(opcao);
+    const html = gerarHTMLAgrupado(agrupado, opcao);
+    const janela = window.open('', '_blank');
+    janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
+    janela.document.close();
+    janela.print();
+  }
+
+  function enviarWhatsApp() {
+    const hoje = new Date();
+    const dataFormatada = hoje.toLocaleDateString('pt-BR');
+    const titulo = `**COMPRAS DELÍCIA GOURMET - ${dataFormatada}**\n\n`;
+
+    const agrupado = {};
+    const fonte = listaFiltrada.length ? listaFiltrada : requisicoes.map((linha, idx) => ({ linha, idx }));
+
+    fonte.forEach(({ linha }) => {
+      const setor = linha[4] || 'Sem Setor';
+      const item = linha[1];
+      if (!agrupado[setor]) agrupado[setor] = new Set();
+      agrupado[setor].add(item);
+    });
+
+    let mensagem = titulo;
+    for (const setor in agrupado) {
+      mensagem += `📦 *${setor}*\n`;
+      agrupado[setor].forEach(prod => {
+        mensagem += `- ${prod}\n`;
       });
+      mensagem += `\n`;
     }
 
-    function abrirModalAgrupar(origem) {
-      const modal = document.getElementById("modalAgrupar");
-      modal.dataset.origem = origem;
-      modal.style.display = "flex";
-    }
+    const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
+    window.open(link, '_blank');
+  }
 
-    function confirmarAgrupamento() {
-      const opcao = document.getElementById("seletorAgrupamento").value;
-      const origem = document.getElementById("modalAgrupar").dataset.origem;
-      document.getElementById("modalAgrupar").style.display = "none";
-      if (origem === "pdf") gerarPDFAgrupado(opcao);
-      else imprimirAgrupado(opcao);
-    }
+  function concluirEmMassa() {
+    alert("Funcionalidade de conclusão em massa em desenvolvimento.");
+  }
 
-    function agruparPor(campo) {
-      const agrupado = {};
-      requisicoes.forEach(l => {
-        const chave = campo === 'setor' ? l[4] : l[5];
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push(l);
-      });
-      return agrupado;
-    }
-
-    function gerarHTMLAgrupado(agrupado, opcao) {
-      let html = `<h2 style="text-align:center">Requisições agrupadas por ${opcao}</h2>`;
-      html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
-      html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
-      for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-        agrupado[grupo].forEach(l => {
-          const data = new Date(l[0]).toLocaleString('pt-BR');
-          html += `<tr>
-            <td>${data}</td>
-            <td><strong>${l[1]}</strong></td>
-            <td>${l[3]}</td>
-            <td>${l[2]}</td>
-            <td>${l[4]}</td>
-            <td>${l[5]}</td>
-            <td>${l[6]}</td>
-            <td>${l[7]}</td>
-          </tr>`;
-        });
-      }
-      html += '</table>';
-      return html;
-    }
-
-    function gerarPDFAgrupado(opcao) {
-      const agrupado = agruparPor(opcao);
-      const html = gerarHTMLAgrupado(agrupado, opcao);
-      const container = document.createElement('div');
-      container.innerHTML = html;
-      html2pdf().from(container).set({ filename: 'requisicoes_agrupadas.pdf' }).save();
-    }
-
-    function imprimirAgrupado(opcao) {
-      const agrupado = agruparPor(opcao);
-      const html = gerarHTMLAgrupado(agrupado, opcao);
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
-    }
-
-    function enviarEmail() {
-      alert("Funcionalidade em desenvolvimento.");
-    }
-
-    function concluirEmMassa() {
-      alert("Funcionalidade de conclusão em massa em desenvolvimento.");
-    }
-
-    carregarDados();
-  </script>
+  carregarDados();
+</script>
 </body>
 </html>
