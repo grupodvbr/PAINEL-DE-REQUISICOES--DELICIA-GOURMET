@@ -450,9 +450,9 @@
     else imprimirAgrupado(opcao);
   }
 
-  function agruparPor(campo) {
+  function agruparPor(campo, lista = requisicoes) {
   const agrupado = {};
-  requisicoes.forEach(l => {
+  lista.forEach(l => {
     let chave = '';
     if (campo === 'setor') chave = l[4];
     else if (campo === 'solicitante') chave = l[5];
@@ -503,7 +503,8 @@
 
 
   function gerarPDFAgrupado(opcao) {
-    const agrupado = agruparPor(opcao);
+    const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => x.linha) : requisicoes);
+
     const html = gerarHTMLAgrupado(agrupado, opcao);
     const container = document.createElement('div');
     container.innerHTML = html;
@@ -511,7 +512,7 @@
   }
 
   function imprimirAgrupado(opcao) {
-    const agrupado = agruparPor(opcao);
+   const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => x.linha) : requisicoes);
     const html = gerarHTMLAgrupado(agrupado, opcao);
     const janela = window.open('', '_blank');
     janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
