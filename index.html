@@ -448,18 +448,25 @@ if (carrinhoSalvo) {
       });
 
       const tdAcoes = document.createElement('td');
-      tdAcoes.className = 'acoes';
-      ['Concluir', 'Comprar', 'Negar'].forEach(acao => {
-        const btn = document.createElement('button');
-        btn.textContent = acao;
-        btn.onclick = () => atualizarStatus(idx, acao);
-        tdAcoes.appendChild(btn);
-      });
+tdAcoes.className = 'acoes';
 
-      tr.appendChild(tdAcoes);
-      tabela.appendChild(tr);
-    });
+['Concluir', 'Comprar', 'Negar'].forEach(acao => {
+  const btn = document.createElement('button');
+  btn.textContent = acao;
+  btn.onclick = () => atualizarStatus(idx, acao);
+
+  if (acao === 'Comprar') {
+    const quantidade = contarItemNoCarrinho(linha[1]);
+    if (quantidade > 0) {
+      btn.textContent = `🛒 (${quantidade})`;
+      btn.style.backgroundColor = '#28a745'; // verde
+      btn.style.fontWeight = 'bold';
+    }
   }
+
+  tdAcoes.appendChild(btn);
+});
+
 
   function filtrar() {
     const status = document.getElementById('filtroStatus').value.toLowerCase();
@@ -506,6 +513,10 @@ if (carrinhoSalvo) {
       solicitantes.add(linha[5]);
       setores.add(linha[4]);
     });
+    function contarItemNoCarrinho(nomeItem) {
+  return carrinhoCompras.filter(i => i.item === nomeItem).length;
+}
+
 
     const solicitanteSelect = document.getElementById('filtroSolicitante');
     const setorSelect = document.getElementById('filtroSetor');
@@ -672,10 +683,8 @@ function atualizarStatus(linhaIndex, novoStatus) {
   if (novoStatus === 'Comprar') {
     carrinhoCompras.push(payload);
     atualizarCarrinhoVisual();
-    const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
-    btns.forEach(btn => {
-      btn.disabled = true;
-      btn.textContent = '🛒 No carrinho';
+    filtrar(); // re-renderiza a tabela com botão atualizado
+tent = '🛒 No carrinho';
     });
   } else {
     const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
