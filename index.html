@@ -653,7 +653,6 @@ if (carrinhoSalvo) {
     enviarWhatsApp(criterio);
   }
 
-
 function atualizarStatus(linhaIndex, novoStatus) {
   const dadosOriginais = requisicoes[linhaIndex].linha;
 
@@ -669,29 +668,38 @@ function atualizarStatus(linhaIndex, novoStatus) {
     novoStatus: novoStatus
   };
 
+  const linha = document.querySelectorAll("#tabelaRequisicoes tr")[linhaIndex];
+  const botoes = linha.querySelectorAll(".acoes button");
+
   if (novoStatus === 'Comprar') {
+    // ✅ Adiciona ao carrinho
     carrinhoCompras.push(payload);
+    localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
     atualizarCarrinhoVisual();
-    const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
-    btns.forEach(btn => {
+
+    // ✅ Atualiza o botão imediatamente
+    botoes.forEach(btn => {
       btn.disabled = true;
-      btn.textContent = '🛒 No carrinho';
+      btn.style.backgroundColor = "#388e3c"; // verde
+      btn.textContent = "🛒 No carrinho";
     });
   } else {
     const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-
     fetch(urlStatus, {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json' }
     })
-    .then(res => res.text())
-    .then(msg => {
-      const btns = document.querySelectorAll(`tr:nth-child(${linhaIndex + 1}) .acoes button`);
-      btns.forEach(btn => {
+    .then(() => {
+      botoes.forEach(btn => {
         btn.disabled = true;
-        if (novoStatus === 'Concluir') btn.textContent = '✔️ Concluído';
-        else if (novoStatus === 'Negar') btn.textContent = '❌ Negado';
+        if (novoStatus === 'Concluir') {
+          btn.textContent = '✔️ Concluído';
+          btn.style.backgroundColor = "#388e3c";
+        } else if (novoStatus === 'Negar') {
+          btn.textContent = '❌ Negado';
+          btn.style.backgroundColor = "#dc3545";
+        }
       });
     })
     .catch(err => alert("Erro ao registrar: " + err));
