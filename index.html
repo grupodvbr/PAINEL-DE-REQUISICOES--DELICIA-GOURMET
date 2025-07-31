@@ -727,7 +727,7 @@ else {
     return;
   }
 
-  const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como CONCLUÍDAS?`);
+  const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como ENTREGUES?`);
   if (!confirmacao) return;
 
   pendentes.forEach(({ item, idx }) => {
@@ -742,16 +742,11 @@ else {
       solicitante: dadosOriginais[5],
       observacoes: dadosOriginais[6],
       statusOriginal: dadosOriginais[7],
-      novoStatus: "Concluir"
+      novoStatus: "ENTREGUE"  // <<< ALTERAÇÃO AQUI
     };
 
-const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-const urlCompras = 'https://script.google.com/macros/s/AKfycbyuUFYFkbQ-vvOxwkO2-fTkHhS4NImlk7iHBpsCt9_KsL4L9Wwu3O07fPCPVtlGfsRB-Q/exec';
-
-const urlDestino = novoStatus === 'Comprar' ? urlCompras : urlStatus;
-
-fetch(urlDestino, {
-
+    const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
+    fetch(urlStatus, {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: { 'Content-Type': 'application/json' }
@@ -760,12 +755,14 @@ fetch(urlDestino, {
       const btns = document.querySelectorAll(`tr:nth-child(${idx + 1}) .acoes button`);
       btns.forEach(btn => {
         btn.disabled = true;
-        btn.textContent = '✔️ Concluído';
+        btn.textContent = '✔️ ENTREGUE';
+        btn.style.backgroundColor = "#388e3c";
       });
     })
     .catch(err => console.error("Erro em massa:", err));
   });
 }
+
 function atualizarCarrinhoVisual() {
   const tbody = document.getElementById("tabelaCarrinhoModal");
   tbody.innerHTML = "";
