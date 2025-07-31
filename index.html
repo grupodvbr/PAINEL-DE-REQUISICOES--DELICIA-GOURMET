@@ -428,63 +428,75 @@ if (carrinhoSalvo) {
   }
 
   function renderizarTabela(lista) {
-    const tabela = document.getElementById('tabelaRequisicoes');
-    tabela.innerHTML = '';
-    lista.forEach(({ linha, idx }) => {
-      const tr = document.createElement('tr');
-      const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
-      novaOrdem.forEach(i => {
-        const td = document.createElement('td');
-        let valor = linha[i];
-        if (i === 7 && valor.toLowerCase() === "processando") valor = "PENDENTE";
+  const tabela = document.getElementById('tabelaRequisicoes');
+  tabela.innerHTML = '';
+  lista.forEach(({ linha, idx }) => {
+    const tr = document.createElement('tr');
+    const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
+    novaOrdem.forEach(i => {
+      const td = document.createElement('td');
+      let valor = linha[i];
+      if (i === 7 && valor.toLowerCase() === "processando") valor = "PENDENTE";
 
-        td.innerHTML = i === 0
-          ? new Date(linha[i]).toLocaleString('pt-BR')
-          : i === 1
-            ? `<strong>${linha[i]}</strong>`
-            : valor;
+      td.innerHTML = i === 0
+        ? new Date(linha[i]).toLocaleString('pt-BR')
+        : i === 1
+          ? `<strong>${linha[i]}</strong>`
+          : valor;
 
-        tr.appendChild(td);
-      });
-
-      const tdAcoes = document.createElement('td');
-      tdAcoes.className = 'acoes';
-     const btnCarrinho = document.createElement('button');
-const itemNoCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
-
-btnCarrinho.textContent = itemNoCarrinho ? '🛒 No carrinho' : '➕ Adicionar ao carrinho';
-btnCarrinho.style.backgroundColor = itemNoCarrinho ? '#388e3c' : '#6c757d';
-btnCarrinho.onclick = () => {
-  if (itemNoCarrinho) {
-    carrinhoCompras = carrinhoCompras.filter(c => !(c.dataHoraOriginal === linha[0] && c.item === linha[1]));
-    btnCarrinho.textContent = '➕ Adicionar ao carrinho';
-    btnCarrinho.style.backgroundColor = '#6c757d';
-  } else {
-    carrinhoCompras.push({
-      dataHoraOriginal: linha[0],
-      item: linha[1],
-      unidade: linha[2],
-      quantidade: linha[3],
-      setor: linha[4],
-      solicitante: linha[5],
-      observacoes: linha[6],
-      statusOriginal: linha[7],
-      novoStatus: 'Comprar'
+      tr.appendChild(td);
     });
-    btnCarrinho.textContent = '🛒 No carrinho';
-    btnCarrinho.style.backgroundColor = '#388e3c';
-  }
-  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-  atualizarCarrinhoModal();
-};
 
-tdAcoes.appendChild(btnCarrinho);
+    const tdAcoes = document.createElement('td');
+    tdAcoes.className = 'acoes';
 
+    // Botão Carrinho
+    const btnCarrinho = document.createElement('button');
+    const itemNoCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
 
-      tr.appendChild(tdAcoes);
-      tabela.appendChild(tr);
-    });
-  }
+    btnCarrinho.textContent = itemNoCarrinho ? '🛒 No carrinho' : '➕ Adicionar ao carrinho';
+    btnCarrinho.style.backgroundColor = itemNoCarrinho ? '#388e3c' : '#6c757d';
+    btnCarrinho.onclick = () => {
+      if (itemNoCarrinho) {
+        carrinhoCompras = carrinhoCompras.filter(c => !(c.dataHoraOriginal === linha[0] && c.item === linha[1]));
+        btnCarrinho.textContent = '➕ Adicionar ao carrinho';
+        btnCarrinho.style.backgroundColor = '#6c757d';
+      } else {
+        carrinhoCompras.push({
+          dataHoraOriginal: linha[0],
+          item: linha[1],
+          unidade: linha[2],
+          quantidade: linha[3],
+          setor: linha[4],
+          solicitante: linha[5],
+          observacoes: linha[6],
+          statusOriginal: linha[7],
+          novoStatus: 'Comprar'
+        });
+        btnCarrinho.textContent = '🛒 No carrinho';
+        btnCarrinho.style.backgroundColor = '#388e3c';
+      }
+      localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
+      atualizarCarrinhoModal();
+    };
+    tdAcoes.appendChild(btnCarrinho);
+
+    // Botão Negar
+    const btnNegar = document.createElement('button');
+    btnNegar.textContent = '❌ Negar';
+    btnNegar.style.backgroundColor = '#dc3545';
+    btnNegar.onclick = () => {
+      const confirmacao = confirm(`Deseja realmente negar o item: ${linha[1]}?`);
+      if (!confirmacao) return;
+      atualizarStatus(idx, 'Negar');
+    };
+    tdAcoes.appendChild(btnNegar);
+
+    tr.appendChild(tdAcoes);
+    tabela.appendChild(tr);
+  });
+}
+
 
   function filtrar() {
     const status = document.getElementById('filtroStatus').value.toLowerCase();
