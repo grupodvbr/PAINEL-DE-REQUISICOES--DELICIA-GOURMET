@@ -454,31 +454,34 @@ if (carrinhoSalvo) {
     const btnCarrinho = document.createElement('button');
     const itemNoCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
 
-    btnCarrinho.textContent = itemNoCarrinho ? '🛒 No carrinho' : '➕ Adicionar ao carrinho';
-    btnCarrinho.style.backgroundColor = itemNoCarrinho ? '#388e3c' : '#6c757d';
-    btnCarrinho.onclick = () => {
-      if (itemNoCarrinho) {
-        carrinhoCompras = carrinhoCompras.filter(c => !(c.dataHoraOriginal === linha[0] && c.item === linha[1]));
-        btnCarrinho.textContent = '➕ Adicionar ao carrinho';
-        btnCarrinho.style.backgroundColor = '#6c757d';
-      } else {
-        carrinhoCompras.push({
-          dataHoraOriginal: linha[0],
-          item: linha[1],
-          unidade: linha[2],
-          quantidade: linha[3],
-          setor: linha[4],
-          solicitante: linha[5],
-          observacoes: linha[6],
-          statusOriginal: linha[7],
-          novoStatus: 'Comprar'
-        });
-        btnCarrinho.textContent = '🛒 No carrinho';
-        btnCarrinho.style.backgroundColor = '#388e3c';
-      }
-      localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-      atualizarCarrinhoModal();
-    };
+   btnCarrinho.textContent = itemNoCarrinho ? '🛒 Tirar do carrinho' : '➕ Adicionar ao carrinho';
+btnCarrinho.style.backgroundColor = itemNoCarrinho ? '#388e3c' : '#6c757d';
+
+btnCarrinho.onclick = () => {
+  const noCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
+  if (noCarrinho) {
+    carrinhoCompras = carrinhoCompras.filter(c => !(c.dataHoraOriginal === linha[0] && c.item === linha[1]));
+    btnCarrinho.textContent = '➕ Adicionar ao carrinho';
+    btnCarrinho.style.backgroundColor = '#6c757d';
+  } else {
+    carrinhoCompras.push({
+      dataHoraOriginal: linha[0],
+      item: linha[1],
+      unidade: linha[2],
+      quantidade: linha[3],
+      setor: linha[4],
+      solicitante: linha[5],
+      observacoes: linha[6],
+      statusOriginal: linha[7],
+      novoStatus: 'Comprar'
+    });
+    btnCarrinho.textContent = '🛒 Tirar do carrinho';
+    btnCarrinho.style.backgroundColor = '#388e3c';
+  }
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
+  atualizarCarrinhoModal();
+};
+
     tdAcoes.appendChild(btnCarrinho);
 
     // Botão Negar
