@@ -402,7 +402,7 @@
 
 
   <script>
-
+let carrinhoCompras = [];
 const carrinhoSalvo = localStorage.getItem("carrinhoCompras");
 if (carrinhoSalvo) {
   carrinhoCompras = JSON.parse(carrinhoSalvo);
@@ -672,18 +672,26 @@ function atualizarStatus(linhaIndex, novoStatus) {
   const botoes = linha.querySelectorAll(".acoes button");
 
   if (novoStatus === 'Comprar') {
-    // ✅ Adiciona ao carrinho
+  // Verifica se já está no carrinho
+  const jaNoCarrinho = carrinhoCompras.some(item =>
+    item.dataHoraOriginal === payload.dataHoraOriginal &&
+    item.item === payload.item
+  );
+
+  if (!jaNoCarrinho) {
     carrinhoCompras.push(payload);
     localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-    atualizarCarrinhoVisual();
+    atualizarCarrinhoModal();
+  }
 
-    // ✅ Atualiza o botão imediatamente
-    botoes.forEach(btn => {
-      btn.disabled = true;
-      btn.style.backgroundColor = "#388e3c"; // verde
-      btn.textContent = "🛒 No carrinho";
-    });
-  } else {
+  // Atualiza visual do botão
+  botoes.forEach(btn => {
+    btn.disabled = true;
+    btn.style.backgroundColor = "#388e3c"; // verde
+    btn.textContent = "🛒 No carrinho";
+  });
+}
+else {
     const urlStatus = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
     fetch(urlStatus, {
       method: 'POST',
@@ -803,23 +811,15 @@ function atualizarCarrinhoModal() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td style="border:1px solid #ccc; padding:6px;">${item.item}</td>
-      <td style="border:1px solid #ccc; padding:6px;">
-        <input type="number" value="${item.quantidade}" min="1" style="width:50px" onchange="editarQuantidade(${index}, this.value)">
-      </td>
-      <td style="border:1px solid #ccc; padding:6px;">
-        <input type="text" value="${item.unidade}" style="width:50px" onchange="editarUnidade(${index}, this.value)">
-      </td>
+      <td style="border:1px solid #ccc; padding:6px;">${item.quantidade}</td>
+      <td style="border:1px solid #ccc; padding:6px;">${item.unidade}</td>
       <td style="border:1px solid #ccc; padding:6px;">${item.setor}</td>
       <td style="border:1px solid #ccc; padding:6px;">${item.solicitante}</td>
-      <td style="border:1px solid #ccc; padding:6px; text-align:center;">
-        <button onclick="removerItemCarrinho(${index})" style="padding:4px 8px; background:red; color:white; border:none; border-radius:4px;">🗑️</button>
-      </td>
     `;
     tbody.appendChild(tr);
   });
-
-  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
 }
+
 
 
 function enviarCarrinhoWhatsApp() {
