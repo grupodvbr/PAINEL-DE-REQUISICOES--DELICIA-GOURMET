@@ -16,6 +16,7 @@
     .logo-area img{height:48px;}
     .botoes-acoes button{background:var(--cor-botao);color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;}
     .botoes-acoes button:hover{background:#1d4ed8;}
+    .meta{font-size:.8em;color:#6b7280;margin-left:8px}
     .filtros{display:flex;flex-wrap:wrap;gap:10px;padding:15px 20px;background:var(--cor-cinza-claro);border-radius:8px;margin:15px;}
     .filtros label{display:flex;flex-direction:column;font-size:.85em;font-weight:600;}
     .filtros input,.filtros select{padding:8px;font-size:1em;border:1px solid #d1d5db;border-radius:6px;margin-top:4px;}
@@ -40,8 +41,8 @@
 </head>
 <body>
   <div class="header-flex">
-    <div class="logo-area"><img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png"></div>
-    <h1>Painel de Requisições • DELÍCIA GOURMET</h1>
+    <div class="logo-area"><img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="logo"></div>
+    <h1 id="tituloPainel">Painel de Requisições • <span id="empresaSpan">DELÍCIA GOURMET</span> <span class="meta" id="codigoSpan">(DG-REQ-001)</span></h1>
     <div class="botoes-acoes"><button onclick="abrirCarrinho()">🛒 Carrinho</button></div>
   </div>
 
@@ -85,68 +86,172 @@
   </div></div>
 
 <script>
-const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
-    const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-    const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec'; // <<<< TROCAR PELO SEU URL
-           
+/* =========================
+   CONFIGURAÇÕES DO PAINEL
+   — Troque para cada empresa/cópia —
+   ========================= */
+let EMPRESA = "DELÍCIA GOURMET";     // ← edite aqui ou use ?empresa=...
+let CODIGO_PAINEL = "DG-REQ-001";    // ← edite aqui ou use ?codigo=...
 
-const FORNECEDORES = ["FornecedorA","FornecedorB","FornecedorC"]; // 🔹 edite aqui
+/* Endpoints (mantidos iguais) */
+const URL_DADOS   = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
+const URL_STATUS  = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
+const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec'; // ajuste se necessário
 
-let carrinho=JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
-let requisicoes=[],listaFiltrada=[];
+/* Fornecedores padrão (edite) */
+const FORNECEDORES = ["FornecedorA","FornecedorB","FornecedorC"];
 
-function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
-function copiar(t){navigator.clipboard.writeText(t).then(()=>alert('Copiado!'));}
-function extrairCodigoInterno(l){return 'COD-'+btoa(l[1]).slice(0,6);}
+let carrinho = JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
+let requisicoes = [], listaFiltrada = [];
 
+/* ===== Utilidades ===== */
+function qs(k){ return new URLSearchParams(location.search).get(k) || ""; }
+function toBRDateTime(iso){ try{ return new Date(iso).toLocaleString('pt-BR'); } catch { return iso; } }
+function copiar(t){ navigator.clipboard.writeText(t).then(()=>alert('Copiado!')); }
+function extrairCodigoInterno(l){ return 'COD-'+btoa(l[1]).slice(0,6); }
+
+/* Ler overrides via URL (?empresa=...&codigo=...) */
+(function applyOverrides(){
+  const emp = qs('empresa'); const cod = qs('codigo');
+  if(emp) EMPRESA = emp;
+  if(cod) CODIGO_PAINEL = cod;
+  document.getElementById('empresaSpan').textContent = EMPRESA;
+  document.getElementById('codigoSpan').textContent = `(${CODIGO_PAINEL})`;
+})();
+
+/* ===== Dados ===== */
 async function carregarDados(){
-  const res=await fetch(URL_DADOS);const dados=await res.json();
-  requisicoes=dados.map((l,idx)=>({linha:l.map(c=>(c||'').toString().trim()),idx}));
-  listaFiltrada=[...requisicoes];renderizarTabela(listaFiltrada);
+  const res = await fetch(URL_DADOS);
+  const dados = await res.json();
+  // Esperado: cada linha = [data, item, unidade, qtd, setor, solicitante, obs, status, ...]
+  requisicoes = dados.map((l,idx)=>({ linha: (l||[]).map(c=>(c??'').toString().trim()), idx }));
+  listaFiltrada = [...requisicoes];
+  popularFiltrosBasicos(listaFiltrada);
+  renderizarTabela(listaFiltrada);
 }
+
+function popularFiltrosBasicos(lista){
+  // Preenche selects de Solicitante/Setor dinamicamente
+  const selSol = document.getElementById('filtroSolicitante');
+  const selSet = document.getElementById('filtroSetor');
+  const sols = new Set(), sets = new Set();
+  lista.forEach(({linha})=>{ sols.add(linha[5]||""); sets.add(linha[4]||""); });
+  [...sols].filter(Boolean).sort().forEach(v=>{
+    const o=document.createElement('option');o.value=v;o.textContent=v;selSol.appendChild(o);
+  });
+  [...sets].filter(Boolean).sort().forEach(v=>{
+    const o=document.createElement('option');o.value=v;o.textContent=v;selSet.appendChild(o);
+  });
+}
+
+function filtrar(){
+  const di = document.getElementById('filtroDataInicio').value;
+  const hi = document.getElementById('filtroHoraInicio').value;
+  const df = document.getElementById('filtroDataFim').value;
+  const hf = document.getElementById('filtroHoraFim').value;
+  const solicit = document.getElementById('filtroSolicitante').value.toLowerCase();
+  const setor = document.getElementById('filtroSetor').value.toLowerCase();
+  const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
+
+  const inicio = di ? new Date(`${di}T${hi||'00:00'}`) : null;
+  const fim    = df ? new Date(`${df}T${hf||'23:59'}`) : null;
+
+  listaFiltrada = requisicoes.filter(({linha})=>{
+    const dt = new Date(linha[0]);
+    if(inicio && dt < inicio) return false;
+    if(fim && dt > fim) return false;
+    if(solicit && !(linha[5]||"").toLowerCase().includes(solicit)) return false;
+    if(setor && !(linha[4]||"").toLowerCase().includes(setor)) return false;
+    const texto = (linha.join(' ')||"").toLowerCase();
+    if(palavra && !texto.includes(palavra)) return false;
+    return true;
+  });
+  renderizarTabela(listaFiltrada);
+}
+
 function renderizarTabela(lista){
-  const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
+  const tb = document.getElementById('tabelaRequisicoes'); tb.innerHTML='';
   lista.forEach(({linha,idx})=>{
     const tr=document.createElement('tr');
     [0,1,3,2,4,5,6,7].forEach(i=>{
-      const td=document.createElement('td');let v=linha[i];
-      if(i===7&&v.toLowerCase()==="processando")v="PENDENTE";
-      td.innerHTML=i===0?toBRDateTime(linha[i]):v;tr.appendChild(td);
+      const td=document.createElement('td'); let v = linha[i];
+      if(i===7 && (v||"").toLowerCase()==="processando") v="PENDENTE";
+      td.innerHTML = (i===0 ? toBRDateTime(linha[i]) : v);
+      tr.appendChild(td);
     });
-    const tdA=document.createElement('td');tdA.className='acoes';
+    const tdA=document.createElement('td'); tdA.className='acoes';
+    // Carrinho
     const btnCarr=document.createElement('button');
     const noCarr=carrinho.some(c=>c.dataHoraOriginal===linha[0]&&c.item===linha[1]);
-    btnCarr.textContent=noCarr?'🛒':'➕';btnCarr.className='btn-carrinho'+(noCarr?' in':'');
-    btnCarr.onclick=()=>addCarrinho(linha,btnCarr);tdA.appendChild(btnCarr);
-    const btnNeg=document.createElement('button');btnNeg.textContent='❌';btnNeg.className='btn-neg';
-    btnNeg.onclick=()=>atualizarStatus(idx,'Negar');tdA.appendChild(btnNeg);
-    const btnHist=document.createElement('button');btnHist.textContent='📈';btnHist.className='btn-hist';
-    btnHist.onclick=()=>abrirModalHistorico(extrairCodigoInterno(linha),linha[1]);tdA.appendChild(btnHist);
-    tr.appendChild(tdA);tb.appendChild(tr);
+    btnCarr.textContent=noCarr?'🛒':'➕'; btnCarr.className='btn-carrinho'+(noCarr?' in':'');
+    btnCarr.onclick=()=>addCarrinho(linha,btnCarr); tdA.appendChild(btnCarr);
+    // Negar
+    const btnNeg=document.createElement('button'); btnNeg.textContent='❌'; btnNeg.className='btn-neg';
+    btnNeg.onclick=()=>atualizarStatus(idx,'Negar'); tdA.appendChild(btnNeg);
+    // Histórico
+    const btnHist=document.createElement('button'); btnHist.textContent='📈'; btnHist.className='btn-hist';
+    btnHist.onclick=()=>abrirModalHistorico(extrairCodigoInterno(linha),linha[1]); tdA.appendChild(btnHist);
+
+    tr.appendChild(tdA); tb.appendChild(tr);
   });
 }
+
+/* ===== Carrinho / Cotações ===== */
 async function addCarrinho(linha,btn){
-  const codigo=extrairCodigoInterno(linha);
-  const payload={action:'registrar_cotacao',produtoCodigo:codigo,produtoNome:linha[1],quantidade:linha[3],unidade:linha[2],setor:linha[4],solicitante:linha[5],observacoes:linha[6]||'',chaveOrigem:linha[0]};
-  const res=await fetch(URL_COTACAO,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});const out=await res.json();
-  if(!out.ok)return alert("Erro:"+out.error);
-  carrinho.push({dataHoraOriginal:linha[0],item:linha[1],quantidade:linha[3],unidade:linha[2],setor:linha[4],solicitante:linha[5],produtoCodigo:codigo,rid:out.rid,cotacaoLink:out.linkCotacao});
-  localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));atualizarCarrinhoModal();btn.textContent='🛒';btn.className='btn-carrinho in';
+  const codigo = extrairCodigoInterno(linha);
+  const payload = {
+    action: 'registrar_cotacao',
+    empresa: EMPRESA,            // ← salvo na planilha
+    painelCodigo: CODIGO_PAINEL, // ← identificador do painel
+    produtoCodigo: codigo,
+    produtoNome: linha[1],
+    quantidade: linha[3],
+    unidade: linha[2],
+    setor: linha[4],
+    solicitante: linha[5],
+    observacoes: linha[6] || '',
+    chaveOrigem: linha[0]
+  };
+  const res = await fetch(URL_COTACAO, {
+    method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload)
+  });
+  const out = await res.json();
+  if(!out.ok) return alert("Erro: "+out.error);
+
+  carrinho.push({
+    dataHoraOriginal: linha[0],
+    item: linha[1],
+    quantidade: linha[3],
+    unidade: linha[2],
+    setor: linha[4],
+    solicitante: linha[5],
+    produtoCodigo: codigo,
+    rid: out.rid,
+    cotacaoLink: out.linkCotacao,
+    empresa: EMPRESA,
+    painelCodigo: CODIGO_PAINEL
+  });
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinho));
+  atualizarCarrinhoModal();
+  btn.textContent='🛒'; btn.className='btn-carrinho in';
 }
+
 function atualizarCarrinhoModal(){
-  const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
+  const tb=document.getElementById("tabelaCarrinhoModal"); tb.innerHTML='';
   carrinho.forEach((it,idx)=>{
     const link=it.cotacaoLink?`<a href="${it.cotacaoLink}" target="_blank">Abrir</a>`:'—';
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${it.item}</td><td>${it.produtoCodigo}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td>${link}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
     tb.appendChild(tr);
   });
-  // 🔹 Links para fornecedores
-  const ul=document.getElementById("listaLinks");ul.innerHTML="";
+  // Links para fornecedores
+  const ul=document.getElementById("listaLinks"); ul.innerHTML="";
   if(carrinho.length>0){
     const data=new Date(carrinho[0].dataHoraOriginal).toISOString().split("T")[0];
     FORNECEDORES.forEach(f=>{
-      const url=`index.fornecedor.html?date=${data}&fornecedor=${encodeURIComponent(f)}`;
+      const url=`index.fornecedor.html?empresa=${encodeURIComponent(EMPRESA)}&codigo=${encodeURIComponent(CODIGO_PAINEL)}&date=${data}&fornecedor=${encodeURIComponent(f)}`;
       const li=document.createElement("li");
       li.innerHTML=`<a href="${url}" target="_blank">${f}</a>`;
       ul.appendChild(li);
@@ -155,19 +260,67 @@ function atualizarCarrinhoModal(){
     ul.innerHTML="<li><em>Carrinho vazio</em></li>";
   }
 }
-function removerDoCarrinho(i){carrinho.splice(i,1);localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));atualizarCarrinhoModal();}
-function abrirCarrinho(){atualizarCarrinhoModal();document.getElementById('modalCarrinho').style.display='flex';}
-function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
 
+function removerDoCarrinho(i){
+  carrinho.splice(i,1);
+  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinho));
+  atualizarCarrinhoModal();
+}
+
+function abrirCarrinho(){
+  atualizarCarrinhoModal();
+  document.getElementById('modalCarrinho').style.display='flex';
+}
+function fecharCarrinho(){ document.getElementById('modalCarrinho').style.display='none'; }
+
+/* ===== Histórico ===== */
 async function abrirModalHistorico(cod,nome){
   document.getElementById('historicoTitulo').innerText=`Histórico - ${nome} (${cod})`;
-  const tb=document.getElementById('tabelaHistorico');tb.innerHTML='<tr><td colspan=3>Carregando...</td></tr>';
+  const tb=document.getElementById('tabelaHistorico'); tb.innerHTML='<tr><td colspan=3>Carregando...</td></tr>';
   document.getElementById('modalHistorico').style.display='flex';
-  const res=await fetch(`${URL_COTACAO}?action=historico&code=${encodeURIComponent(cod)}`);const out=await res.json();
-  tb.innerHTML='';if(!out.ok||!out.items.length){tb.innerHTML='<tr><td colspan=3>Sem histórico</td></tr>';return;}
-  out.items.forEach(it=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${toBRDateTime(it.data)}</td><td>${it.fornecedor}</td><td>R$ ${it.preco}</td>`;tb.appendChild(tr);});
+  const url = `${URL_COTACAO}?action=historico&code=${encodeURIComponent(cod)}&empresa=${encodeURIComponent(EMPRESA)}&painel=${encodeURIComponent(CODIGO_PAINEL)}`;
+  const res=await fetch(url);
+  const out=await res.json();
+  tb.innerHTML='';
+  if(!out.ok || !out.items || !out.items.length){
+    tb.innerHTML='<tr><td colspan=3>Sem histórico</td></tr>'; return;
+  }
+  out.items.forEach(it=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${toBRDateTime(it.data)}</td><td>${it.fornecedor}</td><td>R$ ${it.preco}</td>`;
+    tb.appendChild(tr);
+  });
 }
-function fecharHistorico(){document.getElementById('modalHistorico').style.display='none';}
+function fecharHistorico(){ document.getElementById('modalHistorico').style.display='none'; }
+
+/* ===== Status (Negar/Concluir/Comprar/No carrinho etc.) ===== */
+async function atualizarStatus(idx, novoStatus){
+  const l = requisicoes[idx].linha;
+  const payload = {
+    action: 'atualizar_status',
+    empresa: EMPRESA,            // ← salvo na planilha
+    painelCodigo: CODIGO_PAINEL, // ← identificador do painel
+    dataHoraOriginal: l[0],
+    item: l[1],
+    status: novoStatus
+  };
+  try{
+    const res = await fetch(URL_STATUS, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const out = await res.json();
+    if(!out.ok) throw new Error(out.error || 'Falha ao atualizar status.');
+    // Atualiza em tela
+    l[7] = novoStatus;
+    renderizarTabela(listaFiltrada);
+  }catch(e){
+    alert("Erro ao atualizar: " + e.message);
+  }
+}
+
+/* ===== Boot ===== */
 carregarDados();
 </script>
 </body>
