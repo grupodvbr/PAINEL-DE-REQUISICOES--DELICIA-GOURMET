@@ -45,17 +45,6 @@
     <div class="botoes-acoes"><button onclick="abrirCarrinho()">🛒 Carrinho</button></div>
   </div>
 
-  <div class="filtros">
-    <label>Data de:<input type="date" id="filtroDataInicio"></label>
-    <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
-    <label>Data até:<input type="date" id="filtroDataFim"></label>
-    <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
-    <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
-    <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
-    <label>Palavra:<input type="text" id="filtroPalavra"></label>
-    <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
-  </div>
-
   <div class="tabela-container">
     <table><thead><tr>
       <th>Data</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th><th>Ações</th>
@@ -77,213 +66,71 @@
     <br><button onclick="fecharCarrinho()">Fechar</button>
   </div></div>
 
-  <!-- Modal Histórico -->
-  <div id="modalHistorico"><div class="box">
-    <h3 id="historicoTitulo">📈 Histórico</h3>
-    <table><thead><tr><th>Data</th><th>Fornecedor</th><th>Preço</th></tr></thead><tbody id="tabelaHistorico"></tbody></table>
-    <br><button onclick="fecharHistorico()">Fechar</button>
-  </div></div>
-
 <script>
-/* ===== CONFIG ===== */
-let EMPRESA = "DELÍCIA GOURMET";     // ou passar ?empresa=...
-let CODIGO_PAINEL = "DG-REQ-001";    // ou passar ?codigo=... (usado como "painel")
+let EMPRESA = "DELÍCIA GOURMET";
+let CODIGO_PAINEL = "DG-REQ-001";
 
-/* Endpoints */
-const URL_DADOS   = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
-const URL_API     = 'https://script.google.com/macros/s/AKfycbznp4DzuAH7_z3Z-azWrdITyEj8IIxNKiwHo-0YipdiEEqoAvqYU178rqSzST7adgsV/exec'; // MESMO para registrar/pendentes/histórico/atualizar_status
-
-/* Fornecedores padrão (edite) */
-const FORNECEDORES = ["FornecedorA","FornecedorB","FornecedorC"];
+const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
+const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
+const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec'; // <<<< TROCAR PELO SEU URL
+const FORNECEDORES = ["FornecedorA","FornecedorB"];
 
 let carrinho = JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
-let requisicoes = [], listaFiltrada = [];
+let requisicoes = [];
 
-/* ===== Utils ===== */
-function qs(k){ return new URLSearchParams(location.search).get(k) || ""; }
-function toBRDateTime(iso){ try{ return new Date(iso).toLocaleString('pt-BR'); } catch { return iso; } }
-function extrairCodigoInterno(l){ return 'COD-'+btoa((l[1]||'')).replace(/=/g,'').slice(0,8); } // código estável a partir do nome
-function money(n){ return Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-
-/* Overrides via URL (?empresa=...&codigo=...) */
-(function applyOverrides(){
-  const emp = qs('empresa'); const cod = qs('codigo');
-  if(emp) EMPRESA = emp;
-  if(cod) CODIGO_PAINEL = cod;
-  document.getElementById('empresaSpan').textContent = EMPRESA;
-  document.getElementById('codigoSpan').textContent = `(${CODIGO_PAINEL})`;
-})();
-
-/* ===== Dados ===== */
 async function carregarDados(){
   const res = await fetch(URL_DADOS);
   const dados = await res.json();
-  // Esperado: [data, item, unidade, qtd, setor, solicitante, obs, status, ...]
-  requisicoes = (dados||[]).map((l,idx)=>({ linha: (l||[]).map(c=>(c??'').toString().trim()), idx }));
-  listaFiltrada = [...requisicoes];
-  popularFiltrosBasicos(listaFiltrada);
-  renderizarTabela(listaFiltrada);
+  requisicoes = dados.map((l,idx)=>({linha:l, idx}));
+  renderizarTabela(requisicoes);
 }
-
-function popularFiltrosBasicos(lista){
-  const selSol = document.getElementById('filtroSolicitante');
-  const selSet = document.getElementById('filtroSetor');
-  const sols = new Set(), sets = new Set();
-  lista.forEach(({linha})=>{ sols.add(linha[5]||""); sets.add(linha[4]||""); });
-  [...sols].filter(Boolean).sort().forEach(v=>{
-    const o=document.createElement('option');o.value=v;o.textContent=v;selSol.appendChild(o);
-  });
-  [...sets].filter(Boolean).sort().forEach(v=>{
-    const o=document.createElement('option');o.value=v;o.textContent=v;selSet.appendChild(o);
-  });
-}
-
-function filtrar(){
-  const di = document.getElementById('filtroDataInicio').value;
-  const hi = document.getElementById('filtroHoraInicio').value;
-  const df = document.getElementById('filtroDataFim').value;
-  const hf = document.getElementById('filtroHoraFim').value;
-  const solicit = document.getElementById('filtroSolicitante').value.toLowerCase();
-  const setor = document.getElementById('filtroSetor').value.toLowerCase();
-  const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-  const inicio = di ? new Date(`${di}T${hi||'00:00'}`) : null;
-  const fim    = df ? new Date(`${df}T${hf||'23:59'}`) : null;
-
-  listaFiltrada = requisicoes.filter(({linha})=>{
-    const dt = new Date(linha[0]);
-    if(inicio && dt < inicio) return false;
-    if(fim && dt > fim) return false;
-    if(solicit && !(linha[5]||"").toLowerCase().includes(solicit)) return false;
-    if(setor && !(linha[4]||"").toLowerCase().includes(setor)) return false;
-    const texto = (linha.join(' ')||"").toLowerCase();
-    if(palavra && !texto.includes(palavra)) return false;
-    return true;
-  });
-  renderizarTabela(listaFiltrada);
-}
+function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
 
 function renderizarTabela(lista){
-  const tb = document.getElementById('tabelaRequisicoes'); tb.innerHTML='';
+  const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
   lista.forEach(({linha,idx})=>{
     const tr=document.createElement('tr');
     [0,1,3,2,4,5,6,7].forEach(i=>{
-      const td=document.createElement('td'); let v = linha[i];
-      if(i===7 && (v||"").toLowerCase()==="processando") v="PENDENTE";
-      td.innerHTML = (i===0 ? toBRDateTime(linha[i]) : v);
+      const td=document.createElement('td');
+      td.textContent = (i===0?toBRDateTime(linha[i]):linha[i]);
       tr.appendChild(td);
     });
-    const tdA=document.createElement('td'); tdA.className='acoes';
-    const btnCarr=document.createElement('button');
-    const noCarr=carrinho.some(c=>c.dataHoraOriginal===linha[0]&&c.item===linha[1]);
-    btnCarr.textContent=noCarr?'🛒':'➕'; btnCarr.className='btn-carrinho'+(noCarr?' in':'');
-    btnCarr.onclick=()=>addCarrinho(linha,btnCarr); tdA.appendChild(btnCarr);
-    const btnNeg=document.createElement('button'); btnNeg.textContent='❌'; btnNeg.className='btn-neg';
-    btnNeg.onclick=()=>atualizarStatus(idx,'Negar'); tdA.appendChild(btnNeg);
-    const btnHist=document.createElement('button'); btnHist.textContent='📈'; btnHist.className='btn-hist';
-    btnHist.onclick=()=>abrirModalHistorico(extrairCodigoInterno(linha),linha[1]); tdA.appendChild(btnHist);
+    const tdA=document.createElement('td');tdA.className='acoes';
+    const btnCarr=document.createElement('button');btnCarr.textContent='➕';
+    btnCarr.onclick=()=>addCarrinho(linha,btnCarr);tdA.appendChild(btnCarr);
+    const btnNeg=document.createElement('button');btnNeg.textContent='❌';btnNeg.onclick=()=>atualizarStatus(idx,'Negar');tdA.appendChild(btnNeg);
     tr.appendChild(tdA);tb.appendChild(tr);
   });
 }
 
-/* ===== Carrinho / Cotações ===== */
 async function addCarrinho(linha,btn){
-  const codigo = extrairCodigoInterno(linha);
-  const payload = {
-    action: 'registrar_cotacao',
-    empresa: EMPRESA,
-    painelCodigo: CODIGO_PAINEL,
-    produtoCodigo: codigo,
-    produtoNome: linha[1],
-    quantidade: linha[3],
-    unidade: linha[2],
-    setor: linha[4],
-    solicitante: linha[5],
-    observacoes: linha[6] || '',
-    chaveOrigem: linha[0]
-  };
-  const res = await fetch(URL_API, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body: JSON.stringify(payload)
-  });
-  const out = await res.json();
-  if(!out.ok) return alert("Erro: "+(out.error||'Falha ao registrar'));
-  carrinho.push({
-    dataHoraOriginal: linha[0], item: linha[1], quantidade: linha[3], unidade: linha[2],
-    setor: linha[4], solicitante: linha[5], produtoCodigo: codigo,
-    rid: out.rid, cotacaoLink: out.linkCotacao, empresa: EMPRESA, painelCodigo: CODIGO_PAINEL
-  });
-  localStorage.setItem("carrinhoCompras", JSON.stringify(carrinho));
-  atualizarCarrinhoModal();
-  btn.textContent='🛒'; btn.className='btn-carrinho in';
+  const payload={action:'registrar_cotacao',empresa:EMPRESA,painelCodigo:CODIGO_PAINEL,produtoCodigo:linha[1],produtoNome:linha[1],quantidade:linha[3],unidade:linha[2],setor:linha[4],solicitante:linha[5],observacoes:linha[6]||'',chaveOrigem:linha[0]};
+  const res=await fetch(URL_COTACAO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const out=await res.json();
+  if(out.ok){carrinho.push({...payload,rid:out.rid,cotacaoLink:out.linkCotacao});localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));}
 }
 
-function atualizarCarrinhoModal(){
-  const tb=document.getElementById("tabelaCarrinhoModal"); tb.innerHTML='';
-  carrinho.forEach((it,idx)=>{
-    const link=it.cotacaoLink?`<a href="${it.cotacaoLink}" target="_blank">Abrir</a>`:'—';
+function abrirCarrinho(){
+  const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
+  carrinho.forEach(it=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${it.item}</td><td>${it.produtoCodigo}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td>${link}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
+    tr.innerHTML=`<td>${it.produtoNome}</td><td>${it.produtoCodigo}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><a href="${it.cotacaoLink}" target="_blank">Abrir</a></td><td>—</td>`;
     tb.appendChild(tr);
   });
-  const ul=document.getElementById("listaLinks"); ul.innerHTML="";
-  if(carrinho.length>0){
-    FORNECEDORES.forEach(f=>{
-      const url=`index.fornecedor.html?empresa=${encodeURIComponent(EMPRESA)}&painel=${encodeURIComponent(CODIGO_PAINEL)}&fornecedor=${encodeURIComponent(f)}`;
-      const li=document.createElement("li"); li.innerHTML=`<a href="${url}" target="_blank">${f}</a>`; ul.appendChild(li);
-    });
-  } else {
-    ul.innerHTML="<li><em>Carrinho vazio</em></li>";
-  }
+  const ul=document.getElementById("listaLinks");ul.innerHTML="";
+  FORNECEDORES.forEach(f=>{
+    ul.innerHTML+=`<li><a target="_blank" href="index.fornecedor.html?empresa=${encodeURIComponent(EMPRESA)}&painel=${encodeURIComponent(CODIGO_PAINEL)}&fornecedor=${encodeURIComponent(f)}">${f}</a></li>`;
+  });
+  document.getElementById('modalCarrinho').style.display='flex';
 }
-function removerDoCarrinho(i){carrinho.splice(i,1);localStorage.setItem("carrinhoCompras", JSON.stringify(carrinho));atualizarCarrinhoModal();}
-function abrirCarrinho(){atualizarCarrinhoModal();document.getElementById('modalCarrinho').style.display='flex';}
 function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
 
-/* ===== Histórico ===== */
-async function abrirModalHistorico(cod,nome){
-  document.getElementById('historicoTitulo').innerText=`Histórico - ${nome} (${cod})`;
-  const tb=document.getElementById('tabelaHistorico'); tb.innerHTML='<tr><td colspan=3>Carregando...</td></tr>';
-  document.getElementById('modalHistorico').style.display='flex';
-  const url = `${URL_API}?action=historico&code=${encodeURIComponent(cod)}&empresa=${encodeURIComponent(EMPRESA)}&painel=${encodeURIComponent(CODIGO_PAINEL)}`;
-  const res=await fetch(url); const out=await res.json();
-  tb.innerHTML='';
-  if(!out.ok || !out.items || !out.items.length){
-    tb.innerHTML='<tr><td colspan=3>Sem histórico</td></tr>'; return;
-  }
-  out.items.forEach(it=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${toBRDateTime(it.data)}</td><td>${it.fornecedor}</td><td>R$ ${money(it.preco)}</td>`;
-    tb.appendChild(tr);
-  });
-}
-
-/* ===== Status ===== */
 async function atualizarStatus(idx, novoStatus){
   const l = requisicoes[idx].linha;
-  const payload = {
-    action: 'atualizar_status',
-    empresa: EMPRESA,
-    painelCodigo: CODIGO_PAINEL,
-    dataHoraOriginal: l[0],
-    item: l[1],
-    status: novoStatus
-  };
-  try{
-    const res = await fetch(URL_API, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const out = await res.json();
-    if(!out.ok) throw new Error(out.error || 'Falha ao atualizar status.');
-    l[7] = novoStatus;
-    renderizarTabela(listaFiltrada);
-  }catch(e){ alert("Erro ao atualizar: " + e.message); }
+  const payload={action:'atualizar_status',empresa:EMPRESA,painelCodigo:CODIGO_PAINEL,dataHoraOriginal:l[0],item:l[1],status:novoStatus};
+  await fetch(URL_STATUS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  alert("Status atualizado!");
 }
-
-/* Boot */
 carregarDados();
 </script>
 </body>
