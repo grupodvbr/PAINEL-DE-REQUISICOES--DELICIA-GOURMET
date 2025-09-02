@@ -17,11 +17,6 @@
     .botoes-acoes button{background:var(--cor-botao);color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;}
     .botoes-acoes button:hover{background:#1d4ed8;}
     .meta{font-size:.8em;color:#6b7280;margin-left:8px}
-    .filtros{display:flex;flex-wrap:wrap;gap:10px;padding:15px 20px;background:var(--cor-cinza-claro);border-radius:8px;margin:15px;}
-    .filtros label{display:flex;flex-direction:column;font-size:.85em;font-weight:600;}
-    .filtros input,.filtros select{padding:8px;font-size:1em;border:1px solid #d1d5db;border-radius:6px;margin-top:4px;}
-    #btnFiltrar{background:var(--cor-botao);color:#fff;border:none;border-radius:6px;padding:10px 16px;cursor:pointer;}
-    #btnFiltrar:hover{background:#1d4ed8;}
     .tabela-container{max-width:98%;margin:20px auto;background:var(--cor-card);border-radius:8px;overflow-x:auto;box-shadow:0 2px 4px rgba(0,0,0,.05);}
     table{width:100%;border-collapse:collapse;font-size:.95em;}
     thead th{background:var(--cor-botao);color:#fff;padding:8px;position:sticky;top:0;}
@@ -30,8 +25,7 @@
     .acoes .btn-carrinho{background:#6b7280;color:#fff;}
     .acoes .btn-carrinho.in{background:#16a34a;}
     .acoes .btn-neg{background:#dc2626;color:#fff;}
-    .acoes .btn-hist{background:#0ea5e9;color:#fff;}
-    #modalCarrinho,#modalHistorico{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000;}
+    #modalCarrinho{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000;}
     .box{background:#fff;padding:20px;border-radius:10px;width:90vw;max-width:1000px;max-height:90vh;overflow:auto;}
     .box table{width:100%;border-collapse:collapse;margin-top:10px;}
     .box th,.box td{border:1px solid #d1d5db;padding:8px;text-align:left;}
@@ -67,34 +61,73 @@
   </div></div>
 
 <script>
+/* ==========================
+   CONFIGURAÇÃO DO PAINEL
+   ========================== */
 let EMPRESA = "DELÍCIA GOURMET";
 let CODIGO_PAINEL = "DG-REQ-001";
 
-const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
-const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec'; // <<<< TROCAR PELO SEU URL
-      
+let EMPRESA = "DELÍCIA GOURMET";
+let CODIGO_PAINEL = "DG-REQ-001";
+
+// 🔹 URLs separadas
+const URL_DADOS   = "https://script.google.com/macros/s/AKfycbwS0garmL7W-1qcAdt-iLXx-ibTdt62xuIdhUL7bHBVLUrNfjm41PklAc7YIEHnkyWCYQ/exec?action=listar";  
+const URL_COTACAO = "https://script.google.com/macros/s/AKfycbxlfAYtFGJXNiB3hoD2U_Nv2YvSLs0DBq63OEeQMHoUcwrAD3SLg-uLJIN2ckEmt1Zx/exec";  
+const URL_STATUS  = URL_COTACAO; // se o GAS de cotação também trata atualização de status
+
+
 const FORNECEDORES = ["FornecedorA","FornecedorB"];
 
 let carrinho = JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
 let requisicoes = [];
 
-// ... carregarDados() e renderizarTabela() iguais ...
+/* ===== Utilidades ===== */
+function toBRDateTime(iso){ try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;} }
 
-// 🔹 Ao clicar em ➕, já salva na planilha de COTAÇÕES
+/* ===== Carregar Dados ===== */
+async function carregarDados(){
+  try{
+    const res = await fetch(URL_DADOS);
+    const dados = await res.json();
+    requisicoes = dados.map((l,idx)=>({linha:l, idx}));
+    renderizarTabela(requisicoes);
+  }catch(e){
+    console.error(e);
+    alert("Erro ao carregar dados: "+e.message);
+  }
+}
+
+function renderizarTabela(lista){
+  const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
+  lista.forEach(({linha,idx})=>{
+    const tr=document.createElement('tr');
+    [0,1,3,2,4,5,6,7].forEach(i=>{
+      const td=document.createElement('td');
+      td.textContent = (i===0?toBRDateTime(linha[i]):linha[i]);
+      tr.appendChild(td);
+    });
+    const tdA=document.createElement('td');tdA.className='acoes';
+    const btnCarr=document.createElement('button');btnCarr.textContent='➕';
+    btnCarr.onclick=()=>addCarrinho(linha,btnCarr);tdA.appendChild(btnCarr);
+    const btnNeg=document.createElement('button');btnNeg.textContent='❌';btnNeg.onclick=()=>atualizarStatus(idx,'Negar');tdA.appendChild(btnNeg);
+    tr.appendChild(tdA);tb.appendChild(tr);
+  });
+}
+
+/* ===== Carrinho / Cotações ===== */
 async function addCarrinho(linha,btn){
   const payload = {
     action: 'registrar_cotacao',
     empresa: EMPRESA,
     painelCodigo: CODIGO_PAINEL,
-    produtoCodigo: linha[1],      // código/descrição
-    produtoNome: linha[1],        // nome do produto
+    produtoCodigo: linha[1],
+    produtoNome: linha[1],
     quantidade: linha[3],
     unidade: linha[2],
     setor: linha[4],
     solicitante: linha[5],
     observacoes: linha[6] || '',
-    chaveOrigem: linha[0]         // timestamp da requisição
+    chaveOrigem: linha[0]
   };
 
   try {
@@ -110,23 +143,42 @@ async function addCarrinho(linha,btn){
       return;
     }
 
-    // 🔹 só adiciona ao carrinho local se foi salvo no GAS
-    carrinho.push({
-      ...payload,
-      rid: out.rid,
-      cotacaoLink: out.linkCotacao
-    });
+    carrinho.push({...payload, rid: out.rid, cotacaoLink: out.linkCotacao});
     localStorage.setItem("carrinhoCompras", JSON.stringify(carrinho));
 
-    btn.textContent='🛒';
-    btn.className='btn-carrinho in';
+    btn.textContent='🛒'; btn.className='btn-carrinho in';
     alert("✅ Cotação registrada na planilha!");
 
   } catch(e){
     alert("Erro de rede: "+e.message);
   }
 }
-</script>
 
+function abrirCarrinho(){
+  const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
+  carrinho.forEach(it=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${it.produtoNome}</td><td>${it.produtoCodigo}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><a href="${it.cotacaoLink}" target="_blank">Abrir</a></td><td>—</td>`;
+    tb.appendChild(tr);
+  });
+  const ul=document.getElementById("listaLinks");ul.innerHTML="";
+  FORNECEDORES.forEach(f=>{
+    ul.innerHTML+=`<li><a target="_blank" href="index.fornecedor.html?empresa=${encodeURIComponent(EMPRESA)}&painel=${encodeURIComponent(CODIGO_PAINEL)}&fornecedor=${encodeURIComponent(f)}">${f}</a></li>`;
+  });
+  document.getElementById('modalCarrinho').style.display='flex';
+}
+function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
+
+/* ===== Atualizar Status ===== */
+async function atualizarStatus(idx, novoStatus){
+  const l = requisicoes[idx].linha;
+  const payload={action:'atualizar_status',empresa:EMPRESA,painelCodigo:CODIGO_PAINEL,dataHoraOriginal:l[0],item:l[1],status:novoStatus};
+  await fetch(URL_STATUS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  alert("Status atualizado!");
+}
+
+/* ===== Inicializar ===== */
+carregarDados();
+</script>
 </body>
 </html>
