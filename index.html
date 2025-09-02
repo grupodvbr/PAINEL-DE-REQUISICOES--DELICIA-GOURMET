@@ -7,77 +7,88 @@
 
   <style>
     :root {
-      --cor-fundo: #ffffff;
-      --cor-texto: #000000;
-      --cor-botao: #007bff;
-      --cor-botao-vermelho: #dc3545;
-      --cor-destaque: #007bff;
-      --cor-cinza-claro: #f8f9fa;
+      --cor-fundo: #f9fafb;
+      --cor-texto: #111827;
+      --cor-botao: #2563eb;
+      --cor-botao-vermelho: #dc2626;
+      --cor-destaque: #2563eb;
+      --cor-cinza-claro: #f3f4f6;
+      --cor-card: #ffffff;
     }
 
     * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; background: var(--cor-fundo); color: var(--cor-texto); font-family: Arial, sans-serif; }
-    h1 { margin: 0; padding: 15px 0; color: var(--cor-texto); font-size: 1.6em; }
+    html, body { margin: 0; padding: 0; font-family: "Inter", Arial, sans-serif; background: var(--cor-fundo); color: var(--cor-texto); }
 
-    .header-flex { display: flex; align-items: center; justify-content: space-between; padding: 10px 20px; background: var(--cor-fundo); border-bottom: 1px solid #ccc; }
-    .logo-area { flex: 1; }
-    .titulo-area { flex: 1; text-align: center; }
-    .espaco-direito { flex: 1; }
-    .logo-area img { height: 50px; max-width: 150px; object-fit: contain; }
+    h1 { margin: 0; padding: 15px 0; font-size: 1.8em; font-weight: 700; color: var(--cor-texto); }
 
-    .top-bar { background: var(--cor-fundo); }
-    .botoes-acoes { display: flex; justify-content: flex-end; gap: 8px; padding: 10px 20px 0; }
-    .botoes-acoes button { background: var(--cor-botao); color: white; border: none; padding: 8px 14px; font-size: 0.9em; border-radius: 6px; cursor: pointer; }
+    .header-flex {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; background: var(--cor-card); border-bottom: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .logo-area img { height: 48px; }
 
-    .filtros { display: flex; flex-wrap: wrap; gap: 10px; padding: 10px 20px; justify-content: space-between; background: var(--cor-cinza-claro); border-radius: 8px; }
-    .filtros label { display: flex; flex-direction: column; font-size: 0.9em; min-width: 150px; flex: 1; font-weight: bold; }
-    #filtroStatus { margin-left: 15px; }
-    .filtros input, .filtros select { padding: 10px; font-size: 1em; border: 1px solid #ccc; border-radius: 6px; background: white; }
-    #btnFiltrar { padding: 10px 16px; background: var(--cor-botao); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; align-self: flex-end; height: 42px; }
+    .botoes-acoes { display: flex; gap: 8px; }
+    .botoes-acoes button {
+      background: var(--cor-botao); color: white; border: none;
+      padding: 8px 14px; border-radius: 6px; font-size: 0.9em; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .botoes-acoes button:hover { background: #1d4ed8; }
 
-    .btn-massa { background: white; color: black; border: 2px solid var(--cor-botao); padding: 10px 16px; border-radius: 8px; margin: 10px 20px; font-size: 1em; cursor: pointer; font-weight: bold; }
+    .filtros {
+      display: flex; flex-wrap: wrap; gap: 10px; padding: 15px 20px;
+      background: var(--cor-cinza-claro); border-radius: 8px; margin: 15px;
+    }
+    .filtros label { display: flex; flex-direction: column; font-size: 0.85em; font-weight: 600; }
+    .filtros input, .filtros select {
+      padding: 8px; font-size: 1em; border: 1px solid #d1d5db; border-radius: 6px; margin-top: 4px;
+    }
+    #btnFiltrar {
+      background: var(--cor-botao); color: white; border: none; border-radius: 6px;
+      padding: 10px 16px; font-size: 0.95em; cursor: pointer; margin-top: auto;
+    }
+    #btnFiltrar:hover { background: #1d4ed8; }
 
-    .tabela-container { max-width: 98%; margin: 0 auto 20px; background: white; border-radius: 8px; overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 260px); box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .tabela-container {
+      max-width: 98%; margin: 20px auto; background: var(--cor-card);
+      border-radius: 8px; overflow-x: auto; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
     table { width: 100%; border-collapse: collapse; font-size: 0.95em; }
-    thead th { position: sticky; top: 0; background: var(--cor-botao); color: white; z-index: 10; }
-    tbody tr:nth-child(even) { background: #f2f2f2; }
-    tbody tr:nth-child(odd) { background: #ffffff; }
-    tbody tr { border-bottom: 1px solid #ccc; }
+    thead th { position: sticky; top: 0; background: var(--cor-botao); color: white; padding: 8px; }
+    tbody tr:nth-child(even) { background: #f9fafb; }
+    tbody tr td { padding: 8px; border-bottom: 1px solid #e5e7eb; }
 
-    .acoes button { margin: 2px 4px; padding: 6px 10px; font-size: 0.85em; border: none; background: #6c757d; color: white; border-radius: 6px; cursor: pointer; }
-    .acoes .btn-historico { background: #0ea5e9; }
-    .status-pendente { background: #fff3cd; color: #856404; font-weight: bold; }
+    .acoes button {
+      margin: 2px; padding: 6px 10px; font-size: 0.85em; border: none;
+      border-radius: 6px; cursor: pointer; transition: opacity 0.2s;
+    }
+    .acoes button:hover { opacity: 0.9; }
+    .acoes .btn-historico { background: #0ea5e9; color: white; }
+    .acoes .btn-neg { background: var(--cor-botao-vermelho); color: white; }
+    .acoes .btn-carrinho { background: #6b7280; color: white; }
+    .acoes .btn-carrinho.in { background: #16a34a; }
 
-    #modalAgrupar .box, #modalAgruparWhatsApp .box { background: #fff; padding: 20px; border-radius: 10px; width: 300px; text-align: center; }
-    #modalAgrupar, #modalAgruparWhatsApp { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 999; }
-
-    /* Carrinho */
-    #modalCarrinho { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
-    #modalCarrinho .box { background:#fff; width: 90vw; max-width: 1200px; max-height:90vh; overflow:auto; padding:20px; border-radius:8px; }
-    #modalCarrinho table thead th { background:#007bff; color:white; }
-
-    /* Histórico */
-    #modalHistorico { display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000; }
-    #modalHistorico .box { background:#fff; width: 90vw; max-width: 900px; max-height:90vh; overflow:auto; padding:20px; border-radius:8px; }
-    #modalHistorico h3 { margin-top:0; }
+    /* Modais */
+    #modalCarrinho, #modalHistorico, #modalAgrupar, #modalAgruparWhatsApp {
+      display:none; position:fixed; top:0; left:0; right:0; bottom:0;
+      background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;
+    }
+    .box {
+      background:#fff; padding:20px; border-radius:10px;
+      width:90vw; max-width:1000px; max-height:90vh; overflow:auto;
+      box-shadow:0 4px 8px rgba(0,0,0,0.1);
+    }
+    .box h3 { margin-top:0; }
+    .box table { width:100%; border-collapse:collapse; margin-top:10px; }
+    .box th, .box td { border:1px solid #d1d5db; padding:8px; text-align:left; }
+    .box th { background:#f3f4f6; }
 
     @media (max-width: 768px) {
-      body { font-size: 0.95em; overflow: auto !important; }
-      .header-flex { flex-direction: column; gap: 10px; padding: 10px; text-align: center; }
-      .logo-area, .espaco-direito { display: none; }
-      .titulo-area { text-align: center; }
-      .botoes-acoes { justify-content: center; flex-wrap: wrap; gap: 10px; padding: 10px; }
-      .filtros { flex-direction: column; padding: 10px; }
-      .filtros label { width: 100%; min-width: unset; }
-      #btnFiltrar, .btn-massa { width: 100%; margin-top: 10px; }
-      .tabela-container { max-height: none; overflow-x: scroll; padding-bottom: 100px; }
+      .header-flex { flex-direction: column; text-align: center; gap: 8px; }
+      .botoes-acoes { justify-content: center; flex-wrap: wrap; }
+      .filtros { flex-direction: column; }
       table { font-size: 0.85em; }
-      .acoes button { font-size: 0.75em; padding: 4px 6px; }
-    }
-
-    table th:nth-child(2), table td:nth-child(2) {
-      width: 300px !important; min-width: 300px !important; max-width: 300px !important;
-      word-wrap: break-word !important; white-space: normal !important;
     }
   </style>
 </head>
@@ -89,44 +100,26 @@
       <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="Logo" />
     </div>
     <div class="titulo-area">
-      <h1>Painel de Requisições DELÍCIA GOURMET</h1>
+      <h1>Painel de Requisições • DELÍCIA GOURMET</h1>
     </div>
-    <div class="espaco-direito"></div>
-  </div>
-
-  <div class="top-bar">
     <div class="botoes-acoes">
       <button onclick="abrirModalAgrupar('pdf')">📚 PDF</button>
       <button onclick="abrirModalAgruparWhatsApp()">📱 WhatsApp</button>
       <button onclick="abrirModalAgrupar('print')">🖨️ Imprimir</button>
+      <button onclick="abrirCarrinho()" title="Ver carrinho">🛒 Carrinho</button>
     </div>
+  </div>
 
-    <div class="filtros">
-      <label>Data de:<input type="date" id="filtroDataInicio"></label>
-      <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
-      <label>Data até:<input type="date" id="filtroDataFim"></label>
-      <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
-      <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
-      <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
-      <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
-      <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
-      <button onclick="abrirCarrinho()" style="margin-top: 10px; background: none; border: none; font-size: 1.8em; cursor: pointer;" title="Ver carrinho">🛒</button>
-    </div>
-
-    <div style="margin-left: 20px; display: inline-block;">
-      <label style="font-weight: bold; font-size: 0.9em;">
-        Status:
-        <select id="filtroStatus" onchange="filtrar()" style="padding: 10px; font-size: 1em; border-radius: 6px; border: 1px solid #ccc;">
-          <option value="">TODOS</option>
-          <option value="PENDENTE" selected>PENDENTE</option>
-          <option value="ENTREGUE">ENTREGUE</option>
-          <option value="Negar">NEGADOS</option>
-          <option value="Comprar">COMPRAR</option>
-        </select>
-      </label>
-    </div>
-
-    <button onclick="concluirEmMassa()" class="btn-massa" style="background:#388e3c; color:#fff; border:none;">✅ ENTREGAR EM MASSA</button>
+  <!-- Filtros -->
+  <div class="filtros">
+    <label>Data de:<input type="date" id="filtroDataInicio"></label>
+    <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
+    <label>Data até:<input type="date" id="filtroDataFim"></label>
+    <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
+    <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
+    <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
+    <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
+    <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
   </div>
 
   <!-- Tabela -->
@@ -134,15 +127,8 @@
     <table id="tabelaExport">
       <thead>
         <tr>
-          <th>Data e Hora</th>
-          <th>Item</th>
-          <th>Qtd</th>
-          <th>Unidade</th>
-          <th>Setor</th>
-          <th>Solicitante</th>
-          <th>Observações</th>
-          <th>Status</th>
-          <th>Ações</th>
+          <th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th>
+          <th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th><th>Ações</th>
         </tr>
       </thead>
       <tbody id="tabelaRequisicoes"></tbody>
@@ -150,575 +136,126 @@
   </div>
 
   <!-- Modal Carrinho -->
-  <div id="modalCarrinho">
-    <div class="box">
-      <h3>🛒 Itens no Carrinho</h3>
-      <table style="width:100%; border-collapse:collapse; text-align:left;">
-        <thead>
-          <tr>
-            <th style="padding:8px; border:1px solid #ccc;">Item</th>
-            <th style="padding:8px; border:1px solid #ccc;">Código</th>
-            <th style="padding:8px; border:1px solid #ccc;">Qtd</th>
-            <th style="padding:8px; border:1px solid #ccc;">Unidade</th>
-            <th style="padding:8px; border:1px solid #ccc;">Setor</th>
-            <th style="padding:8px; border:1px solid #ccc;">Solicitante</th>
-            <th style="padding:8px; border:1px solid #ccc;">Cotação</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaCarrinhoModal"></tbody>
-      </table>
-      <br>
-      <button onclick="enviarCarrinhoWhatsApp()" style="padding:10px 20px; background:#25d366; color:white; border:none; border-radius:6px; cursor:pointer;">📲 Enviar via WhatsApp</button>
-      <button onclick="fecharCarrinho()" style="margin-left:10px; padding:10px 20px; background:#ccc; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
-    </div>
-  </div>
-
-  <!-- Modal Agrupar -->
-  <div id="modalAgrupar">
-    <div class="box">
-      <h3>Como deseja agrupar?</h3>
-      <select id="seletorAgrupamento">
-        <option value="setor">Setor</option>
-        <option value="solicitante">Solicitante</option>
-        <option value="status">Status</option>
-      </select>
-      <button onclick="confirmarAgrupamento()">OK</button>
-      <button onclick="document.getElementById('modalAgrupar').style.display='none'">Cancelar</button>
-    </div>
-  </div>
-
-  <!-- Modal Agrupar WhatsApp -->
-  <div id="modalAgruparWhatsApp" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:999;">
-    <div class="box" style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
-      <h3>Como deseja agrupar no WhatsApp?</h3>
-      <select id="seletorAgrupamentoWhatsApp">
-        <option value="setor">Setor</option>
-        <option value="solicitante">Solicitante</option>
-        <option value="status">Status</option>
-      </select>
-      <button onclick="confirmarAgrupamentoWhatsApp()">Enviar</button>
-      <button onclick="document.getElementById('modalAgruparWhatsApp').style.display='none'">Cancelar</button>
-    </div>
-  </div>
+  <div id="modalCarrinho"><div class="box">
+    <h3>🛒 Itens no Carrinho</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th><th>Código</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Cotação</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaCarrinhoModal"></tbody>
+    </table>
+    <br>
+    <button onclick="enviarCarrinhoWhatsApp()" style="background:#25d366;color:white;padding:10px 16px;border:none;border-radius:6px;">📲 Enviar WhatsApp</button>
+    <button onclick="fecharCarrinho()" style="margin-left:10px;padding:10px 16px;background:#e5e7eb;border:none;border-radius:6px;">Fechar</button>
+  </div></div>
 
   <!-- Modal Histórico -->
-  <div id="modalHistorico">
-    <div class="box">
-      <h3 id="historicoTitulo">📈 Histórico de Preços</h3>
-      <table style="width:100%; border-collapse:collapse;">
-        <thead>
-          <tr style="background:#0ea5e9; color:#fff;">
-            <th style="padding:8px; border:1px solid #ccc;">Data</th>
-            <th style="padding:8px; border:1px solid #ccc;">Fornecedor</th>
-            <th style="padding:8px; border:1px solid #ccc;">Preço Unit.</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaHistorico"></tbody>
-      </table>
-      <br>
-      <button onclick="fecharHistorico()" style="padding:10px 20px; background:#ccc; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
-    </div>
-  </div>
+  <div id="modalHistorico"><div class="box">
+    <h3 id="historicoTitulo">📈 Histórico de Preços</h3>
+    <table>
+      <thead><tr><th>Data</th><th>Fornecedor</th><th>Preço Unit.</th></tr></thead>
+      <tbody id="tabelaHistorico"></tbody>
+    </table>
+    <br>
+    <button onclick="fecharHistorico()" style="padding:10px 16px;background:#e5e7eb;border:none;border-radius:6px;">Fechar</button>
+  </div></div>
 
+  <!-- Scripts -->
   <script>
-    // ========= CONFIG =========
-    const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
-    const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-    const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbxOlPGPAE2W8kLjrXX-ahhfR9ZZQ8Suph9w7UOlBcl3721ttMEBtORKdmEDMdU0_Ven/exec'; // <<<< TROCAR PELO SEU URL
+    const URL_DADOS = 'SEU_URL_DADOS';
+    const URL_STATUS = 'SEU_URL_STATUS';
+    const URL_COTACAO = 'SEU_URL_COTACAO';
 
-    // ========= ESTADO =========
     let carrinhoCompras = JSON.parse(localStorage.getItem("carrinhoCompras") || '[]');
     let requisicoes = [];
     let listaFiltrada = [];
 
-    // ========= HELPERS =========
-    function toBRDateTime(iso) {
-      try { return new Date(iso).toLocaleString('pt-BR'); } catch { return iso; }
-    }
-    function copiar(texto) {
-      navigator.clipboard.writeText(texto).then(() => alert('Link copiado!'));
-    }
-    function hashCode(str){
-      let h=0, i=0, len=str.length;
-      while (i<len){ h = ((h<<5)-h + str.charCodeAt(i++))|0; }
-      return (h>>>0).toString(36);
-    }
+    function toBRDateTime(iso){ try{ return new Date(iso).toLocaleString('pt-BR'); }catch{return iso;} }
+    function copiar(texto){ navigator.clipboard.writeText(texto).then(()=>alert('Link copiado!')); }
+
+    function hashCode(str){ let h=0,i=0,len=str.length; while(i<len){ h=((h<<5)-h+str.charCodeAt(i++))|0; } return (h>>>0).toString(36); }
     function extrairCodigoInterno(linha){
-      // 1) Se existir 9ª coluna como código
-      if (linha[8] && String(linha[8]).trim() !== '') return String(linha[8]).trim();
-      // 2) Se observações tem "COD:XYZ"
-      const obs = (linha[6] || '').toString();
-      const m = obs.match(/COD:\s*([A-Za-z0-9\-\._]+)/i);
-      if (m) return m[1];
-      // 3) Gera código estável
-      return 'AUTO-' + hashCode(String(linha[1]||'') + '|' + String(linha[2]||'') + '|' + String(linha[3]||''));
+      if(linha[8] && String(linha[8]).trim()!=='') return String(linha[8]).trim();
+      const obs=(linha[6]||'').toString(); const m=obs.match(/COD:\s*([A-Za-z0-9\-\._]+)/i);
+      if(m) return m[1]; return 'AUTO-'+hashCode(String(linha[1])+String(linha[2])+String(linha[3]));
     }
 
-    // ========= CARREGAR =========
-    async function carregarDados() {
-      const res = await fetch(URL_DADOS);
-      const dados = await res.json();
-
-      requisicoes = dados
-        .map((l, idx) => ({ linha: l.map(c => (c || '').toString().trim()), idx }))
-        .sort((a, b) => new Date(a.linha[0]) - new Date(b.linha[0]));
-
-      listaFiltrada = [...requisicoes];
-      renderizarTabela(listaFiltrada);
-      popularFiltros();
+    async function carregarDados(){
+      const res=await fetch(URL_DADOS); const dados=await res.json();
+      requisicoes=dados.map((l,idx)=>({linha:l.map(c=>(c||'').toString().trim()),idx}))
+                       .sort((a,b)=>new Date(a.linha[0])-new Date(b.linha[0]));
+      listaFiltrada=[...requisicoes]; renderizarTabela(listaFiltrada); popularFiltros();
     }
 
-    function renderizarTabela(lista) {
-      const tabela = document.getElementById('tabelaRequisicoes');
-      tabela.innerHTML = '';
-      lista.forEach(({ linha, idx }) => {
-        const tr = document.createElement('tr');
-        const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
-        novaOrdem.forEach(i => {
-          const td = document.createElement('td');
-          let valor = linha[i];
-          if (i === 7 && valor.toLowerCase() === "processando") valor = "PENDENTE";
-          td.innerHTML = i === 0 ? toBRDateTime(linha[i]) : (i === 1 ? `<strong>${linha[i]}</strong>` : valor);
+    function renderizarTabela(lista){
+      const tabela=document.getElementById('tabelaRequisicoes'); tabela.innerHTML='';
+      lista.forEach(({linha,idx})=>{
+        const tr=document.createElement('tr');
+        [0,1,3,2,4,5,6,7].forEach(i=>{
+          const td=document.createElement('td'); let v=linha[i];
+          if(i===7 && v.toLowerCase()==="processando") v="PENDENTE";
+          td.innerHTML=i===0?toBRDateTime(linha[i]):(i===1?`<strong>${linha[i]}</strong>`:v);
           tr.appendChild(td);
         });
-
-        const tdAcoes = document.createElement('td');
-        tdAcoes.className = 'acoes';
-
+        const tdAcoes=document.createElement('td'); tdAcoes.className='acoes';
         // Botão Carrinho
-        const btnCarrinho = document.createElement('button');
-        const noCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
-        btnCarrinho.textContent = noCarrinho ? '🛒 Tirar do carrinho' : '➕ Adicionar ao carrinho';
-        btnCarrinho.style.backgroundColor = noCarrinho ? '#388e3c' : '#6c757d';
-
-        btnCarrinho.onclick = async () => {
-          const jaNoCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
-          if (jaNoCarrinho) {
-            carrinhoCompras = carrinhoCompras.filter(c => !(c.dataHoraOriginal === linha[0] && c.item === linha[1]));
-            btnCarrinho.textContent = '➕ Adicionar ao carrinho';
-            btnCarrinho.style.backgroundColor = '#6c757d';
-            localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-            atualizarCarrinhoModal();
-            return;
-          }
-
-          const codigo = extrairCodigoInterno(linha);
-          const payloadCotacao = {
-            action: 'registrar_cotacao',
-            produtoCodigo: codigo,
-            produtoNome: linha[1],
-            quantidade: linha[3],
-            unidade: linha[2],
-            setor: linha[4],
-            solicitante: linha[5],
-            observacoes: linha[6] || '',
-            chaveOrigem: linha[0] // opcional para rastrear a origem
-          };
-
-          try {
-            const res = await fetch(URL_COTACAO, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payloadCotacao)
-            });
-            const out = await res.json();
-            if (!out.ok) throw new Error(out.error || 'Falha ao registrar cotação');
-
-            const registro = {
-              dataHoraOriginal: linha[0],
-              item: linha[1],
-              unidade: linha[2],
-              quantidade: linha[3],
-              setor: linha[4],
-              solicitante: linha[5],
-              observacoes: linha[6],
-              statusOriginal: linha[7],
-              novoStatus: 'Comprar',
-              produtoCodigo: codigo,
-              rid: out.rid,
-              cotacaoLink: out.linkCotacao
-            };
-            carrinhoCompras.push(registro);
-
-            btnCarrinho.textContent = '🛒 No carrinho';
-            btnCarrinho.style.backgroundColor = '#388e3c';
-            localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-            atualizarCarrinhoModal();
-
-            alert('Registro de cotação criado! Envie o link aos fornecedores.');
-          } catch (e) {
-            alert('Erro ao criar cotação: ' + e.message);
-          }
-        };
-
-        tdAcoes.appendChild(btnCarrinho);
-
+        const btnCarr=document.createElement('button');
+        const noCarrinho=carrinhoCompras.some(c=>c.dataHoraOriginal===linha[0] && c.item===linha[1]);
+        btnCarr.textContent=noCarrinho?'🛒 No carrinho':'➕ Carrinho';
+        btnCarr.className='btn-carrinho'+(noCarrinho?' in':'');
+        btnCarr.onclick=()=>toggleCarrinho(linha,btnCarr); tdAcoes.appendChild(btnCarr);
         // Botão Negar
-        const btnNegar = document.createElement('button');
-        btnNegar.textContent = '❌ Negar';
-        btnNegar.style.backgroundColor = '#dc3545';
-        btnNegar.onclick = () => {
-          const confirmacao = confirm(`Deseja realmente negar o item: ${linha[1]}?`);
-          if (!confirmacao) return;
-          atualizarStatus(idx, 'Negar');
-        };
-        tdAcoes.appendChild(btnNegar);
-
-        // Botão Histórico
-        const btnHistorico = document.createElement('button');
-        btnHistorico.textContent = '📈 Histórico';
-        btnHistorico.className = 'btn-historico';
-        btnHistorico.onclick = () => abrirModalHistorico(extrairCodigoInterno(linha), linha[1]);
-        tdAcoes.appendChild(btnHistorico);
-
-        tr.appendChild(tdAcoes);
-        tabela.appendChild(tr);
+        const btnNeg=document.createElement('button'); btnNeg.textContent='❌ Negar'; btnNeg.className='btn-neg';
+        btnNeg.onclick=()=>atualizarStatus(idx,'Negar'); tdAcoes.appendChild(btnNeg);
+        // Histórico
+        const btnHist=document.createElement('button'); btnHist.textContent='📈 Histórico'; btnHist.className='btn-historico';
+        btnHist.onclick=()=>abrirModalHistorico(extrairCodigoInterno(linha),linha[1]); tdAcoes.appendChild(btnHist);
+        tr.appendChild(tdAcoes); tabela.appendChild(tr);
       });
     }
 
-    function filtrar() {
-      const status = document.getElementById('filtroStatus').value.toLowerCase();
-      const inicioData = document.getElementById('filtroDataInicio').value;
-      const fimData = document.getElementById('filtroDataFim').value;
-      const inicioHora = document.getElementById('filtroHoraInicio').value;
-      const fimHora = document.getElementById('filtroHoraFim').value;
-      const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-      const setor = document.getElementById('filtroSetor').value.toLowerCase();
-      const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-      listaFiltrada = requisicoes.filter(({ linha }) => {
-        const dataHora = new Date(linha[0]);
-        if (inicioData) {
-          const dataInicio = new Date(`${inicioData}T${inicioHora || '00:00'}`);
-          if (dataHora < dataInicio) return false;
-        }
-        if (fimData) {
-          const dataFim = new Date(`${fimData}T${fimHora || '23:59'}`);
-          if (dataHora > dataFim) return false;
-        }
-        if (status && status !== '') {
-          const statusAtual = linha[7].toLowerCase() === "processando" ? "pendente" : linha[7].toLowerCase();
-          if (statusAtual !== status) return false;
-        }
-        if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
-        if (setor && !linha[4].toLowerCase().includes(setor)) return false;
-        if (palavra) {
-          const item = linha[1].toLowerCase();
-          const obs = (linha[6] || '').toLowerCase();
-          if (!item.includes(palavra) && !obs.includes(palavra)) return false;
-        }
-        return true;
-      });
-
-      renderizarTabela(listaFiltrada);
+    async function toggleCarrinho(linha,btn){
+      const codigo=extrairCodigoInterno(linha);
+      const payload={ action:'registrar_cotacao', produtoCodigo:codigo, produtoNome:linha[1], quantidade:linha[3], unidade:linha[2], setor:linha[4], solicitante:linha[5], observacoes:linha[6]||'', chaveOrigem:linha[0]};
+      try{
+        const res=await fetch(URL_COTACAO,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+        const out=await res.json(); if(!out.ok) throw new Error(out.error||'Erro');
+        carrinhoCompras.push({dataHoraOriginal:linha[0],item:linha[1],unidade:linha[2],quantidade:linha[3],setor:linha[4],solicitante:linha[5],produtoCodigo:codigo,rid:out.rid,cotacaoLink:out.linkCotacao});
+        localStorage.setItem("carrinhoCompras",JSON.stringify(carrinhoCompras));
+        atualizarCarrinhoModal(); btn.textContent='🛒 No carrinho'; btn.className='btn-carrinho in';
+      }catch(e){ alert('Erro: '+e.message); }
     }
 
-    function popularFiltros() {
-      const solicitantes = new Set();
-      const setores = new Set();
-      requisicoes.forEach(({ linha }) => {
-        solicitantes.add(linha[5]);
-        setores.add(linha[4]);
-      });
-      const solicitanteSelect = document.getElementById('filtroSolicitante');
-      const setorSelect = document.getElementById('filtroSetor');
-      solicitantes.forEach(nome => {
-        const option = document.createElement('option');
-        option.value = nome; option.textContent = nome;
-        solicitanteSelect.appendChild(option);
-      });
-      setores.forEach(nome => {
-        const option = document.createElement('option');
-        option.value = nome; option.textContent = nome;
-        setorSelect.appendChild(option);
-      });
-    }
-
-    function agruparPor(campo, lista = requisicoes) {
-      const agrupado = {};
-      lista.forEach(({ linha }) => {
-        let chave = '';
-        if (campo === 'setor') chave = linha[4];
-        else if (campo === 'solicitante') chave = linha[5];
-        else if (campo === 'status') {
-          const raw = linha[7].toLowerCase();
-          chave = raw === "processando" ? "PENDENTE" : raw.toUpperCase();
-        } else chave = 'Outro';
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push(linha);
-      });
-      return agrupado;
-    }
-
-    function gerarHTMLAgrupado(agrupado, opcao) {
-      const logoURL = "https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png";
-      let html = `
-        <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-          <img src="${logoURL}" style="height:50px; max-width:150px;">
-          <h2 style="margin:0;">Requisições agrupadas por ${opcao}</h2>
-        </div>
-      `;
-      html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
-      html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
-
-      for (const grupo in agrupado) {
-        html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-        agrupado[grupo].forEach(l => {
-          const data = toBRDateTime(l[0]);
-          html += `<tr>
-            <td>${data}</td>
-            <td><strong>${l[1]}</strong></td>
-            <td>${l[3]}</td>
-            <td>${l[2]}</td>
-            <td>${l[4]}</td>
-            <td>${l[5]}</td>
-            <td>${l[6]}</td>
-            <td>${l[7]}</td>
-          </tr>`;
-        });
-      }
-      html += '</table>';
-      return html;
-    }
-
-    function gerarPDFAgrupado(opcao) {
-      const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => ({ linha: x.linha })) : requisicoes);
-      const html = gerarHTMLAgrupado(agrupado, opcao);
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>PDF</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
-    }
-    function imprimirAgrupado(opcao) {
-      const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => ({ linha: x.linha })) : requisicoes);
-      const html = gerarHTMLAgrupado(agrupado, opcao);
-      const janela = window.open('', '_blank');
-      janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`);
-      janela.document.close();
-      janela.print();
-    }
-
-    function enviarWhatsApp(criterio = 'setor') {
-      const hoje = new Date();
-      const dataFormatada = hoje.toLocaleDateString('pt-BR');
-      const titulo = `**COMPRAS DELÍCIA GOURMET - ${dataFormatada}**\n\n`;
-
-      const agrupado = {};
-      const fonte = listaFiltrada.length ? listaFiltrada : requisicoes;
-
-      fonte.forEach(({ linha }) => {
-        let chave = '';
-        if (criterio === 'setor') chave = linha[4];
-        else if (criterio === 'solicitante') chave = linha[5];
-        else if (criterio === 'status') {
-          const raw = linha[7].toLowerCase();
-          chave = raw === "processando" ? "PENDENTE" : raw.toUpperCase();
-        } else chave = 'Outro';
-        const item = linha[1]; const unidade = linha[2]; const quantidade = linha[3];
-        if (!agrupado[chave]) agrupado[chave] = [];
-        agrupado[chave].push({ item, quantidade, unidade });
-      });
-
-      let mensagem = titulo;
-      for (const grupo in agrupado) {
-        mensagem += `🛒 *${grupo}*\n`;
-        agrupado[grupo].forEach(({ item, quantidade, unidade }) => {
-          mensagem += `- ${item} — ${quantidade} ${unidade}\n`;
-        });
-        mensagem += `\n`;
-      }
-
-      const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-      window.open(link, '_blank');
-    }
-
-    function abrirModalAgrupar(origem) {
-      const modal = document.getElementById("modalAgrupar");
-      modal.dataset.origem = origem;
-      modal.style.display = "flex";
-    }
-    function confirmarAgrupamento() {
-      const opcao = document.getElementById("seletorAgrupamento").value;
-      const origem = document.getElementById("modalAgrupar").dataset.origem;
-      document.getElementById("modalAgrupar").style.display = "none";
-      if (origem === "pdf") gerarPDFAgrupado(opcao);
-      else imprimirAgrupado(opcao);
-    }
-    function abrirModalAgruparWhatsApp() {
-      document.getElementById("modalAgruparWhatsApp").style.display = "flex";
-    }
-    function confirmarAgrupamentoWhatsApp() {
-      const criterio = document.getElementById("seletorAgrupamentoWhatsApp").value;
-      document.getElementById("modalAgruparWhatsApp").style.display = "none";
-      enviarWhatsApp(criterio);
-    }
-
-    async function atualizarStatus(linhaIndex, novoStatus) {
-      const dadosOriginais = requisicoes[linhaIndex].linha;
-      const payload = {
-        dataHoraOriginal: dadosOriginais[0],
-        item: dadosOriginais[1],
-        unidade: dadosOriginais[2],
-        quantidade: dadosOriginais[3],
-        setor: dadosOriginais[4],
-        solicitante: dadosOriginais[5],
-        observacoes: dadosOriginais[6],
-        statusOriginal: dadosOriginais[7],
-        novoStatus: novoStatus
-      };
-
-      const linha = document.querySelectorAll("#tabelaRequisicoes tr")[linhaIndex];
-      const botoes = linha.querySelectorAll(".acoes button");
-
-      if (novoStatus === 'Comprar') {
-        const jaNoCarrinho = carrinhoCompras.some(item =>
-          item.dataHoraOriginal === payload.dataHoraOriginal && item.item === payload.item
-        );
-        if (!jaNoCarrinho) {
-          carrinhoCompras.push(payload);
-          localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-          atualizarCarrinhoModal();
-        }
-        botoes.forEach(btn => {
-          btn.disabled = true;
-          btn.style.backgroundColor = "#388e3c";
-          btn.textContent = "🛒 No carrinho";
-        });
-      } else {
-        fetch(URL_STATUS, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' }
-        })
-        .then(() => {
-          botoes.forEach(btn => {
-            btn.disabled = true;
-            if (novoStatus === 'ENTREGUE') {
-              btn.textContent = '✔️ Concluído';
-              btn.style.backgroundColor = "#388e3c";
-            } else if (novoStatus === 'Negar') {
-              btn.textContent = '❌ Negado';
-              btn.style.backgroundColor = "#dc3545";
-            }
-          });
-        })
-        .catch(err => alert("Erro ao registrar: " + err));
-      }
-    }
-
-    function concluirEmMassa() {
-      const pendentes = listaFiltrada
-        .map((item, idx) => ({ item, idx }))
-        .filter(({ item }) => {
-          const status = item.linha[7].toLowerCase();
-          return status === "processando" || status === "pendente";
-        });
-
-      if (pendentes.length === 0) {
-        alert("Nenhuma requisição com status PENDENTE encontrada.");
-        return;
-      }
-
-      const confirmacao = confirm(`Deseja marcar ${pendentes.length} requisições como ENTREGUES?`);
-      if (!confirmacao) return;
-
-      pendentes.forEach(({ item, idx }) => {
-        const dadosOriginais = item.linha;
-        const payload = {
-          dataHoraOriginal: dadosOriginais[0],
-          item: dadosOriginais[1],
-          unidade: dadosOriginais[2],
-          quantidade: dadosOriginais[3],
-          setor: dadosOriginais[4],
-          solicitante: dadosOriginais[5],
-          observacoes: dadosOriginais[6],
-          statusOriginal: dadosOriginais[7],
-          novoStatus: "ENTREGUE"
-        };
-
-        fetch(URL_STATUS, {
-          method: 'POST',
-          body: JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' }
-        })
-        .catch(err => console.error("Erro em massa:", err));
-      });
-      alert('Processo enviado. Atualize a página em alguns segundos para refletir.');
-    }
-
-    function abrirCarrinho() { atualizarCarrinhoModal(); document.getElementById('modalCarrinho').style.display = 'flex'; }
-    function fecharCarrinho() { document.getElementById('modalCarrinho').style.display = 'none'; }
-
-    function atualizarCarrinhoModal() {
-      const tbody = document.getElementById("tabelaCarrinhoModal");
-      tbody.innerHTML = "";
-
-      carrinhoCompras.forEach((item, index) => {
-        const tr = document.createElement("tr");
-        const link = item.cotacaoLink ? `<a href="${item.cotacaoLink}" target="_blank">Abrir</a> · <button onclick="copiar('${item.cotacaoLink.replace(/'/g, "\\'")}')" style="padding:4px 8px;">Copiar</button>` : '<em>—</em>';
-        tr.innerHTML = `
-          <td style="border:1px solid #ccc; padding:6px;">${item.item}</td>
-          <td style="border:1px solid #ccc; padding:6px;">${item.produtoCodigo || '-'}</td>
-          <td style="border:1px solid #ccc; padding:6px;">${item.quantidade}</td>
-          <td style="border:1px solid #ccc; padding:6px;">${item.unidade}</td>
-          <td style="border:1px solid #ccc; padding:6px;">${item.setor}</td>
-          <td style="border:1px solid #ccc; padding:6px;">${item.solicitante}</td>
-          <td style="border:1px solid #ccc; padding:6px;">${link}</td>
-        `;
+    function atualizarCarrinhoModal(){
+      const tbody=document.getElementById("tabelaCarrinhoModal"); tbody.innerHTML='';
+      carrinhoCompras.forEach(item=>{
+        const link=item.cotacaoLink?`<a href="${item.cotacaoLink}" target="_blank">Abrir</a> · <button onclick="copiar('${item.cotacaoLink.replace(/'/g,"\\'")}')">Copiar</button>`:'—';
+        const tr=document.createElement("tr");
+        tr.innerHTML=`<td>${item.item}</td><td>${item.produtoCodigo}</td><td>${item.quantidade}</td><td>${item.unidade}</td><td>${item.setor}</td><td>${item.solicitante}</td><td>${link}</td>`;
         tbody.appendChild(tr);
       });
     }
+    function abrirCarrinho(){ atualizarCarrinhoModal(); document.getElementById('modalCarrinho').style.display='flex'; }
+    function fecharCarrinho(){ document.getElementById('modalCarrinho').style.display='none'; }
 
-    function enviarCarrinhoWhatsApp() {
-      if (carrinhoCompras.length === 0) {
-        alert("O carrinho está vazio.");
-        localStorage.removeItem("carrinhoCompras");
-        return;
-      }
-      let mensagem = `🛒 *Itens para Compra:*\n\n`;
-      carrinhoCompras.forEach(item => {
-        mensagem += `• ${item.item} — ${item.quantidade} ${item.unidade} (${item.setor})\n`;
-      });
-      const url = `https://wa.me/?text=${encodeURIComponent(mensagem)}`;
-      window.open(url, '_blank');
-    }
-
-    // Histórico
-    async function abrirModalHistorico(codigo, nome){
-      document.getElementById('historicoTitulo').innerText = `📈 Histórico de Preços — ${nome} (${codigo})`;
-      const tbody = document.getElementById('tabelaHistorico');
-      tbody.innerHTML = `<tr><td colspan="3" style="padding:10px;border:1px solid #ccc;">Carregando...</td></tr>`;
-      document.getElementById('modalHistorico').style.display = 'flex';
-
+    async function abrirModalHistorico(codigo,nome){
+      document.getElementById('historicoTitulo').innerText=`📈 Histórico de Preços — ${nome} (${codigo})`;
+      const tbody=document.getElementById('tabelaHistorico'); tbody.innerHTML='<tr><td colspan="3">Carregando...</td></tr>';
+      document.getElementById('modalHistorico').style.display='flex';
       try{
-        const res = await fetch(`${URL_COTACAO}?action=historico&code=${encodeURIComponent(codigo)}`);
-        const out = await res.json();
-        if (!out.ok) throw new Error(out.error || 'Falha');
-        if (!out.items || out.items.length===0){
-          tbody.innerHTML = `<tr><td colspan="3" style="padding:10px;border:1px solid #ccc;">Sem histórico.</td></tr>`;
-          return;
-        }
-        tbody.innerHTML = '';
-        out.items.forEach(it=>{
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td style="padding:8px; border:1px solid #ccc;">${toBRDateTime(it.data)}</td>
-            <td style="padding:8px; border:1px solid #ccc;">${it.fornecedor}</td>
-            <td style="padding:8px; border:1px solid #ccc;">R$ ${Number(it.preco).toFixed(2)}</td>
-          `;
+        const res=await fetch(`${URL_COTACAO}?action=historico&code=${encodeURIComponent(codigo)}`); const out=await res.json();
+        if(!out.ok||!out.items.length){ tbody.innerHTML='<tr><td colspan="3">Sem histórico.</td></tr>'; return; }
+        tbody.innerHTML=''; out.items.forEach(it=>{
+          const tr=document.createElement('tr');
+          tr.innerHTML=`<td>${toBRDateTime(it.data)}</td><td>${it.fornecedor}</td><td>R$ ${Number(it.preco).toFixed(2)}</td>`;
           tbody.appendChild(tr);
         });
-      }catch(e){
-        tbody.innerHTML = `<tr><td colspan="3" style="padding:10px;border:1px solid #ccc;color:#b91c1c;">Erro: ${e.message}</td></tr>`;
-      }
+      }catch(e){ tbody.innerHTML=`<tr><td colspan="3" style="color:#b91c1c;">Erro: ${e.message}</td></tr>`; }
     }
     function fecharHistorico(){ document.getElementById('modalHistorico').style.display='none'; }
 
-    // Agrupar modais
-    function abrirModalAgruparWhatsApp(){ document.getElementById('modalAgruparWhatsApp').style.display='flex'; }
-    function confirmarAgrupamentoWhatsApp(){ const criterio = document.getElementById('seletorAgrupamentoWhatsApp').value; document.getElementById('modalAgruparWhatsApp').style.display='none'; enviarWhatsApp(criterio); }
-
-    // Inicialização
     carregarDados();
   </script>
 </body>
