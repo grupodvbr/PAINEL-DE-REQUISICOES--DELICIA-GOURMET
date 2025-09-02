@@ -21,7 +21,7 @@
 <body>
 <h1 id="titulo">Responder Cotação</h1>
 <div class="box">
-  <p id="info">Exibindo apenas as cotações pendentes desta data</p>
+  <p id="info">Exibindo todas as cotações pendentes</p>
   <table>
     <thead>
       <tr>
@@ -34,22 +34,19 @@
 </div>
 
 <script>
-const URL_COTACAO = "https://script.google.com/macros/s/AKfycbxeWEvuoCLuDc-9vonFaPDOKZ3WUPLiZ2Zsm4RB04TVmRazPbAeUrTZHy4aUfKSj1dl/exec";
-
-let fornecedor="", dataCotacao="", itens=[];
+const URL_COTACAO = "https://script.google.com/macros/s/AKfycbwurdFQJS_P94ETlWe4z6X-uERRGBGXL9OzdGj2xGP-o7oiGSY-E2FEnNdiTsQT0wFs/exec"; // troque pelo seu WebApp URL
+let fornecedor = "", itens = [];
 
 window.onload = async ()=>{
   const p = new URLSearchParams(window.location.search);
   fornecedor = p.get("fornecedor") || "FORNECEDOR";
-  dataCotacao = p.get("date") || "";
   document.getElementById("titulo").innerText = `Responder Cotação - ${fornecedor}`;
-  document.getElementById("info").innerText = `Exibindo cotações pendentes do dia ${dataCotacao}`;
-  await carregarItens(dataCotacao);
+  await carregarItens();
 };
 
-async function carregarItens(date){
+async function carregarItens(){
   try{
-    const res = await fetch(`${URL_COTACAO}?action=itenspordata&date=${encodeURIComponent(date)}`);
+    const res = await fetch(`${URL_COTACAO}?action=itenspendentes`);
     const out = await res.json();
     if(!out.ok || !out.items.length){
       document.getElementById("tbody").innerHTML = "<tr><td colspan=5>✅ Nenhuma cotação pendente</td></tr>";
@@ -61,8 +58,7 @@ async function carregarItens(date){
 }
 
 function render(){
-  const tb = document.getElementById("tbody");
-  tb.innerHTML = "";
+  const tb = document.getElementById("tbody"); tb.innerHTML = "";
   itens.forEach(it=>{
     const tr = document.createElement("tr");
     tr.innerHTML = `
@@ -80,11 +76,14 @@ async function enviar(){
   const linhas = document.querySelectorAll("#tbody tr");
   let enviados = 0;
   for(const ln of linhas){
-    const preco = ln.querySelector("input[type=number]").value;
-    const obs = ln.querySelector("input[type=text]").value;
-    const rid = ln.querySelector("input[type=number]").dataset.rid;
-    const codigo = ln.querySelector("input[type=number]").dataset.codigo;
-    const produto = ln.querySelector("input[type=number]").dataset.produto;
+    const preco = ln.querySelector("input[type=number]")?.value;
+    const obs = ln.querySelector("input[type=text]")?.value;
+    const input = ln.querySelector("input[type=number]");
+    if(!input) continue;
+
+    const rid = input.dataset.rid;
+    const codigo = input.dataset.codigo;
+    const produto = input.dataset.produto;
 
     if(!preco) continue;
 
