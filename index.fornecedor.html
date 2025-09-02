@@ -21,7 +21,7 @@
 <body>
 <h1 id="titulo">Responder Cotação</h1>
 <div class="box">
-  <p id="info"></p>
+  <p id="info">Exibindo apenas as cotações pendentes desta data</p>
   <table>
     <thead>
       <tr>
@@ -34,7 +34,7 @@
 </div>
 
 <script>
-const URL_COTACAO = "https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec";
+const URL_COTACAO = "https://script.google.com/macros/s/AKfycbxeWEvuoCLuDc-9vonFaPDOKZ3WUPLiZ2Zsm4RB04TVmRazPbAeUrTZHy4aUfKSj1dl/exec";
 
 let fornecedor="", dataCotacao="", itens=[];
 
@@ -43,7 +43,7 @@ window.onload = async ()=>{
   fornecedor = p.get("fornecedor") || "FORNECEDOR";
   dataCotacao = p.get("date") || "";
   document.getElementById("titulo").innerText = `Responder Cotação - ${fornecedor}`;
-  document.getElementById("info").innerText = `Data da Cotação: ${dataCotacao}`;
+  document.getElementById("info").innerText = `Exibindo cotações pendentes do dia ${dataCotacao}`;
   await carregarItens(dataCotacao);
 };
 
@@ -52,7 +52,7 @@ async function carregarItens(date){
     const res = await fetch(`${URL_COTACAO}?action=itenspordata&date=${encodeURIComponent(date)}`);
     const out = await res.json();
     if(!out.ok || !out.items.length){
-      document.getElementById("tbody").innerHTML = "<tr><td colspan=5>Sem itens para essa data</td></tr>";
+      document.getElementById("tbody").innerHTML = "<tr><td colspan=5>✅ Nenhuma cotação pendente</td></tr>";
       return;
     }
     itens = out.items;
