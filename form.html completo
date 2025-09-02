@@ -35,21 +35,32 @@
 
 <script>
 const URL_COTACAO = "https://script.google.com/macros/s/AKfycbznp4DzuAH7_z3Z-azWrdITyEj8IIxNKiwHo-0YipdiEEqoAvqYU178rqSzST7adgsV/exec"; // troque pelo seu WebApp URL
-let fornecedor = "", itens = [];
+
+let fornecedor = "", empresa = "", painelCodigo = "", itens = [];
 
 window.onload = async ()=>{
   const p = new URLSearchParams(window.location.search);
-  fornecedor = p.get("fornecedor") || "FORNECEDOR";
-  document.getElementById("titulo").innerText = `Responder Cotação - ${fornecedor}`;
+  fornecedor   = p.get("fornecedor")   || "FORNECEDOR";
+  empresa      = p.get("empresa")      || "";
+  painelCodigo = p.get("painel")       || "";
+
+  document.getElementById("titulo").innerText =
+    `Responder Cotação - ${fornecedor} (${empresa} • ${painelCodigo})`;
+
   await carregarItens();
 };
 
 async function carregarItens(){
   try{
-    const res = await fetch(`${URL_COTACAO}?action=itenspendentes`);
+    let url = `${URL_COTACAO}?action=itenspendentes`;
+    if(empresa) url += `&empresa=${encodeURIComponent(empresa)}`;
+    if(painelCodigo) url += `&painel=${encodeURIComponent(painelCodigo)}`;
+
+    const res = await fetch(url);
     const out = await res.json();
     if(!out.ok || !out.items.length){
-      document.getElementById("tbody").innerHTML = "<tr><td colspan=5>✅ Nenhuma cotação pendente</td></tr>";
+      document.getElementById("tbody").innerHTML =
+        "<tr><td colspan=5>✅ Nenhuma cotação pendente</td></tr>";
       return;
     }
     itens = out.items;
@@ -65,7 +76,8 @@ function render(){
       <td>${it.produto}</td>
       <td>${it.quantidade}</td>
       <td>${it.unidade}</td>
-      <td><input type="number" step="0.01" placeholder="0,00" data-rid="${it.rid}" data-codigo="${it.codigo}" data-produto="${it.produto}"></td>
+      <td><input type="number" step="0.01" placeholder="0,00"
+                 data-rid="${it.rid}" data-codigo="${it.codigo}" data-produto="${it.produto}"></td>
       <td><input type="text" placeholder="Observação"></td>
     `;
     tb.appendChild(tr);
@@ -94,7 +106,9 @@ async function enviar(){
       produtoNome: produto,
       fornecedor,
       preco,
-      observacoes: obs
+      observacoes: obs,
+      empresa,        // 🔹 incluído
+      painelCodigo    // 🔹 incluído
     };
 
     try{
