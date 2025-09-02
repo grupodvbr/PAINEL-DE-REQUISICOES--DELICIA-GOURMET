@@ -38,14 +38,16 @@ window.onload=async()=>{
   await carregarItens(dataCotacao);
 };
 
-async function carregarItens(data){
+async function carregarItens(date){
   try{
-    const res=await fetch(`${URL_COTACAO}?action=itensPorData&date=${encodeURIComponent(data)}`);
+    const res=await fetch(`${URL_COTACAO}?action=itenspordata&date=${encodeURIComponent(date)}`);
     const out=await res.json();
-    if(!out.ok||!out.items.length){document.getElementById("tbody").innerHTML="<tr><td colspan=5>Sem itens</td></tr>";return;}
-    itens=out.items;
-    render();
-  }catch(e){alert("Erro ao carregar: "+e.message);}
+    if(!out.ok||!out.items.length){
+      document.getElementById("tbody").innerHTML="<tr><td colspan=5>Sem itens</td></tr>";
+      return;
+    }
+    itens=out.items;render();
+  }catch(e){alert("Erro:"+e.message);}
 }
 
 function render(){
@@ -56,7 +58,7 @@ function render(){
       <td>${it.produto}</td>
       <td>${it.quantidade}</td>
       <td>${it.unidade}</td>
-      <td><input type="number" step="0.01" data-codigo="${it.codigo}" data-rid="${it.rid}"></td>
+      <td><input type="number" step="0.01" data-rid="${it.rid}" data-codigo="${it.codigo}"></td>
       <td><input type="text"></td>`;
     tb.appendChild(tr);
   });
@@ -70,11 +72,4 @@ async function enviar(){
     const rid=ln.querySelector("input[type=number]").dataset.rid;
     const codigo=ln.querySelector("input[type=number]").dataset.codigo;
     if(!preco)continue;
-    const payload={action:"enviar_resposta",rid,produtoCodigo:codigo,fornecedor,preco,observacoes:obs};
-    await fetch(URL_COTACAO,{method:"POST",headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-  }
-  alert("Respostas enviadas com sucesso!");
-}
-</script>
-</body>
-</html>
+    const payload={action:"enviar_resposta",r_
