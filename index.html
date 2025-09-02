@@ -70,68 +70,62 @@
 let EMPRESA = "DELÍCIA GOURMET";
 let CODIGO_PAINEL = "DG-REQ-001";
 
-const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
-const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec'; // <<<< TROCAR PELO SEU URL
+const URL_DADOS   = "URL_DADOS_DO_SEU_GAS";
+const URL_STATUS  = "URL_STATUS_DO_SEU_GAS";
+const URL_COTACAO = "URL_COTACAO_DO_SEU_GAS";  // deve ser o mesmo do doPost no GAS
 const FORNECEDORES = ["FornecedorA","FornecedorB"];
 
 let carrinho = JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
 let requisicoes = [];
 
-async function carregarDados(){
-  const res = await fetch(URL_DADOS);
-  const dados = await res.json();
-  requisicoes = dados.map((l,idx)=>({linha:l, idx}));
-  renderizarTabela(requisicoes);
-}
-function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
+// ... carregarDados() e renderizarTabela() iguais ...
 
-function renderizarTabela(lista){
-  const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
-  lista.forEach(({linha,idx})=>{
-    const tr=document.createElement('tr');
-    [0,1,3,2,4,5,6,7].forEach(i=>{
-      const td=document.createElement('td');
-      td.textContent = (i===0?toBRDateTime(linha[i]):linha[i]);
-      tr.appendChild(td);
-    });
-    const tdA=document.createElement('td');tdA.className='acoes';
-    const btnCarr=document.createElement('button');btnCarr.textContent='➕';
-    btnCarr.onclick=()=>addCarrinho(linha,btnCarr);tdA.appendChild(btnCarr);
-    const btnNeg=document.createElement('button');btnNeg.textContent='❌';btnNeg.onclick=()=>atualizarStatus(idx,'Negar');tdA.appendChild(btnNeg);
-    tr.appendChild(tdA);tb.appendChild(tr);
-  });
-}
-
+// 🔹 Ao clicar em ➕, já salva na planilha de COTAÇÕES
 async function addCarrinho(linha,btn){
-  const payload={action:'registrar_cotacao',empresa:EMPRESA,painelCodigo:CODIGO_PAINEL,produtoCodigo:linha[1],produtoNome:linha[1],quantidade:linha[3],unidade:linha[2],setor:linha[4],solicitante:linha[5],observacoes:linha[6]||'',chaveOrigem:linha[0]};
-  const res=await fetch(URL_COTACAO,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  const out=await res.json();
-  if(out.ok){carrinho.push({...payload,rid:out.rid,cotacaoLink:out.linkCotacao});localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));}
-}
+  const payload = {
+    action: 'registrar_cotacao',
+    empresa: EMPRESA,
+    painelCodigo: CODIGO_PAINEL,
+    produtoCodigo: linha[1],      // código/descrição
+    produtoNome: linha[1],        // nome do produto
+    quantidade: linha[3],
+    unidade: linha[2],
+    setor: linha[4],
+    solicitante: linha[5],
+    observacoes: linha[6] || '',
+    chaveOrigem: linha[0]         // timestamp da requisição
+  };
 
-function abrirCarrinho(){
-  const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
-  carrinho.forEach(it=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${it.produtoNome}</td><td>${it.produtoCodigo}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><a href="${it.cotacaoLink}" target="_blank">Abrir</a></td><td>—</td>`;
-    tb.appendChild(tr);
-  });
-  const ul=document.getElementById("listaLinks");ul.innerHTML="";
-  FORNECEDORES.forEach(f=>{
-    ul.innerHTML+=`<li><a target="_blank" href="index.fornecedor.html?empresa=${encodeURIComponent(EMPRESA)}&painel=${encodeURIComponent(CODIGO_PAINEL)}&fornecedor=${encodeURIComponent(f)}">${f}</a></li>`;
-  });
-  document.getElementById('modalCarrinho').style.display='flex';
-}
-function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
+  try {
+    const res = await fetch(URL_COTACAO,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const out = await res.json();
 
-async function atualizarStatus(idx, novoStatus){
-  const l = requisicoes[idx].linha;
-  const payload={action:'atualizar_status',empresa:EMPRESA,painelCodigo:CODIGO_PAINEL,dataHoraOriginal:l[0],item:l[1],status:novoStatus};
-  await fetch(URL_STATUS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-  alert("Status atualizado!");
+    if(!out.ok){
+      alert("Erro ao registrar cotação: "+out.error);
+      return;
+    }
+
+    // 🔹 só adiciona ao carrinho local se foi salvo no GAS
+    carrinho.push({
+      ...payload,
+      rid: out.rid,
+      cotacaoLink: out.linkCotacao
+    });
+    localStorage.setItem("carrinhoCompras", JSON.stringify(carrinho));
+
+    btn.textContent='🛒';
+    btn.className='btn-carrinho in';
+    alert("✅ Cotação registrada na planilha!");
+
+  } catch(e){
+    alert("Erro de rede: "+e.message);
+  }
 }
-carregarDados();
 </script>
+
 </body>
 </html>
