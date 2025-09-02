@@ -1,6 +1,4 @@
-                                                                                                                                      
-                                                                                                                                                 
-                                                                                                                                                 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -70,6 +68,12 @@
     <table><thead><tr>
       <th>Item</th><th>Código</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Cotação</th><th>Ação</th>
     </tr></thead><tbody id="tabelaCarrinhoModal"></tbody></table>
+
+    <div id="linksFornecedores" style="margin-top:20px;padding:10px;background:#f3f4f6;border-radius:6px;">
+      <h4>📨 Links para fornecedores</h4>
+      <ul id="listaLinks"></ul>
+    </div>
+
     <br><button onclick="fecharCarrinho()">Fechar</button>
   </div></div>
 
@@ -85,12 +89,14 @@ const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJpp
     const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
     const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbxOlPGPAE2W8kLjrXX-ahhfR9ZZQ8Suph9w7UOlBcl3721ttMEBtORKdmEDMdU0_Ven/exec'; // <<<< TROCAR PELO SEU URL
            
+
+const FORNECEDORES = ["FornecedorA","FornecedorB","FornecedorC"]; // 🔹 edite aqui
+
 let carrinho=JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
 let requisicoes=[],listaFiltrada=[];
 
 function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
 function copiar(t){navigator.clipboard.writeText(t).then(()=>alert('Copiado!'));}
-
 function extrairCodigoInterno(l){return 'COD-'+btoa(l[1]).slice(0,6);}
 
 async function carregarDados(){
@@ -130,11 +136,24 @@ async function addCarrinho(linha,btn){
 function atualizarCarrinhoModal(){
   const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
   carrinho.forEach((it,idx)=>{
-    const link=it.cotacaoLink?`<a href="${it.cotacaoLink}" target="_blank">Abrir</a> · <button onclick="copiar('${it.cotacaoLink}')">Copiar</button>`:'—';
+    const link=it.cotacaoLink?`<a href="${it.cotacaoLink}" target="_blank">Abrir</a>`:'—';
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${it.item}</td><td>${it.produtoCodigo}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td>${link}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
     tb.appendChild(tr);
   });
+  // 🔹 Links para fornecedores
+  const ul=document.getElementById("listaLinks");ul.innerHTML="";
+  if(carrinho.length>0){
+    const data=new Date(carrinho[0].dataHoraOriginal).toISOString().split("T")[0];
+    FORNECEDORES.forEach(f=>{
+      const url=`index.fornecedor.html?date=${data}&fornecedor=${encodeURIComponent(f)}`;
+      const li=document.createElement("li");
+      li.innerHTML=`<a href="${url}" target="_blank">${f}</a>`;
+      ul.appendChild(li);
+    });
+  } else {
+    ul.innerHTML="<li><em>Carrinho vazio</em></li>";
+  }
 }
 function removerDoCarrinho(i){carrinho.splice(i,1);localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));atualizarCarrinhoModal();}
 function abrirCarrinho(){atualizarCarrinhoModal();document.getElementById('modalCarrinho').style.display='flex';}
