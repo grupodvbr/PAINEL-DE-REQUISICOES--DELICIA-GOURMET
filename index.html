@@ -1,113 +1,153 @@
-
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Painel de Requisições</title>
   <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:20px; }
-    table { border-collapse: collapse; width: 100%; margin-top:20px; }
-    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
-    th { background:#007bff; color:white; }
-    button { padding:6px 12px; margin:2px; cursor:pointer; }
+    :root {
+      --cor-fundo:#f9fafb; --cor-texto:#111827; --cor-botao:#2563eb;
+      --cor-botao-vermelho:#dc2626; --cor-cinza-claro:#f3f4f6; --cor-card:#fff;
+    }
+    body{margin:0;font-family:"Inter",Arial,sans-serif;background:var(--cor-fundo);color:var(--cor-texto);}
+    h1{margin:0;padding:15px 0;font-size:1.6em;font-weight:700;text-align:center;}
+    .header-flex{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--cor-card);border-bottom:1px solid #e5e7eb;}
+    .logo-area img{height:48px;}
+    .botoes-acoes button{background:var(--cor-botao);color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;}
+    .botoes-acoes button:hover{background:#1d4ed8;}
+    .filtros{display:flex;flex-wrap:wrap;gap:10px;padding:15px 20px;background:var(--cor-cinza-claro);border-radius:8px;margin:15px;}
+    .filtros label{display:flex;flex-direction:column;font-size:.85em;font-weight:600;}
+    .filtros input,.filtros select{padding:8px;font-size:1em;border:1px solid #d1d5db;border-radius:6px;margin-top:4px;}
+    #btnFiltrar{background:var(--cor-botao);color:#fff;border:none;border-radius:6px;padding:10px 16px;cursor:pointer;}
+    #btnFiltrar:hover{background:#1d4ed8;}
+    .tabela-container{max-width:98%;margin:20px auto;background:var(--cor-card);border-radius:8px;overflow-x:auto;box-shadow:0 2px 4px rgba(0,0,0,.05);}
+    table{width:100%;border-collapse:collapse;font-size:.95em;}
+    thead th{background:var(--cor-botao);color:#fff;padding:8px;position:sticky;top:0;}
+    tbody td{padding:8px;border-bottom:1px solid #e5e7eb;}
+    .acoes button{margin:2px;padding:6px 10px;font-size:.85em;border:none;border-radius:6px;cursor:pointer;}
+    .acoes .btn-carrinho{background:#6b7280;color:#fff;}
+    .acoes .btn-carrinho.in{background:#16a34a;}
+    .acoes .btn-neg{background:#dc2626;color:#fff;}
+    .acoes .btn-hist{background:#0ea5e9;color:#fff;}
+    /* Modal */
+    #modalCarrinho,#modalHistorico{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000;}
+    .box{background:#fff;padding:20px;border-radius:10px;width:90vw;max-width:1000px;max-height:90vh;overflow:auto;}
+    .box table{width:100%;border-collapse:collapse;margin-top:10px;}
+    .box th,.box td{border:1px solid #d1d5db;padding:8px;text-align:left;}
+    .box th{background:#f3f4f6;}
   </style>
 </head>
 <body>
+  <div class="header-flex">
+    <div class="logo-area"><img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png"></div>
+    <h1>Painel de Requisições • DELÍCIA GOURMET</h1>
+    <div class="botoes-acoes"><button onclick="abrirCarrinho()">🛒 Carrinho</button></div>
+  </div>
 
-  <h1>Painel de Requisições - DELÍCIA GOURMET</h1>
+  <div class="filtros">
+    <label>Data de:<input type="date" id="filtroDataInicio"></label>
+    <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
+    <label>Data até:<input type="date" id="filtroDataFim"></label>
+    <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
+    <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
+    <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
+    <label>Palavra:<input type="text" id="filtroPalavra"></label>
+    <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
+  </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th>Data</th><th>Item</th><th>Qtd</th><th>Unidade</th>
-        <th>Setor</th><th>Solicitante</th><th>Obs</th><th>Ação</th>
-      </tr>
-    </thead>
-    <tbody id="tabelaRequisicoes"></tbody>
-  </table>
+  <div class="tabela-container">
+    <table><thead><tr>
+      <th>Data</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th><th>Ações</th>
+    </tr></thead><tbody id="tabelaRequisicoes"></tbody></table>
+  </div>
 
-  <h2>🛒 Carrinho</h2>
-  <table>
-    <thead>
-      <tr><th>Item</th><th>Qtd</th><th>Unid</th><th>Setor</th><th>Solicitante</th></tr>
-    </thead>
-    <tbody id="tabelaCarrinho"></tbody>
-  </table>
-  <br>
-  <button onclick="enviarCarrinho()">✅ Salvar Carrinho na Planilha</button>
+  <!-- Modal Carrinho -->
+  <div id="modalCarrinho"><div class="box">
+    <h3>🛒 Itens no Carrinho</h3>
+    <table><thead><tr>
+      <th>Item</th><th>Código</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th>
+    </tr></thead><tbody id="tabelaCarrinhoModal"></tbody></table>
+
+    <br>
+    <button onclick="salvarCarrinhoNaPlanilha()" style="background:#2563eb;color:#fff;padding:10px 16px;border:none;border-radius:6px;cursor:pointer;">💾 Salvar na Planilha de Cotações</button>
+    <button onclick="fecharCarrinho()" style="margin-left:10px;">Fechar</button>
+  </div></div>
+
+  <!-- Modal Histórico -->
+  <div id="modalHistorico"><div class="box">
+    <h3 id="historicoTitulo">📈 Histórico</h3>
+    <table><thead><tr><th>Data</th><th>Fornecedor</th><th>Preço</th></tr></thead><tbody id="tabelaHistorico"></tbody></table>
+    <br><button onclick="fecharHistorico()">Fechar</button>
+  </div></div>
 
 <script>
-/* 🔹 URLs separadas */
-const URL_DADOS    = "https://script.google.com/macros/s/AKfycbwS0garmL7W-1qcAdt-iLXx-ibTdt62xuIdhUL7bHBVLUrNfjm41PklAc7YIEHnkyWCYQ/exec";
-const URL_CARRINHO = "https://script.google.com/macros/s/AKfycbwS0garmL7W-1qcAdt-iLXx-ibTdt62xuIdhUL7bHBVLUrNfjm41PklAc7YIEHnkyWCYQ/exec";
+const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
+const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
+const URL_CARRINHO = 'https://script.google.com/macros/s/AKfycbyKVOC4ENAXXqg3MZ4Ikk8IPXw49wExmhXTajnr6WOAZ6hxUSwUNRE2MCdjCjhFP6o0/exec';
 
-let carrinho = [];
+let EMPRESA = "DELÍCIA GOURMET";
+let carrinho=JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
+let requisicoes=[],listaFiltrada=[];
 
-/* Carregar dados */
+function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
 async function carregarDados(){
-  const res = await fetch(URL_DADOS);
-  const dados = await res.json();
-  renderTabela(dados);
+  const res=await fetch(URL_DADOS);const dados=await res.json();
+  requisicoes=dados.map((l,idx)=>({linha:l.map(c=>(c||'').toString().trim()),idx}));
+  listaFiltrada=[...requisicoes];renderizarTabela(listaFiltrada);
 }
-
-function renderTabela(dados){
-  const tb = document.getElementById("tabelaRequisicoes");
-  tb.innerHTML = "";
-  dados.forEach(linha=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${linha[0]}</td>
-      <td>${linha[1]}</td>
-      <td>${linha[3]}</td>
-      <td>${linha[2]}</td>
-      <td>${linha[4]}</td>
-      <td>${linha[5]}</td>
-      <td>${linha[6]}</td>
-      <td><button onclick='addCarrinho(${JSON.stringify(linha)})'>➕</button></td>
-    `;
-    tb.appendChild(tr);
+function renderizarTabela(lista){
+  const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
+  lista.forEach(({linha,idx})=>{
+    const tr=document.createElement('tr');
+    [0,1,3,2,4,5,6,7].forEach(i=>{
+      const td=document.createElement('td');let v=linha[i];
+      if(i===7&&v.toLowerCase()==="processando")v="PENDENTE";
+      td.innerHTML=i===0?toBRDateTime(linha[i]):v;tr.appendChild(td);
+    });
+    const tdA=document.createElement('td');tdA.className='acoes';
+    const btnCarr=document.createElement('button');
+    const noCarr=carrinho.some(c=>c.dataHoraOriginal===linha[0]&&c.item===linha[1]);
+    btnCarr.textContent=noCarr?'🛒':'➕';btnCarr.className='btn-carrinho'+(noCarr?' in':'');
+    btnCarr.onclick=()=>addCarrinho(linha,btnCarr);tdA.appendChild(btnCarr);
+    const btnNeg=document.createElement('button');btnNeg.textContent='❌';btnNeg.className='btn-neg';
+    tdA.appendChild(btnNeg);
+    tr.appendChild(tdA);tb.appendChild(tr);
   });
 }
-
-function addCarrinho(linha){
-  carrinho.push({
-    dataHoraOriginal: linha[0],
-    item: linha[1],
-    unidade: linha[2],
-    quantidade: linha[3],
-    setor: linha[4],
-    solicitante: linha[5],
-    observacoes: linha[6],
-    empresa: "DELÍCIA GOURMET" // 🔹 sempre salva o nome da empresa
-  });
-  atualizarCarrinho();
+function addCarrinho(linha,btn){
+  const jaExiste = carrinho.some(c=>c.dataHoraOriginal===linha[0]&&c.item===linha[1]);
+  if(!jaExiste){
+    carrinho.push({
+      dataHoraOriginal:linha[0], item:linha[1], quantidade:linha[3], unidade:linha[2],
+      setor:linha[4], solicitante:linha[5], observacoes:linha[6], status:linha[7], empresa:EMPRESA
+    });
+    localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));
+    btn.textContent='🛒'; btn.className='btn-carrinho in';
+  }
+  atualizarCarrinhoModal();
 }
-
-function atualizarCarrinho(){
-  const tb = document.getElementById("tabelaCarrinho");
-  tb.innerHTML = "";
+function atualizarCarrinhoModal(){
+  const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
   carrinho.forEach(it=>{
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${it.item}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td>`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${it.item}</td><td>${it.produtoCodigo||''}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td>`;
     tb.appendChild(tr);
   });
 }
+function abrirCarrinho(){atualizarCarrinhoModal();document.getElementById('modalCarrinho').style.display='flex';}
+function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
 
-/* Enviar carrinho */
-async function enviarCarrinho(){
+/* 🔹 Envia todos os itens do carrinho para a planilha de cotações */
+async function salvarCarrinhoNaPlanilha(){
   if(carrinho.length===0){ alert("Carrinho vazio!"); return; }
-  const payload = { action:"registrar_requisicoes", empresa:"DELÍCIA GOURMET", itens:carrinho };
-  const res = await fetch(URL_CARRINHO,{
-    method:"POST",
-    headers:{ "Content-Type":"application/json" },
-    body: JSON.stringify(payload)
-  });
+  const payload = {action:"registrar_carrinho", empresa:EMPRESA, itens:carrinho};
+  const res = await fetch(URL_CARRINHO,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
   const out = await res.json();
   if(out.ok){
-    alert(`✅ ${out.count} itens salvos na planilha!`);
-    carrinho = [];
-    atualizarCarrinho();
-  }else{
+    alert(`✅ ${out.count} itens salvos na planilha de cotações!`);
+    carrinho=[]; localStorage.removeItem("carrinhoCompras");
+    atualizarCarrinhoModal(); fecharCarrinho();
+  } else {
     alert("Erro: "+out.error);
   }
 }
