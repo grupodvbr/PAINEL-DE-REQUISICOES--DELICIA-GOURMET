@@ -11,8 +11,10 @@
   table{width:100%;border-collapse:collapse;margin-top:15px;}
   th,td{border:1px solid #ddd;padding:8px;}
   th{background:#2563eb;color:#fff;}
-  input,button{padding:8px;width:100%;border:1px solid #ccc;border-radius:6px;}
-  button{background:#2563eb;color:#fff;cursor:pointer;margin-top:10px;}
+  input,button{padding:8px;border:1px solid #ccc;border-radius:6px;}
+  input[type=number]{width:120px;}
+  input[type=text]{width:100%;}
+  button{background:#2563eb;color:#fff;cursor:pointer;margin-top:15px;width:100%;font-size:1em;}
   button:hover{background:#1d4ed8;}
 </style>
 </head>
@@ -21,55 +23,95 @@
 <div class="box">
   <p id="info"></p>
   <table>
-    <thead><tr><th>Produto</th><th>Qtd</th><th>Unid</th><th>Preço Unit.</th><th>Obs</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Produto</th><th>Qtd</th><th>Unid</th><th>Preço Unit.</th><th>Obs</th>
+      </tr>
+    </thead>
     <tbody id="tbody"></tbody>
   </table>
   <button onclick="enviar()">📤 Enviar Respostas</button>
 </div>
-<script>
-const URL_COTACAO="https://script.google.com/macros/s/AKfycbyyLX9O0AMpm3Z7f1nTy2a5wtXIhbuyoNXl_ZTUdSQhTILps8KJp27ydPqS63OThR1O/exec";
-let fornecedor="",dataCotacao="",itens=[];
 
-window.onload=async()=>{
-  const p=new URLSearchParams(window.location.search);
-  fornecedor=p.get("fornecedor"); dataCotacao=p.get("date");
-  document.getElementById("titulo").innerText=`Responder Cotação - ${fornecedor}`;
-  document.getElementById("info").innerText=`Data da Cotação: ${dataCotacao}`;
+<script>
+const URL_COTACAO = "https://script.google.com/macros/s/AKfycbyyLX9O0AMpm3Z7f1nTy2a5wtXIhbuyoNXl_ZTUdSQhTILps8KJp27ydPqS63OThR1O/exec";
+
+let fornecedor="", dataCotacao="", itens=[];
+
+window.onload = async ()=>{
+  const p = new URLSearchParams(window.location.search);
+  fornecedor = p.get("fornecedor") || "FORNECEDOR";
+  dataCotacao = p.get("date") || "";
+  document.getElementById("titulo").innerText = `Responder Cotação - ${fornecedor}`;
+  document.getElementById("info").innerText = `Data da Cotação: ${dataCotacao}`;
   await carregarItens(dataCotacao);
 };
 
 async function carregarItens(date){
   try{
-    const res=await fetch(`${URL_COTACAO}?action=itenspordata&date=${encodeURIComponent(date)}`);
-    const out=await res.json();
-    if(!out.ok||!out.items.length){
-      document.getElementById("tbody").innerHTML="<tr><td colspan=5>Sem itens</td></tr>";
+    const res = await fetch(`${URL_COTACAO}?action=itenspordata&date=${encodeURIComponent(date)}`);
+    const out = await res.json();
+    if(!out.ok || !out.items.length){
+      document.getElementById("tbody").innerHTML = "<tr><td colspan=5>Sem itens para essa data</td></tr>";
       return;
     }
-    itens=out.items;render();
-  }catch(e){alert("Erro:"+e.message);}
+    itens = out.items;
+    render();
+  }catch(e){ alert("Erro ao carregar itens: "+e.message); }
 }
 
 function render(){
-  const tb=document.getElementById("tbody");tb.innerHTML="";
+  const tb = document.getElementById("tbody");
+  tb.innerHTML = "";
   itens.forEach(it=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
       <td>${it.produto}</td>
       <td>${it.quantidade}</td>
       <td>${it.unidade}</td>
-      <td><input type="number" step="0.01" data-rid="${it.rid}" data-codigo="${it.codigo}"></td>
-      <td><input type="text"></td>`;
+      <td><input type="number" step="0.01" placeholder="0,00" data-rid="${it.rid}" data-codigo="${it.codigo}" data-produto="${it.produto}"></td>
+      <td><input type="text" placeholder="Observação"></td>
+    `;
     tb.appendChild(tr);
   });
 }
 
 async function enviar(){
-  const linhas=document.querySelectorAll("#tbody tr");
+  const linhas = document.querySelectorAll("#tbody tr");
+  let enviados = 0;
   for(const ln of linhas){
-    const preco=ln.querySelector("input[type=number]").value;
-    const obs=ln.querySelector("input[type=text]").value;
-    const rid=ln.querySelector("input[type=number]").dataset.rid;
-    const codigo=ln.querySelector("input[type=number]").dataset.codigo;
-    if(!preco)continue;
-    const payload={action:"enviar_resposta",r_
+    const preco = ln.querySelector("input[type=number]").value;
+    const obs = ln.querySelector("input[type=text]").value;
+    const rid = ln.querySelector("input[type=number]").dataset.rid;
+    const codigo = ln.querySelector("input[type=number]").dataset.codigo;
+    const produto = ln.querySelector("input[type=number]").dataset.produto;
+
+    if(!preco) continue;
+
+    const payload = {
+      action: "enviar_resposta",
+      rid,
+      produtoCodigo: codigo,
+      produtoNome: produto,
+      fornecedor,
+      preco,
+      observacoes: obs
+    };
+
+    try{
+      const res = await fetch(URL_COTACAO, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify(payload)
+      });
+      const out = await res.json();
+      if(out.ok) enviados++;
+    }catch(e){
+      console.error("Erro ao enviar:", e);
+    }
+  }
+  alert(`✅ ${enviados} respostas registradas para ${fornecedor}`);
+}
+</script>
+</body>
+</html>
