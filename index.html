@@ -70,9 +70,10 @@
 let EMPRESA = "DELÍCIA GOURMET";
 let CODIGO_PAINEL = "DG-REQ-001";
 
-const URL_DADOS   = "URL_DADOS_DO_SEU_GAS";
-const URL_STATUS  = "URL_STATUS_DO_SEU_GAS";
-const URL_COTACAO = "URL_COTACAO_DO_SEU_GAS";  // deve ser o mesmo do doPost no GAS
+const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
+const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
+const URL_COTACAO = 'https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec'; // <<<< TROCAR PELO SEU URL
+      
 const FORNECEDORES = ["FornecedorA","FornecedorB"];
 
 let carrinho = JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
