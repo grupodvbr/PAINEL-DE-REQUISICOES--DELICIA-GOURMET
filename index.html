@@ -13,7 +13,7 @@
     body{margin:0;font-family:"Inter",Arial,sans-serif;background:var(--cor-fundo);color:var(--cor-texto);}
     h1{margin:0;padding:15px 0;font-size:1.6em;font-weight:700;text-align:center;}
     .header-flex{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--cor-card);border-bottom:1px solid #e5e7eb;}
-    .logo-area img{height:48px;}
+    .logo-area img{height:50px;max-width:180px;object-fit:contain;}
     .botoes-acoes button{background:var(--cor-botao);color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;}
     .botoes-acoes button:hover{background:#1d4ed8;}
     .filtros{display:flex;flex-wrap:wrap;gap:10px;padding:15px 20px;background:var(--cor-cinza-claro);border-radius:8px;margin:15px;}
@@ -29,18 +29,21 @@
     .acoes .btn-carrinho{background:#6b7280;color:#fff;}
     .acoes .btn-carrinho.in{background:#16a34a;}
     .acoes .btn-neg{background:#dc2626;color:#fff;}
-    .acoes .btn-hist{background:#0ea5e9;color:#fff;}
     /* Modal */
-    #modalCarrinho,#modalHistorico{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000;}
+    #modalCarrinho,#modalHistorico,#modalLoading{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000;}
     .box{background:#fff;padding:20px;border-radius:10px;width:90vw;max-width:1000px;max-height:90vh;overflow:auto;}
     .box table{width:100%;border-collapse:collapse;margin-top:10px;}
     .box th,.box td{border:1px solid #d1d5db;padding:8px;text-align:left;}
     .box th{background:#f3f4f6;}
+    .loading-box{background:#fff;padding:30px 40px;border-radius:10px;font-size:1.2em;font-weight:bold;}
   </style>
 </head>
 <body>
   <div class="header-flex">
-    <div class="logo-area"><img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png"></div>
+    <div class="logo-area">
+      <!-- 🔹 Troque a URL da logo abaixo -->
+      <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="Logo">
+    </div>
     <h1>Painel de Requisições • DELÍCIA GOURMET</h1>
     <div class="botoes-acoes"><button onclick="abrirCarrinho()">🛒 Carrinho</button></div>
   </div>
@@ -50,6 +53,15 @@
     <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
     <label>Data até:<input type="date" id="filtroDataFim"></label>
     <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
+    <label>Status:
+      <select id="filtroStatus">
+        <option value="">Todos</option>
+        <option value="pendente">PENDENTE</option>
+        <option value="comprar">COMPRAR</option>
+        <option value="negar">NEGAR</option>
+        <option value="entregue">ENTREGUE</option>
+      </select>
+    </label>
     <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
     <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
     <label>Palavra:<input type="text" id="filtroPalavra"></label>
@@ -66,7 +78,7 @@
   <div id="modalCarrinho"><div class="box">
     <h3>🛒 Itens no Carrinho</h3>
     <table><thead><tr>
-      <th>Item</th><th>Código</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Ação</th>
+      <th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Ação</th>
     </tr></thead><tbody id="tabelaCarrinhoModal"></tbody></table>
 
     <div style="margin-top:20px;">
@@ -75,12 +87,15 @@
     </div>
   </div></div>
 
+  <!-- Modal Loading -->
+  <div id="modalLoading"><div class="loading-box">⏳ Salvando na planilha...</div></div>
+
 <script>
 const EMPRESA = "DELÍCIA GOURMET";
 
 const URL_DADOS    = "https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec";
 const URL_STATUS   = "https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec";
-const URL_CARRINHO = "https://script.google.com/macros/s/AKfycbxezSErmLRUVoRUGIbkWictBySxqTFlocyjRQIm9ZybVHOctc7djGqfkI6TUTwu00Dt/exec"; // WebApp da planilha de cotações
+const URL_CARRINHO = "https://script.google.com/macros/s/AKfycbwYbKucp5qnKpiiBVQJnOhtFXmudmEGzqjgoSfhcRHVKc3hiqGQCuRUYrVicbkxRC0/exec";
 
 let carrinho=JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
 let requisicoes=[],listaFiltrada=[];
@@ -92,6 +107,7 @@ async function carregarDados(){
   const dados=await res.json();
   requisicoes=dados.map((l,idx)=>({linha:l.map(c=>(c||'').toString().trim()),idx}));
   listaFiltrada=[...requisicoes];
+  popularFiltros();
   renderizarTabela(listaFiltrada);
 }
 
@@ -135,7 +151,7 @@ function atualizarCarrinhoModal(){
   const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
   carrinho.forEach((it,idx)=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${it.item}</td><td>${it.item}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
+    tr.innerHTML=`<td>${it.item}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
     tb.appendChild(tr);
   });
 }
@@ -146,6 +162,7 @@ function fecharCarrinho(){document.getElementById('modalCarrinho').style.display
 async function salvarCarrinhoNaPlanilha(){
   try{
     if(carrinho.length===0){alert("Carrinho vazio!");return;}
+    document.getElementById('modalLoading').style.display='flex'; // mostra loading
     const payload={action:"registrar_carrinho",empresa:EMPRESA,itens:carrinho};
     const res=await fetch(URL_CARRINHO,{
       method:"POST",
@@ -153,10 +170,47 @@ async function salvarCarrinhoNaPlanilha(){
       body:JSON.stringify(payload)
     });
     const out=await res.json();
+    document.getElementById('modalLoading').style.display='none'; // esconde loading
     if(!out.ok) throw new Error(out.error||"Falha ao salvar");
     alert(`✅ ${out.count} itens salvos na planilha de cotações!`);
     carrinho=[];localStorage.removeItem("carrinhoCompras");atualizarCarrinhoModal();fecharCarrinho();
-  }catch(e){alert("Erro ao salvar: "+e.message);}
+  }catch(e){
+    document.getElementById('modalLoading').style.display='none';
+    alert("Erro ao salvar: "+e.message);
+  }
+}
+
+function popularFiltros(){
+  const solicitantes=new Set(),setores=new Set();
+  requisicoes.forEach(r=>{solicitantes.add(r.linha[5]);setores.add(r.linha[4]);});
+  const selS=document.getElementById("filtroSolicitante");selS.innerHTML='<option value="">Todos</option>';
+  solicitantes.forEach(s=>{if(s){let o=document.createElement("option");o.value=s.toLowerCase();o.textContent=s;selS.appendChild(o);}});
+  const selSet=document.getElementById("filtroSetor");selSet.innerHTML='<option value="">Todos</option>';
+  setores.forEach(s=>{if(s){let o=document.createElement("option");o.value=s.toLowerCase();o.textContent=s;selSet.appendChild(o);}});
+}
+
+function filtrar(){
+  const inicio=document.getElementById("filtroDataInicio").value;
+  const fim=document.getElementById("filtroDataFim").value;
+  const horaIni=document.getElementById("filtroHoraInicio").value||"00:00";
+  const horaFim=document.getElementById("filtroHoraFim").value||"23:59";
+  const status=document.getElementById("filtroStatus").value.toLowerCase();
+  const solicit=document.getElementById("filtroSolicitante").value;
+  const setor=document.getElementById("filtroSetor").value;
+  const palavra=document.getElementById("filtroPalavra").value.toLowerCase();
+
+  listaFiltrada=requisicoes.filter(r=>{
+    const l=r.linha;
+    const d=new Date(l[0]);
+    if(inicio && d<new Date(`${inicio}T${horaIni}`)) return false;
+    if(fim && d>new Date(`${fim}T${horaFim}`)) return false;
+    if(status && l[7].toLowerCase()!==status) return false;
+    if(solicit && l[5].toLowerCase()!==solicit) return false;
+    if(setor && l[4].toLowerCase()!==setor) return false;
+    if(palavra && !(l[1].toLowerCase().includes(palavra)||(l[6]||'').toLowerCase().includes(palavra))) return false;
+    return true;
+  });
+  renderizarTabela(listaFiltrada);
 }
 
 carregarDados();
