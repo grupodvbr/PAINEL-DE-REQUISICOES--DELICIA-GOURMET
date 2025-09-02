@@ -1,512 +1,118 @@
-<!DOCTYPE html>
+
+ <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
   <title>Painel de Requisições</title>
-
   <style>
-    :root {
-      --cor-fundo: #ffffff;
-      --cor-texto: #000000;
-      --cor-botao: #007bff;
-      --cor-botao-vermelho: #dc3545;
-      --cor-destaque: #007bff;
-      --cor-cinza-claro: #f8f9fa;
-    }
-    * { box-sizing: border-box; }
-    html,body{height:100%;margin:0;padding:0;overflow:hidden;background:var(--cor-fundo);color:var(--cor-texto);font-family:Arial,sans-serif;}
-    h1{margin:0;padding:15px 0;color:var(--cor-texto);font-size:1.6em;}
-    .header-flex{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--cor-fundo);border-bottom:1px solid #ccc;}
-    .logo-area{flex:1;}
-    .titulo-area{flex:1;text-align:center;}
-    .espaco-direito{flex:1;}
-    .logo-area img{height:50px;max-width:150px;object-fit:contain;}
-    .top-bar{background:var(--cor-fundo);}
-    .botoes-acoes{display:flex;justify-content:flex-end;gap:8px;padding:10px 20px 0;}
-    .botoes-acoes button{background:var(--cor-botao);color:#fff;border:none;padding:8px 14px;font-size:.9em;border-radius:6px;cursor:pointer;}
-    .filtros{display:flex;flex-wrap:wrap;gap:10px;padding:10px 20px;justify-content:space-between;background:var(--cor-cinza-claro);border-radius:8px;}
-    .filtros label{display:flex;flex-direction:column;font-size:.9em;min-width:150px;flex:1;font-weight:bold;}
-    #filtroStatus{margin-left:15px;}
-    .filtros input,.filtros select{padding:10px;font-size:1em;border:1px solid #ccc;border-radius:6px;background:#fff;}
-    #btnFiltrar{padding:10px 16px;background:var(--cor-botao);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:1em;align-self:flex-end;height:42px;}
-    .btn-massa{background:#fff;color:#000;border:2px solid var(--cor-botao);padding:10px 16px;border-radius:8px;margin:10px 20px;font-size:1em;cursor:pointer;font-weight:bold;}
-    .tabela-container{max-width:98%;margin:0 auto 20px;background:#fff;border-radius:8px;overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 260px);box-shadow:0 1px 4px rgba(0,0,0,.1);}
-    table{width:100%;border-collapse:collapse;font-size:.95em;}
-    thead th{position:sticky;top:0;background:var(--cor-botao);color:#fff;z-index:10;}
-    tbody tr:nth-child(even){background:#f2f2f2;} tbody tr:nth-child(odd){background:#fff;}
-    tbody tr{border-bottom:1px solid #ccc;}
-    .acoes button{margin:2px 4px;padding:6px 10px;font-size:.85em;border:none;background:#6c757d;color:#fff;border-radius:6px;cursor:pointer;}
-    .status-pendente{background:#fff3cd;color:#856404;font-weight:bold;}
-    #modalAgrupar .box,#modalAgruparWhatsApp .box{background:#fff;padding:20px;border-radius:10px;width:300px;text-align:center;}
-    #modalAgrupar,#modalAgruparWhatsApp{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:999;}
-    table th:nth-child(2),table td:nth-child(2){width:300px !important;min-width:300px !important;max-width:300px !important;word-wrap:break-word !important;white-space:normal !important;}
-    @media (max-width:768px){
-      body{font-size:.95em;overflow:auto!important;}
-      .header-flex{flex-direction:column;gap:10px;padding:10px;text-align:center;}
-      .logo-area,.espaco-direito{display:none;}
-      .botoes-acoes{justify-content:center;flex-wrap:wrap;gap:10px;padding:10px;}
-      .filtros{flex-direction:column;padding:10px;}
-      .filtros label{width:100%;min-width:unset;}
-      #btnFiltrar,.btn-massa{width:100%;margin-top:10px;}
-      .tabela-container{max-height:none;overflow-x:scroll;padding-bottom:100px;}
-      table{font-size:.85em;}
-      .acoes button{font-size:.75em;padding:4px 6px;}
-    }
+    body { font-family: Arial, sans-serif; margin:0; padding:20px; }
+    table { border-collapse: collapse; width: 100%; margin-top:20px; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+    th { background:#007bff; color:white; }
+    button { padding:6px 12px; margin:2px; cursor:pointer; }
   </style>
 </head>
-
 <body>
-  <!-- Cabeçalho -->
-  <div class="header-flex">
-    <div class="logo-area">
-      <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="Logo" />
-    </div>
-    <div class="titulo-area">
-      <h1>Painel de Requisições DELÍCIA GOURMET</h1>
-    </div>
-    <div class="espaco-direito"></div>
-  </div>
 
-  <div class="top-bar">
-    <div class="botoes-acoes">
-      <button onclick="abrirModalAgrupar('pdf')">📚 PDF</button>
-      <button onclick="abrirModalAgruparWhatsApp()">📱 WhatsApp</button>
-      <button onclick="abrirModalAgrupar('print')">🖨️ Imprimir</button>
-      <button onclick="abrirCarrinho()">🛒 Carrinho</button>
-      <!-- BOTÃO QUE SALVA O CARRINHO NA PLANILHA DE REQUISIÇÕES -->
-      <button style="background:#0d6efd" onclick="salvarCarrinhoNaPlanilha()">💾 Salvar carrinho na planilha</button>
-    </div>
+  <h1>Painel de Requisições - DELÍCIA GOURMET</h1>
 
-    <div class="filtros">
-      <label>Data de:<input type="date" id="filtroDataInicio"></label>
-      <label>Hora Inicial:<input type="time" id="filtroHoraInicio"></label>
-      <label>Data até:<input type="date" id="filtroDataFim"></label>
-      <label>Hora Final:<input type="time" id="filtroHoraFim"></label>
-      <label>Solicitante:<select id="filtroSolicitante"><option value="">Todos</option></select></label>
-      <label>Setor:<select id="filtroSetor"><option value="">Todos</option></select></label>
-      <label>Palavra-chave:<input type="text" id="filtroPalavra" placeholder="Buscar item ou observação"></label>
-      <button id="btnFiltrar" onclick="filtrar()">🔍 Filtrar</button>
-      <div style="display:inline-block; margin-left:10px;">
-        <label style="font-weight:bold; font-size:.9em;">Status:
-          <select id="filtroStatus" onchange="filtrar()" style="padding:10px;font-size:1em;border-radius:6px;border:1px solid #ccc;">
-            <option value="">TODOS</option>
-            <option value="PENDENTE" selected>PENDENTE</option>
-            <option value="ENTREGUE">ENTREGUE</option>
-            <option value="Negar">NEGADOS</option>
-            <option value="Comprar">COMPRAR</option>
-          </select>
-        </label>
-      </div>
-    </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Data</th><th>Item</th><th>Qtd</th><th>Unidade</th>
+        <th>Setor</th><th>Solicitante</th><th>Obs</th><th>Ação</th>
+      </tr>
+    </thead>
+    <tbody id="tabelaRequisicoes"></tbody>
+  </table>
 
-    <button class="btn-massa" onclick="concluirEmMassa()">✅ ENTREGAR EM MASSA</button>
-  </div>
+  <h2>🛒 Carrinho</h2>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Qtd</th><th>Unid</th><th>Setor</th><th>Solicitante</th></tr>
+    </thead>
+    <tbody id="tabelaCarrinho"></tbody>
+  </table>
+  <br>
+  <button onclick="enviarCarrinho()">✅ Salvar Carrinho na Planilha</button>
 
-  <!-- Tabela -->
-  <div class="tabela-container">
-    <table id="tabelaExport">
-      <thead>
-        <tr>
-          <th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th><th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="tabelaRequisicoes"></tbody>
-    </table>
-  </div>
+<script>
+/* 🔹 URLs separadas */
+const URL_DADOS    = "https://script.google.com/macros/s/AKfycbwS0garmL7W-1qcAdt-iLXx-ibTdt62xuIdhUL7bHBVLUrNfjm41PklAc7YIEHnkyWCYQ/exec";
+const URL_CARRINHO = "https://script.google.com/macros/s/AKfycbwS0garmL7W-1qcAdt-iLXx-ibTdt62xuIdhUL7bHBVLUrNfjm41PklAc7YIEHnkyWCYQ/exec";
 
-  <!-- Carrinho -->
-  <div id="modalCarrinho" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:1000;">
-    <div style="background:#fff; width: 90vw; max-width: 1200px; max-height:90vh; overflow:auto; padding:20px; border-radius:8px;">
-      <h3>🛒 Itens no Carrinho <small style="color:#666">• Empresa: <span id="empresaTag"></span></small></h3>
-      <table style="width:100%; border-collapse:collapse; text-align:left;">
-        <thead>
-          <tr style="background:#007bff; color:white;">
-            <th style="padding:8px; border:1px solid #ccc;">Item</th>
-            <th style="padding:8px; border:1px solid #ccc;">Qtd</th>
-            <th style="padding:8px; border:1px solid #ccc;">Unidade</th>
-            <th style="padding:8px; border:1px solid #ccc;">Setor</th>
-            <th style="padding:8px; border:1px solid #ccc;">Solicitante</th>
-          </tr>
-        </thead>
-        <tbody id="tabelaCarrinhoModal"></tbody>
-      </table>
-      <br>
-      <button onclick="salvarCarrinhoNaPlanilha()" style="padding:10px 20px; background:#0d6efd; color:white; border:none; border-radius:6px; cursor:pointer;">
-        💾 Salvar carrinho na planilha (REQUISIÇÕES)
-      </button>
-      <button onclick="enviarCarrinhoWhatsApp()" style="padding:10px 20px; background:#25d366; color:white; border:none; border-radius:6px; cursor:pointer;">
-        📲 Enviar via WhatsApp
-      </button>
-      <button onclick="fecharCarrinho()" style="margin-left:10px; padding:10px 20px; background:#ccc; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
-    </div>
-  </div>
+let carrinho = [];
 
-  <!-- Agrupar -->
-  <div id="modalAgrupar">
-    <div class="box">
-      <h3>Como deseja agrupar?</h3>
-      <select id="seletorAgrupamento">
-        <option value="setor">Setor</option>
-        <option value="solicitante">Solicitante</option>
-        <option value="status">Status</option>
-      </select>
-      <button onclick="confirmarAgrupamento()">OK</button>
-      <button onclick="document.getElementById('modalAgrupar').style.display='none'">Cancelar</button>
-    </div>
-  </div>
+/* Carregar dados */
+async function carregarDados(){
+  const res = await fetch(URL_DADOS);
+  const dados = await res.json();
+  renderTabela(dados);
+}
 
-  <div id="modalAgruparWhatsApp" style="display:none; position:fixed; top:0;left:0;right:0;bottom:0; background:rgba(0,0,0,0.4); justify-content:center; align-items:center; z-index:999;">
-    <div class="box" style="background:#fff; padding:20px; border-radius:10px; width:300px; text-align:center;">
-      <h3>Como deseja agrupar no WhatsApp?</h3>
-      <select id="seletorAgrupamentoWhatsApp">
-        <option value="setor">Setor</option>
-        <option value="solicitante">Solicitante</option>
-        <option value="status">Status</option>
-      </select>
-      <button onclick="confirmarAgrupamentoWhatsApp()">Enviar</button>
-      <button onclick="document.getElementById('modalAgruparWhatsApp').style.display='none'">Cancelar</button>
-    </div>
-  </div>
-
-  <script>
-  /* ====== CONFIG ====== */
-  const EMPRESA = "DELÍCIA GOURMET"; // <- será salva junto
-  const URL_REQUISICOES_BASE = "https://script.google.com/macros/s/AKfycbwS0garmL7W-1qcAdt-iLXx-ibTdt62xuIdhUL7bHBVLUrNfjm41PklAc7YIEHnkyWCYQ/exec";
-  const URL_DADOS = URL_REQUISICOES_BASE + "?action=listar";
-
-  /* ====== ESTADO ====== */
-  let carrinhoCompras = JSON.parse(localStorage.getItem("carrinhoCompras") || "[]");
-  let requisicoes = [];
-  let listaFiltrada = [];
-
-  /* ====== LOAD ====== */
-  async function carregarDados() {
-    const res = await fetch(URL_DADOS);
-    const dados = await res.json();
-
-    requisicoes = dados
-      .map((l, idx) => ({ linha: l.map(c => (c || '').toString().trim()), idx }))
-      .sort((a, b) => new Date(a.linha[0]) - new Date(b.linha[0]));
-
-    listaFiltrada = [...requisicoes];
-    renderizarTabela(listaFiltrada);
-    popularFiltros();
-  }
-
-  function renderizarTabela(lista) {
-    const tabela = document.getElementById('tabelaRequisicoes');
-    tabela.innerHTML = '';
-    lista.forEach(({ linha, idx }) => {
-      const tr = document.createElement('tr');
-      const novaOrdem = [0, 1, 3, 2, 4, 5, 6, 7];
-      novaOrdem.forEach(i => {
-        const td = document.createElement('td');
-        let valor = linha[i];
-        if (i === 7 && valor.toLowerCase() === "processando") valor = "PENDENTE";
-        td.innerHTML = i === 0
-          ? new Date(linha[i]).toLocaleString('pt-BR')
-          : i === 1 ? `<strong>${linha[i]}</strong>` : valor;
-        tr.appendChild(td);
-      });
-
-      const tdAcoes = document.createElement('td');
-      tdAcoes.className = 'acoes';
-
-      const btnCarrinho = document.createElement('button');
-      const itemNoCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
-      btnCarrinho.textContent = itemNoCarrinho ? '🛒 Tirar do carrinho' : '➕ Adicionar ao carrinho';
-      btnCarrinho.style.backgroundColor = itemNoCarrinho ? '#388e3c' : '#6c757d';
-      btnCarrinho.onclick = () => toggleCarrinho(linha, btnCarrinho);
-      tdAcoes.appendChild(btnCarrinho);
-
-      const btnNegar = document.createElement('button');
-      btnNegar.textContent = '❌ Negar';
-      btnNegar.style.backgroundColor = '#dc3545';
-      btnNegar.onclick = () => {
-        const ok = confirm(`Deseja realmente negar o item: ${linha[1]}?`);
-        if (ok) marcarStatusLocal(linha, 'Negar');
-      };
-      tdAcoes.appendChild(btnNegar);
-
-      tr.appendChild(tdAcoes);
-      tabela.appendChild(tr);
-    });
-  }
-
-  function toggleCarrinho(linha, botao){
-    const noCarrinho = carrinhoCompras.some(c => c.dataHoraOriginal === linha[0] && c.item === linha[1]);
-    if (noCarrinho) {
-      carrinhoCompras = carrinhoCompras.filter(c => !(c.dataHoraOriginal === linha[0] && c.item === linha[1]));
-      botao.textContent = '➕ Adicionar ao carrinho';
-      botao.style.backgroundColor = '#6c757d';
-    } else {
-      carrinhoCompras.push({
-        dataHoraOriginal: linha[0],
-        item: linha[1],
-        unidade: linha[2],
-        quantidade: linha[3],
-        setor: linha[4],
-        solicitante: linha[5],
-        observacoes: linha[6],
-        statusOriginal: linha[7],
-        novoStatus: 'Comprar',
-        empresa: EMPRESA              // << salva o nome da empresa no carrinho também
-      });
-      botao.textContent = '🛒 Tirar do carrinho';
-      botao.style.backgroundColor = '#388e3c';
-    }
-    localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-    atualizarCarrinhoModal();
-  }
-
-  function marcarStatusLocal(linha, novoStatus){
-    // (se quiser, aqui você pode também chamar seu endpoint de status)
-    alert(`Status local de "${linha[1]}" definido como ${novoStatus}.`);
-  }
-
-  /* ====== FILTROS ====== */
-  function filtrar() {
-    const status = document.getElementById('filtroStatus').value.toLowerCase();
-    const inicioData = document.getElementById('filtroDataInicio').value;
-    const fimData = document.getElementById('filtroDataFim').value;
-    const inicioHora = document.getElementById('filtroHoraInicio').value;
-    const fimHora = document.getElementById('filtroHoraFim').value;
-    const solicitante = document.getElementById('filtroSolicitante').value.toLowerCase();
-    const setor = document.getElementById('filtroSetor').value.toLowerCase();
-    const palavra = document.getElementById('filtroPalavra').value.toLowerCase();
-
-    listaFiltrada = requisicoes.filter(({ linha }) => {
-      const dataHora = new Date(linha[0]);
-      if (inicioData) {
-        const di = new Date(`${inicioData}T${inicioHora || '00:00'}`); if (dataHora < di) return false;
-      }
-      if (fimData) {
-        const df = new Date(`${fimData}T${fimHora || '23:59'}`); if (dataHora > df) return false;
-      }
-      if (status) {
-        const cur = linha[7].toLowerCase() === "processando" ? "pendente" : linha[7].toLowerCase();
-        if (cur !== status) return false;
-      }
-      if (solicitante && !linha[5].toLowerCase().includes(solicitante)) return false;
-      if (setor && !linha[4].toLowerCase().includes(setor)) return false;
-      if (palavra) {
-        const item = linha[1].toLowerCase();
-        const obs  = (linha[6]||'').toLowerCase();
-        if (!item.includes(palavra) && !obs.includes(palavra)) return false;
-      }
-      return true;
-    });
-
-    renderizarTabela(listaFiltrada);
-  }
-
-  function popularFiltros() {
-    const solicitantes = new Set(), setores = new Set();
-    requisicoes.forEach(({ linha }) => { solicitantes.add(linha[5]); setores.add(linha[4]); });
-
-    const solicitanteSelect = document.getElementById('filtroSolicitante');
-    const setorSelect = document.getElementById('filtroSetor');
-
-    [...solicitantes].filter(Boolean).sort().forEach(nome => {
-      const o = document.createElement('option'); o.value = nome; o.textContent = nome; solicitanteSelect.appendChild(o);
-    });
-    [...setores].filter(Boolean).sort().forEach(nome => {
-      const o = document.createElement('option'); o.value = nome; o.textContent = nome; setorSelect.appendChild(o);
-    });
-  }
-
-  /* ====== AGRUPAR / EXPORTAR / WHATS ====== */
-  function agruparPor(campo, lista = requisicoes) {
-    const agrupado = {};
-    lista.forEach(({ linha }) => {
-      let chave = '';
-      if (campo === 'setor') chave = linha[4];
-      else if (campo === 'solicitante') chave = linha[5];
-      else if (campo === 'status') {
-        const raw = linha[7].toLowerCase(); chave = raw === "processando" ? "PENDENTE" : raw.toUpperCase();
-      } else chave = 'Outro';
-      if (!agrupado[chave]) agrupado[chave] = [];
-      agrupado[chave].push(linha);
-    });
-    return agrupado;
-  }
-
-  function gerarHTMLAgrupado(agrupado, opcao) {
-    const logoURL = "https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png";
-    let html = `
-      <div style="display:flex; align-items:center; gap:15px; margin-bottom:20px;">
-        <img src="${logoURL}" style="height:50px; max-width:150px;">
-        <h2 style="margin:0;">Requisições agrupadas por ${opcao}</h2>
-      </div>
+function renderTabela(dados){
+  const tb = document.getElementById("tabelaRequisicoes");
+  tb.innerHTML = "";
+  dados.forEach(linha=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${linha[0]}</td>
+      <td>${linha[1]}</td>
+      <td>${linha[3]}</td>
+      <td>${linha[2]}</td>
+      <td>${linha[4]}</td>
+      <td>${linha[5]}</td>
+      <td>${linha[6]}</td>
+      <td><button onclick='addCarrinho(${JSON.stringify(linha)})'>➕</button></td>
     `;
-    html += '<table border="1" cellspacing="0" cellpadding="5" style="width:100%; border-collapse:collapse">';
-    html += '<thead><tr style="background:#00796b; color:white"><th>Data e Hora</th><th>Item</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Observações</th><th>Status</th></tr></thead>';
+    tb.appendChild(tr);
+  });
+}
 
-    for (const grupo in agrupado) {
-      html += `<tr><td colspan="8" style="font-weight:bold; background:#eee">${grupo}</td></tr>`;
-      agrupado[grupo].forEach(l => {
-        const data = new Date(l[0]).toLocaleString('pt-BR');
-        html += `<tr>
-          <td>${data}</td><td><strong>${l[1]}</strong></td><td>${l[3]}</td><td>${l[2]}</td>
-          <td>${l[4]}</td><td>${l[5]}</td><td>${l[6]}</td><td>${l[7]}</td>
-        </tr>`;
-      });
-    }
-    html += '</table>';
-    return html;
+function addCarrinho(linha){
+  carrinho.push({
+    dataHoraOriginal: linha[0],
+    item: linha[1],
+    unidade: linha[2],
+    quantidade: linha[3],
+    setor: linha[4],
+    solicitante: linha[5],
+    observacoes: linha[6],
+    empresa: "DELÍCIA GOURMET" // 🔹 sempre salva o nome da empresa
+  });
+  atualizarCarrinho();
+}
+
+function atualizarCarrinho(){
+  const tb = document.getElementById("tabelaCarrinho");
+  tb.innerHTML = "";
+  carrinho.forEach(it=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${it.item}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td>`;
+    tb.appendChild(tr);
+  });
+}
+
+/* Enviar carrinho */
+async function enviarCarrinho(){
+  if(carrinho.length===0){ alert("Carrinho vazio!"); return; }
+  const payload = { action:"registrar_requisicoes", empresa:"DELÍCIA GOURMET", itens:carrinho };
+  const res = await fetch(URL_CARRINHO,{
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify(payload)
+  });
+  const out = await res.json();
+  if(out.ok){
+    alert(`✅ ${out.count} itens salvos na planilha!`);
+    carrinho = [];
+    atualizarCarrinho();
+  }else{
+    alert("Erro: "+out.error);
   }
+}
 
-  function abrirModalAgrupar(origem) {
-    const modal = document.getElementById("modalAgrupar");
-    modal.dataset.origem = origem;
-    modal.style.display = "flex";
-  }
-  function confirmarAgrupamento() {
-    const opcao = document.getElementById("seletorAgrupamento").value;
-    const origem = document.getElementById("modalAgrupar").dataset.origem;
-    document.getElementById("modalAgrupar").style.display = "none";
-    const agrupado = agruparPor(opcao, listaFiltrada.length ? listaFiltrada.map(x => ({ linha: x.linha })) : requisicoes);
-    const html = gerarHTMLAgrupado(agrupado, opcao);
-    if (origem === "pdf") {
-      const container = document.createElement('div'); container.innerHTML = html;
-      // use html2pdf no seu projeto se desejar
-      const janela = window.open('', '_blank'); janela.document.write(html); janela.document.close(); // fallback simples
-    } else {
-      const janela = window.open('', '_blank'); janela.document.write(`<html><head><title>Impressão</title></head><body>${html}</body></html>`); janela.document.close(); janela.print();
-    }
-  }
-
-  function abrirModalAgruparWhatsApp(){ document.getElementById("modalAgruparWhatsApp").style.display = "flex"; }
-  function confirmarAgrupamentoWhatsApp(){
-    const criterio = document.getElementById("seletorAgrupamentoWhatsApp").value;
-    document.getElementById("modalAgruparWhatsApp").style.display = "none";
-    enviarWhatsApp(criterio);
-  }
-
-  function enviarWhatsApp(criterio='setor'){
-    const hoje = new Date(); const dataFormatada = hoje.toLocaleDateString('pt-BR');
-    const titulo = `**COMPRAS ${EMPRESA} - ${dataFormatada}**\n\n`;
-    const agrupado = {};
-    const fonte = listaFiltrada.length ? listaFiltrada : requisicoes;
-    fonte.forEach(({ linha }) => {
-      let chave = '';
-      if (criterio === 'setor') chave = linha[4];
-      else if (criterio === 'solicitante') chave = linha[5];
-      else if (criterio === 'status') {
-        const raw = linha[7].toLowerCase(); chave = raw === "processando" ? "PENDENTE" : raw.toUpperCase();
-      } else chave = 'Outro';
-      const item = linha[1], unidade = linha[2], quantidade = linha[3];
-      if (!agrupado[chave]) agrupado[chave] = [];
-      agrupado[chave].push({ item, quantidade, unidade });
-    });
-    let mensagem = titulo;
-    for (const grupo in agrupado) {
-      mensagem += `🛒 *${grupo}*\n`;
-      agrupado[grupo].forEach(({ item, quantidade, unidade }) => { mensagem += `- ${item} — ${quantidade} ${unidade}\n`; });
-      mensagem += `\n`;
-    }
-    const link = `https://wa.me/?text=${encodeURIComponent(mensagem)}`; window.open(link, '_blank');
-  }
-
-  /* ====== CARRINHO MODAL ====== */
-  function abrirCarrinho() {
-    document.getElementById('empresaTag').textContent = EMPRESA;
-    atualizarCarrinhoModal();
-    document.getElementById('modalCarrinho').style.display = 'flex';
-  }
-  function fecharCarrinho(){ document.getElementById('modalCarrinho').style.display = 'none'; }
-
-  function atualizarCarrinhoModal() {
-    const tbody = document.getElementById("tabelaCarrinhoModal");
-    tbody.innerHTML = "";
-    carrinhoCompras.forEach((it, index) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td style="border:1px solid #ccc; padding:6px;">${it.item}</td>
-        <td style="border:1px solid #ccc; padding:6px;">${it.quantidade}</td>
-        <td style="border:1px solid #ccc; padding:6px;">${it.unidade}</td>
-        <td style="border:1px solid #ccc; padding:6px;">${it.setor}</td>
-        <td style="border:1px solid #ccc; padding:6px;">${it.solicitante}</td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  /* ====== SALVAR CARRINHO NA PLANILHA DE REQUISIÇÕES ====== */
-  async function salvarCarrinhoNaPlanilha(){
-    if (!carrinhoCompras.length){
-      alert("Carrinho vazio.");
-      return;
-    }
-
-    // Monta payload para a PLANILHA DE DADOS (REQUISIÇÕES)
-    // Esperado no GAS de DADOS: action = "registrar_requisicoes"
-    const payload = {
-      action: "registrar_requisicoes",
-      empresa: EMPRESA,
-      itens: carrinhoCompras.map(it => ({
-        dataHoraOriginal: it.dataHoraOriginal || new Date().toISOString(),
-        item: it.item,
-        unidade: it.unidade,
-        quantidade: it.quantidade,
-        setor: it.setor,
-        solicitante: it.solicitante,
-        observacoes: it.observacoes || "",
-        status: it.novoStatus || "Comprar",
-        empresa: EMPRESA
-      }))
-    };
-
-    try{
-      const res = await fetch(URL_REQUISICOES_BASE, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      const text = await res.text();
-      let out; try { out = JSON.parse(text); } catch { alert("Resposta do GAS (não JSON):\n"+text); return; }
-
-      if (!out.ok){
-        alert("Erro ao salvar na planilha de REQUISIÇÕES: " + (out.error || "falha"));
-        return;
-      }
-
-      alert(`✅ ${payload.itens.length} item(ns) salvo(s) para ${EMPRESA}.`);
-      // opcional: limpar carrinho após salvar
-      // carrinhoCompras = [];
-      localStorage.setItem("carrinhoCompras", JSON.stringify(carrinhoCompras));
-      atualizarCarrinhoModal();
-      // recarrega tabela (se o GAS de dados já refletir imediatamente)
-      await carregarDados();
-    }catch(e){
-      alert("Falha ao enviar para a planilha de REQUISIÇÕES: " + e.message);
-    }
-  }
-
-  /* ====== MASSA (exemplo visual) ====== */
-  function concluirEmMassa(){
-    const pendentes = listaFiltrada
-      .map((item, idx) => ({ item, idx }))
-      .filter(({ item }) => {
-        const status = item.linha[7].toLowerCase();
-        return status === "processando" || status === "pendente";
-      });
-
-    if (!pendentes.length){ alert("Nenhuma requisição PENDENTE encontrada."); return; }
-
-    const ok = confirm(`Deseja marcar ${pendentes.length} requisições como ENTREGUES?`);
-    if (!ok) return;
-
-    pendentes.forEach(({ idx }) => {
-      const btns = document.querySelectorAll(`#tabelaRequisicoes tr:nth-child(${idx + 1}) .acoes button`);
-      btns.forEach(btn => { btn.disabled = true; btn.textContent = '✔️ ENTREGUE'; btn.style.backgroundColor = "#388e3c"; });
-    });
-  }
-
-  /* ====== START ====== */
-  carregarDados();
-  </script>
+carregarDados();
+</script>
 </body>
 </html>
