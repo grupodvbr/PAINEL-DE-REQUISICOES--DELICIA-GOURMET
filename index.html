@@ -9,6 +9,7 @@
       --cor-fundo:#f9fafb; --cor-texto:#111827; --cor-botao:#2563eb;
       --cor-botao-vermelho:#dc2626; --cor-cinza-claro:#f3f4f6; --cor-card:#fff;
     }
+    *{box-sizing:border-box;}
     body{margin:0;font-family:"Inter",Arial,sans-serif;background:var(--cor-fundo);color:var(--cor-texto);}
     h1{margin:0;padding:15px 0;font-size:1.6em;font-weight:700;text-align:center;}
     .header-flex{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--cor-card);border-bottom:1px solid #e5e7eb;}
@@ -65,36 +66,35 @@
   <div id="modalCarrinho"><div class="box">
     <h3>🛒 Itens no Carrinho</h3>
     <table><thead><tr>
-      <th>Item</th><th>Código</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th>
+      <th>Item</th><th>Código</th><th>Qtd</th><th>Unidade</th><th>Setor</th><th>Solicitante</th><th>Ação</th>
     </tr></thead><tbody id="tabelaCarrinhoModal"></tbody></table>
 
-    <br>
-    <button onclick="salvarCarrinhoNaPlanilha()" style="background:#2563eb;color:#fff;padding:10px 16px;border:none;border-radius:6px;cursor:pointer;">💾 Salvar na Planilha de Cotações</button>
-    <button onclick="fecharCarrinho()" style="margin-left:10px;">Fechar</button>
-  </div></div>
-
-  <!-- Modal Histórico -->
-  <div id="modalHistorico"><div class="box">
-    <h3 id="historicoTitulo">📈 Histórico</h3>
-    <table><thead><tr><th>Data</th><th>Fornecedor</th><th>Preço</th></tr></thead><tbody id="tabelaHistorico"></tbody></table>
-    <br><button onclick="fecharHistorico()">Fechar</button>
+    <div style="margin-top:20px;">
+      <button onclick="salvarCarrinhoNaPlanilha()" style="padding:10px 20px; background:#2563eb; color:#fff; border:none; border-radius:6px; cursor:pointer;">💾 Salvar na Planilha de Cotações</button>
+      <button onclick="fecharCarrinho()" style="padding:10px 20px; background:#6b7280; color:#fff; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
+    </div>
   </div></div>
 
 <script>
-const URL_DADOS = 'https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec';
-const URL_STATUS = 'https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec';
-const URL_CARRINHO = 'https://script.google.com/macros/s/AKfycbxezSErmLRUVoRUGIbkWictBySxqTFlocyjRQIm9ZybVHOctc7djGqfkI6TUTwu00Dt/exec';
+const EMPRESA = "DELÍCIA GOURMET";
 
-let EMPRESA = "DELÍCIA GOURMET";
+const URL_DADOS    = "https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec";
+const URL_STATUS   = "https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec";
+const URL_CARRINHO = "https://script.google.com/macros/s/AKfycbxezSErmLRUVoRUGIbkWictBySxqTFlocyjRQIm9ZybVHOctc7djGqfkI6TUTwu00Dt/exec"; // WebApp da planilha de cotações
+
 let carrinho=JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
 let requisicoes=[],listaFiltrada=[];
 
 function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
+
 async function carregarDados(){
-  const res=await fetch(URL_DADOS);const dados=await res.json();
+  const res=await fetch(URL_DADOS);
+  const dados=await res.json();
   requisicoes=dados.map((l,idx)=>({linha:l.map(c=>(c||'').toString().trim()),idx}));
-  listaFiltrada=[...requisicoes];renderizarTabela(listaFiltrada);
+  listaFiltrada=[...requisicoes];
+  renderizarTabela(listaFiltrada);
 }
+
 function renderizarTabela(lista){
   const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
   lista.forEach(({linha,idx})=>{
@@ -110,46 +110,53 @@ function renderizarTabela(lista){
     btnCarr.textContent=noCarr?'🛒':'➕';btnCarr.className='btn-carrinho'+(noCarr?' in':'');
     btnCarr.onclick=()=>addCarrinho(linha,btnCarr);tdA.appendChild(btnCarr);
     const btnNeg=document.createElement('button');btnNeg.textContent='❌';btnNeg.className='btn-neg';
-    tdA.appendChild(btnNeg);
+    btnNeg.onclick=()=>atualizarStatus(idx,'Negar');tdA.appendChild(btnNeg);
     tr.appendChild(tdA);tb.appendChild(tr);
   });
 }
+
 function addCarrinho(linha,btn){
-  const jaExiste = carrinho.some(c=>c.dataHoraOriginal===linha[0]&&c.item===linha[1]);
-  if(!jaExiste){
-    carrinho.push({
-      dataHoraOriginal:linha[0], item:linha[1], quantidade:linha[3], unidade:linha[2],
-      setor:linha[4], solicitante:linha[5], observacoes:linha[6], status:linha[7], empresa:EMPRESA
-    });
-    localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));
-    btn.textContent='🛒'; btn.className='btn-carrinho in';
-  }
+  carrinho.push({
+    dataHoraOriginal:linha[0],
+    item:linha[1],
+    quantidade:linha[3],
+    unidade:linha[2],
+    setor:linha[4],
+    solicitante:linha[5],
+    observacoes:linha[6]||'',
+    status:"Comprar"
+  });
+  localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));
   atualizarCarrinhoModal();
+  btn.textContent='🛒';btn.className='btn-carrinho in';
 }
+
 function atualizarCarrinhoModal(){
   const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
-  carrinho.forEach(it=>{
+  carrinho.forEach((it,idx)=>{
     const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${it.item}</td><td>${it.produtoCodigo||''}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td>`;
+    tr.innerHTML=`<td>${it.item}</td><td>${it.item}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
     tb.appendChild(tr);
   });
 }
+function removerDoCarrinho(i){carrinho.splice(i,1);localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));atualizarCarrinhoModal();}
 function abrirCarrinho(){atualizarCarrinhoModal();document.getElementById('modalCarrinho').style.display='flex';}
 function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
 
-/* 🔹 Envia todos os itens do carrinho para a planilha de cotações */
 async function salvarCarrinhoNaPlanilha(){
-  if(carrinho.length===0){ alert("Carrinho vazio!"); return; }
-  const payload = {action:"registrar_carrinho", empresa:EMPRESA, itens:carrinho};
-  const res = await fetch(URL_CARRINHO,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-  const out = await res.json();
-  if(out.ok){
+  try{
+    if(carrinho.length===0){alert("Carrinho vazio!");return;}
+    const payload={action:"registrar_carrinho",empresa:EMPRESA,itens:carrinho};
+    const res=await fetch(URL_CARRINHO,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(payload)
+    });
+    const out=await res.json();
+    if(!out.ok) throw new Error(out.error||"Falha ao salvar");
     alert(`✅ ${out.count} itens salvos na planilha de cotações!`);
-    carrinho=[]; localStorage.removeItem("carrinhoCompras");
-    atualizarCarrinhoModal(); fecharCarrinho();
-  } else {
-    alert("Erro: "+out.error);
-  }
+    carrinho=[];localStorage.removeItem("carrinhoCompras");atualizarCarrinhoModal();fecharCarrinho();
+  }catch(e){alert("Erro ao salvar: "+e.message);}
 }
 
 carregarDados();
