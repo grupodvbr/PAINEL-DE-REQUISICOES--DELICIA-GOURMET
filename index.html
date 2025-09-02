@@ -14,6 +14,7 @@
     h1{margin:0;padding:15px 0;font-size:1.6em;font-weight:700;text-align:center;}
     .header-flex{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;background:var(--cor-card);border-bottom:1px solid #e5e7eb;}
     .logo-area img{height:50px;max-width:180px;object-fit:contain;}
+    .botoes-acoes{display:flex;gap:8px}
     .botoes-acoes button{background:var(--cor-botao);color:#fff;border:none;padding:8px 14px;border-radius:6px;cursor:pointer;}
     .botoes-acoes button:hover{background:#1d4ed8;}
     .filtros{display:flex;flex-wrap:wrap;gap:10px;padding:15px 20px;background:var(--cor-cinza-claro);border-radius:8px;margin:15px;}
@@ -29,23 +30,37 @@
     .acoes .btn-carrinho{background:#6b7280;color:#fff;}
     .acoes .btn-carrinho.in{background:#16a34a;}
     .acoes .btn-neg{background:#dc2626;color:#fff;}
-    /* Modal */
-    #modalCarrinho,#modalHistorico,#modalLoading{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);justify-content:center;align-items:center;z-index:1000;}
+
+    /* Modais */
+    #modalCarrinho,#modalHistorico,#modalLoading,#modalLiberacoes{
+      display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);
+      justify-content:center;align-items:center;z-index:1000;
+    }
     .box{background:#fff;padding:20px;border-radius:10px;width:90vw;max-width:1000px;max-height:90vh;overflow:auto;}
     .box table{width:100%;border-collapse:collapse;margin-top:10px;}
     .box th,.box td{border:1px solid #d1d5db;padding:8px;text-align:left;}
     .box th{background:#f3f4f6;}
     .loading-box{background:#fff;padding:30px 40px;border-radius:10px;font-size:1.2em;font-weight:bold;}
+    .tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:.8em}
+    .tag-pendente{background:#fff7ed;border:1px solid #fdba74;color:#9a3412}
+    .tag-liberado{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+    .btn{padding:6px 10px;border:none;border-radius:6px;cursor:pointer}
+    .btn-ok{background:#10b981;color:#fff}
+    .btn-no{background:#ef4444;color:#fff}
+    .btn-gray{background:#6b7280;color:#fff}
   </style>
 </head>
 <body>
   <div class="header-flex">
     <div class="logo-area">
-      <!-- 🔹 Troque a URL da logo abaixo -->
+      <!-- 🔹 Troque a URL da sua logo -->
       <img src="https://static.wixstatic.com/media/d830b0_8cec50a98bbf4775814dbfa5386585e8~mv2.png" alt="Logo">
     </div>
     <h1>Painel de Requisições • DELÍCIA GOURMET</h1>
-    <div class="botoes-acoes"><button onclick="abrirCarrinho()">🛒 Carrinho</button></div>
+    <div class="botoes-acoes">
+      <button onclick="abrirLiberacoes()">🔓 Solicitações</button>
+      <button onclick="abrirCarrinho()">🛒 Carrinho</button>
+    </div>
   </div>
 
   <div class="filtros">
@@ -82,26 +97,57 @@
     </tr></thead><tbody id="tabelaCarrinhoModal"></tbody></table>
 
     <div style="margin-top:20px;">
-      <button onclick="salvarCarrinhoNaPlanilha()" style="padding:10px 20px; background:#2563eb; color:#fff; border:none; border-radius:6px; cursor:pointer;">💾 Salvar na Planilha de Cotações</button>
-      <button onclick="fecharCarrinho()" style="padding:10px 20px; background:#6b7280; color:#fff; border:none; border-radius:6px; cursor:pointer;">Fechar</button>
+      <button onclick="salvarCarrinhoNaPlanilha()" class="btn btn-ok">💾 Salvar na Planilha de Cotações</button>
+      <button onclick="fecharCarrinho()" class="btn btn-gray">Fechar</button>
     </div>
   </div></div>
 
   <!-- Modal Loading -->
   <div id="modalLoading"><div class="loading-box">⏳ Salvando na planilha...</div></div>
 
+  <!-- Modal Solicitações de Liberação -->
+  <div id="modalLiberacoes"><div class="box">
+    <h3>🔓 Solicitações de liberação</h3>
+    <p id="libInfo" style="margin:6px 0 10px;color:#6b7280">Carregando…</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Data/Hora</th>
+          <th>Fornecedor</th>
+          <th>Empresa</th>
+          <th>Painel</th>
+          <th>Status</th>
+          <th style="width:220px">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tbodyLiberacoes"></tbody>
+    </table>
+    <div style="margin-top:14px;text-align:right">
+      <button class="btn btn-gray" onclick="fecharLiberacoes()">Fechar</button>
+    </div>
+  </div></div>
+
 <script>
+/* ======== CONFIG ======== */
 const EMPRESA = "DELÍCIA GOURMET";
 
 const URL_DADOS    = "https://script.google.com/macros/s/AKfycbzjVWXyGuwLDEfqNwgJppU2Yvo3_r_L7wbD1-AXfd3lztOUlq5zbKTQ0QCP7IknVae4TA/exec";
 const URL_STATUS   = "https://script.google.com/macros/s/AKfycbxnuFAAJLiThcP99gpgk-EhHIJ2N2YOXjpi7jVROHq6ZqniAkcXlI2h8uj16oTQHsVWnQ/exec";
 const URL_CARRINHO = "https://script.google.com/macros/s/AKfycbxezSErmLRUVoRUGIbkWictBySxqTFlocyjRQIm9ZybVHOctc7djGqfkI6TUTwu00Dt/exec";
 
+/* GAS de COTAÇÕES onde estão as ações de liberação (listar_liberacoes/liberar_fornecedor/negar_liberacao) */
+const URL_COTACAO  = "https://script.google.com/macros/s/AKfycbxU-OxoBZbOAX0lgyUguaQirT4DkPk34Eiu2_-wWd9Vbk6VY86HGxklJypuji8wOSi2/exec";
+
+/* ======== ESTADO ======== */
 let carrinho=JSON.parse(localStorage.getItem("carrinhoCompras")||'[]');
 let requisicoes=[],listaFiltrada=[];
+let liberacoes=[];
 
-function toBRDateTime(iso){try{return new Date(iso).toLocaleString('pt-BR');}catch{return iso;}}
+/* ======== HELPERS ======== */
+function toBRDateTime(iso){ try{ return new Date(iso).toLocaleString('pt-BR'); }catch{return iso;} }
+function qs(id){return document.getElementById(id);}
 
+/* ======== DADOS / TABELA ======== */
 async function carregarDados(){
   const res=await fetch(URL_DADOS);
   const dados=await res.json();
@@ -112,7 +158,7 @@ async function carregarDados(){
 }
 
 function renderizarTabela(lista){
-  const tb=document.getElementById('tabelaRequisicoes');tb.innerHTML='';
+  const tb=qs('tabelaRequisicoes');tb.innerHTML='';
   lista.forEach(({linha,idx})=>{
     const tr=document.createElement('tr');
     [0,1,3,2,4,5,6,7].forEach(i=>{
@@ -147,8 +193,9 @@ function addCarrinho(linha,btn){
   btn.textContent='🛒';btn.className='btn-carrinho in';
 }
 
+/* ======== CARRINHO ======== */
 function atualizarCarrinhoModal(){
-  const tb=document.getElementById("tabelaCarrinhoModal");tb.innerHTML='';
+  const tb=qs("tabelaCarrinhoModal");tb.innerHTML='';
   carrinho.forEach((it,idx)=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td>${it.item}</td><td>${it.quantidade}</td><td>${it.unidade}</td><td>${it.setor}</td><td>${it.solicitante}</td><td><button onclick="removerDoCarrinho(${idx})">❌</button></td>`;
@@ -156,48 +203,45 @@ function atualizarCarrinhoModal(){
   });
 }
 function removerDoCarrinho(i){carrinho.splice(i,1);localStorage.setItem("carrinhoCompras",JSON.stringify(carrinho));atualizarCarrinhoModal();}
-function abrirCarrinho(){atualizarCarrinhoModal();document.getElementById('modalCarrinho').style.display='flex';}
-function fecharCarrinho(){document.getElementById('modalCarrinho').style.display='none';}
+function abrirCarrinho(){atualizarCarrinhoModal();qs('modalCarrinho').style.display='flex';}
+function fecharCarrinho(){qs('modalCarrinho').style.display='none';}
 
 async function salvarCarrinhoNaPlanilha(){
   try{
     if(carrinho.length===0){alert("Carrinho vazio!");return;}
-    document.getElementById('modalLoading').style.display='flex'; // mostra loading
+    qs('modalLoading').style.display='flex';
     const payload={action:"registrar_carrinho",empresa:EMPRESA,itens:carrinho};
-    const res=await fetch(URL_CARRINHO,{
-      method:"POST",
-      headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body:JSON.stringify(payload)
-    });
+    const res=await fetch(URL_CARRINHO,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
     const out=await res.json();
-    document.getElementById('modalLoading').style.display='none'; // esconde loading
+    qs('modalLoading').style.display='none';
     if(!out.ok) throw new Error(out.error||"Falha ao salvar");
     alert(`✅ ${out.count} itens salvos na planilha de cotações!`);
     carrinho=[];localStorage.removeItem("carrinhoCompras");atualizarCarrinhoModal();fecharCarrinho();
   }catch(e){
-    document.getElementById('modalLoading').style.display='none';
+    qs('modalLoading').style.display='none';
     alert("Erro ao salvar: "+e.message);
   }
 }
 
+/* ======== FILTROS ======== */
 function popularFiltros(){
   const solicitantes=new Set(),setores=new Set();
   requisicoes.forEach(r=>{solicitantes.add(r.linha[5]);setores.add(r.linha[4]);});
-  const selS=document.getElementById("filtroSolicitante");selS.innerHTML='<option value="">Todos</option>';
+  const selS=qs("filtroSolicitante");selS.innerHTML='<option value="">Todos</option>';
   solicitantes.forEach(s=>{if(s){let o=document.createElement("option");o.value=s.toLowerCase();o.textContent=s;selS.appendChild(o);}});
-  const selSet=document.getElementById("filtroSetor");selSet.innerHTML='<option value="">Todos</option>';
+  const selSet=qs("filtroSetor");selSet.innerHTML='<option value="">Todos</option>';
   setores.forEach(s=>{if(s){let o=document.createElement("option");o.value=s.toLowerCase();o.textContent=s;selSet.appendChild(o);}});
 }
 
 function filtrar(){
-  const inicio=document.getElementById("filtroDataInicio").value;
-  const fim=document.getElementById("filtroDataFim").value;
-  const horaIni=document.getElementById("filtroHoraInicio").value||"00:00";
-  const horaFim=document.getElementById("filtroHoraFim").value||"23:59";
-  const status=document.getElementById("filtroStatus").value.toLowerCase();
-  const solicit=document.getElementById("filtroSolicitante").value;
-  const setor=document.getElementById("filtroSetor").value;
-  const palavra=document.getElementById("filtroPalavra").value.toLowerCase();
+  const inicio=qs("filtroDataInicio").value;
+  const fim=qs("filtroDataFim").value;
+  const horaIni=qs("filtroHoraInicio").value||"00:00";
+  const horaFim=qs("filtroHoraFim").value||"23:59";
+  const status=qs("filtroStatus").value.toLowerCase();
+  const solicit=qs("filtroSolicitante").value;
+  const setor=qs("filtroSetor").value;
+  const palavra=qs("filtroPalavra").value.toLowerCase();
 
   listaFiltrada=requisicoes.filter(r=>{
     const l=r.linha;
@@ -213,6 +257,117 @@ function filtrar(){
   renderizarTabela(listaFiltrada);
 }
 
+/* ======== LIBERAÇÕES ======== */
+function abrirLiberacoes(){
+  qs('modalLiberacoes').style.display='flex';
+  carregarLiberacoes();
+}
+function fecharLiberacoes(){ qs('modalLiberacoes').style.display='none'; }
+
+async function carregarLiberacoes(){
+  qs('libInfo').textContent = 'Carregando…';
+  const tb = qs('tbodyLiberacoes'); tb.innerHTML = '';
+  try{
+    // 👇 ajuste o action se no seu GAS for outro nome
+    const url = `${URL_COTACAO}?action=listar_liberacoes&empresa=${encodeURIComponent(EMPRESA)}`;
+    const r = await fetch(url);
+    const j = await r.json();
+    if(!j.ok){ throw new Error(j.error||'Falha ao listar'); }
+    liberacoes = j.items || [];
+    if(liberacoes.length===0){
+      qs('libInfo').textContent = 'Não há solicitações pendentes.';
+      return;
+    }
+    qs('libInfo').textContent = `Encontradas ${liberacoes.length} solicitações`;
+    renderLiberacoes();
+  }catch(err){
+    qs('libInfo').textContent = 'Erro: ' + err.message;
+  }
+}
+
+function renderLiberacoes(){
+  const tb = qs('tbodyLiberacoes'); tb.innerHTML='';
+  liberacoes.forEach((it,idx)=>{
+    const statusTag = it.liberado ? '<span class="tag tag-liberado">LIBERADO</span>'
+                                  : '<span class="tag tag-pendente">PENDENTE</span>';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${toBRDateTime(it.timestamp || it.ts || new Date())}</td>
+      <td>${it.fornecedor || ''}</td>
+      <td>${it.empresa || ''}</td>
+      <td>${it.painel || ''}</td>
+      <td data-col="status">${statusTag}</td>
+      <td>
+        <button class="btn btn-ok" onclick="liberar(${idx})" ${it.liberado?'disabled':''}>Liberar 1h</button>
+        <button class="btn btn-no" onclick="negar(${idx})">Rejeitar</button>
+      </td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+async function liberar(idx){
+  const req = liberacoes[idx]; if(!req) return;
+  try{
+    const payload = {
+      action: 'liberar_fornecedor',                 // 👈 ajuste se necessário
+      empresa: req.empresa || EMPRESA,
+      fornecedor: req.fornecedor,
+      painel: req.painel || '',
+      minutos: 60
+    };
+    const r = await fetch(URL_COTACAO,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error||'Falha ao liberar');
+
+    liberacoes[idx].liberado = true;
+    renderLiberacoes();
+  }catch(err){
+    alert('Erro ao liberar: ' + err.message);
+  }
+}
+
+async function negar(idx){
+  const req = liberacoes[idx]; if(!req) return;
+  if(!confirm(`Rejeitar liberação para ${req.fornecedor}?`)) return;
+  try{
+    const payload = {
+      action: 'negar_liberacao',                    // 👈 ajuste se necessário
+      empresa: req.empresa || EMPRESA,
+      fornecedor: req.fornecedor,
+      painel: req.painel || ''
+    };
+    const r = await fetch(URL_COTACAO,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error||'Falha ao rejeitar');
+
+    liberacoes.splice(idx,1);
+    renderLiberacoes();
+    if(liberacoes.length===0) qs('libInfo').textContent = 'Não há solicitações pendentes.';
+  }catch(err){
+    alert('Erro ao rejeitar: ' + err.message);
+  }
+}
+
+/* ======== STATUS (negado no painel principal) ======== */
+async function atualizarStatus(idx, novoStatus){
+  const l = requisicoes[idx].linha;
+  const payload={action:'atualizar_status',empresa:EMPRESA,dataHoraOriginal:l[0],item:l[1],status:novoStatus};
+  try{
+    await fetch(URL_STATUS,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    alert("Status atualizado!");
+  }catch(e){ alert('Erro: '+e.message); }
+}
+
+/* ======== START ======== */
 carregarDados();
 </script>
 </body>
